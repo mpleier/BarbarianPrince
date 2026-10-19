@@ -1,0 +1,7 @@
+open_ended,roll,rolls,text
+False,1,[1],Poison needle inflicts one poisoned wound.
+False,2,[2],Burning acid explodes; roll one die for the number of wounds suffered.
+False,3,[3],Poison gas bursts. Roll one die for the number of poison wounds suffered.
+False,4,[4],"Plague dust inflicts a sickness. Roll one die and halve the result, rounding upward. You suffer these many wounds at the end of the day. You will continue to suffer the same number after every day, until you recover. To determine recovery, roll one die after the sickness wounds are inflicted. If this second roll is 4 or higher, you recover. Otherwise, sickness continues."
+False,5,[5],Flying spikes and knives explode toward you. Roll one die and add three (+3) for the number of wounds suffered.
+False,6,[6],"Trap malfunctions, no wounds suffered."

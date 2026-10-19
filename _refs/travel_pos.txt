@@ -1,0 +1,341 @@
+None	
+---PAGE---
+None	(R207 Travel Table )Tj
+None	( )Tj
+None	( )Tj
+None	(r230 Raft Travel Events )Tj
+None	[(Roll two di)6.8(ce )6(and refe)5.5(r to the app)5.5(rop)5.5(r)-2.1(iat)8.6(e)-.5( event se)5.5(ction. )]TJ
+None	(2 )Tj
+None	(e125 )Tj
+None	(3 e226 )Tj
+None	(4 )Tj
+None	(e018 )Tj
+None	(5 e129 )Tj
+None	(6 )Tj
+None	(e127 )Tj
+None	(7 e128 )Tj
+None	(8 )Tj
+None	(r232 )Tj
+None	(9 e051 )Tj
+None	(10 )Tj
+None	(e094 )Tj
+None	(11 e091 )Tj
+None	(12 )Tj
+None	(e126 )Tj
+None	( )Tj
+None	( )Tj
+None	[(r231 - r280 Travelling)5.5( Event References )]TJ
+None	[(Whe)5.3(n)-.7( the Tra)5.3(v)3(el Table \(r20)5.3(1\) or a)5.3(n)-.7( even)5.3(t referen)5.3(c)-3(e)5.3(s)-3( o)5.3(ne )]TJ
+None	[(of these n)5.4(u)-.6(mbe)5.4(r)-2.2(s, find the app)5.3(rop)5.4(r)-2.2(iat)8.5(e)-.6( numbe)5.4(r on )6(the list, roll )]TJ
+None	[(one die, an)5.1(d read a)5.1(c)-3.2(ro)5.1(ss to get )]TJ
+None	[(the appropriate eve)5.1(n)-.9(t se)5.1(ction. )]TJ
+None	( )Tj
+None	( )Tj
+None	[(r281 Speci)-7.7(al Travel Reference )]TJ
+None	[(Refer to the T)5.9(r)-2.4(avel Tabl)6.5(e \(r207\) a)5.2(nd roll one die.  Usin)5.2(g t)]TJ
+None	[(he approp)5.4(riate line for the terrai)6.7(n)]TJ
+None	[( type you occupy, read a)5(c)-3.3(ro)4.9(ss )]TJ
+None	[(to the Event References )6(colum)6.4(n)-1( listed )6(for that die rol)6.3(l).3(.  )]TJ
+None	(This will produce a Travel Event)Tj
+None	
+---PAGE---
+None	( Reference \(r231  r280\) used )Tj
+None	[(on the table a)5.4(bove.)]TJ
+None	[(Terrain )2904.2(ty)17.9(pe)-6( )1742.5(Lost )2083.8(Ev)11.9(ent )1077.8(1 )-6(2 )6(3 4 5 )6(6 )802.4(hunt )2059.9(fodde)6(r)]TJ
+None	(Farmland )Tj
+None	(10+ )Tj
+None	(8+ )Tj
+None	(e009 )Tj
+None	(r231 )Tj
+None	(r232 )Tj
+None	(r233 )Tj
+None	(r234 )Tj
+None	(r235 )Tj
+None	
+---PAGE---
+None	[(yes)-4.2( )]TJ
+None	[(yes)-4.2( )]TJ
+None	[(Coun)6.6(tr)-5.4(y)17.8(s)-.1(ide )]TJ
+None	[(9+ )-640.7(9+ )-431.1(r232 )-6(r236 )6(r237 r238 r239 )6(r240 )-227.6(yes )-467.1(yes )]TJ
+None	[(Fores)6.1(t )]TJ
+None	
+---PAGE---
+None	(8+ )Tj
+None	(9+ )Tj
+None	(r232 )Tj
+None	(r241 )Tj
+None	(r242 )Tj
+None	(r243 )Tj
+None	(r244 )Tj
+None	(r240 )Tj
+None	[(yes)-4.2( )]TJ
+None	[(yes)-4.2( )]TJ
+None	(Hills )Tj
+None	[(8+ )-359.3(10+ )-155.7(r232 )-6(r245 )6(r246 r247 r248 )6(r249 )-227.6(yes )-467.1(yes )]TJ
+None	
+---PAGE---
+None	(Mountains )Tj
+None	(7+ )Tj
+None	(9+ )Tj
+None	(r232 )Tj
+None	(r250 )Tj
+None	(r251 )Tj
+None	(r252 )Tj
+None	(r253 )Tj
+None	(r248 )Tj
+None	(no )Tj
+None	
+---PAGE---
+None	(no )Tj
+None	[(Sw)-32.9(a)-15(m)-5.4(p)-14.2( )]TJ
+None	[(5+ )-359.3(10+ )-155.7(r232 )-6(r254 )6(r255 r256 r257 )6(r258 )-227.6(yes )-688.6(no )]TJ
+None	[(Des)6.7(e).7(rt )]TJ
+None	(6+ )Tj
+None	(10+ )Tj
+None	(r259 )Tj
+None	(r260 )Tj
+None	(r261 )Tj
+None	(r262 )Tj
+None	(r263 )Tj
+None	(r264 )Tj
+None	
+---PAGE---
+None	(*no )Tj
+None	(*no )Tj
+None	[(Cros)5.7(s Riv)11.6(e)-.3(r )-6( )]TJ
+None	[(8+ )-359.3(10+ )-155.7(r232 )-6(r265 )6(r266 r267 r268 )6(r269 )-838.3(- )-1688.6(- )]TJ
+None	[(On Roa)5.4(d).2( )]TJ
+None	(never )Tj
+None	(9+ )Tj
+None	(r270 )Tj
+None	(r271 )Tj
+None	(r272 )Tj
+None	(r273 )Tj
+None	
+---PAGE---
+None	(r274 )Tj
+None	(r275 )Tj
+None	(- )Tj
+None	(- )Tj
+None	[(Airborn)6.1(e)-.7( )]TJ
+None	[(12+ )-83.8(10+ )-155.7(r276 )-6(r277 )6(r278 r279 r280 )6(r281 )-838.3(- )-1688.6(- )]TJ
+None	(Rafting )Tj
+None	(never )Tj
+None	(10+ )Tj
+None	[(See r23)5.8(0)-.2( )]TJ
+None	(- )Tj
+None	(- )Tj
+None	
+---PAGE---
+None	( )Tj
+None	( )Tj
+None	(Die roll )Tj
+None	[(Ref. numb)5.8(e)-1(r)5.6( )]TJ
+None	[(1 )-6(2 )6(3 4 5 )65.9(6 )]TJ
+None	(r231 )Tj
+None	(e018 )Tj
+None	(e018 )Tj
+None	(e022 )Tj
+None	(e022 )Tj
+None	(e023 )Tj
+None	(e130 )Tj
+None	[(r232 )-4083.8(e003 )-12(e004 )12(e005 e006 e007 )59.9(e008 )]TJ
+None	(r233 )Tj
+None	(e128 )Tj
+None	(e128 )Tj
+None	(e128 )Tj
+None	(e128 )Tj
+None	(e129 )Tj
+None	(e017 )Tj
+None	[(r234 )-4083.8(e049 )-12(e048 )12(e032 e081 e050 )59.9(e050 )]TJ
+None	(r235 )Tj
+None	(e078 )Tj
+None	(e078 )Tj
+None	(e079 )Tj
+None	(e079 )Tj
+None	(e009 )Tj
+None	(e009 )Tj
+None	[(r236 )-4083.8(e009 )-12(e009 )12(e050 e018 e022 )59.9(e023 )]TJ
+None	(r237 )Tj
+None	(e052 )Tj
+None	(e055 )Tj
+None	(e057 )Tj
+None	(e051 )Tj
+None	(e054 )Tj
+None	(e052 )Tj
+None	[(r238 )-4083.8(e077 )-12(e075 )12(e075 e075 e076 )59.9(e081 )]TJ
+None	(r239 )Tj
+None	(e044 )Tj
+None	(e046 )Tj
+None	(e067 )Tj
+None	(e064 )Tj
+None	(e068 )Tj
+None	(e069 )Tj
+None	[(r240 )-4083.8(e078 )-12(e078 )12(e078 e078 e079 )59.9(e079 )]TJ
+None	(r241 )Tj
+None	(e074 )Tj
+None	(e074 )Tj
+None	(e073 )Tj
+None	(e009 )Tj
+None	(e051 )Tj
+None	(e128 )Tj
+None	[(r242 )-4083.8(e071 )-12(e071 )12(e052 e082 e080 )59.9(e080 )]TJ
+None	(r243 )Tj
+None	(e083 )Tj
+None	(e083 )Tj
+None	(e084 )Tj
+None	(e084 )Tj
+None	(e076 )Tj
+None	(e075 )Tj
+None	[(r244 )-4083.8(e165 )-12(e166 )12(e065 e064 e087 )59.9(e087 )]TJ
+None	(r245 )Tj
+None	(e098 )Tj
+None	(e102 )Tj
+None	(e023 )Tj
+None	(e051 )Tj
+None	(e068 )Tj
+None	(e022 )Tj
+None	[(r246 )-4083.8(e028 )-12(e028 )12(e058 e070 e055 )59.9(e056 )]TJ
+None	(r247 )Tj
+None	(e076 )Tj
+None	(e076 )Tj
+None	(e076 )Tj
+None	(e075 )Tj
+None	(e128 )Tj
+None	(e128 )Tj
+None	[(r248 )-4083.8(e118 )-12(e052 )12(e059 e067 e066 )59.9(e064 )]TJ
+None	(r249 )Tj
+None	(e078 )Tj
+None	(e078 )Tj
+None	(e078 )Tj
+None	(e085 )Tj
+None	(e079 )Tj
+None	(e079 )Tj
+None	[(r250 )-4083.8(e099 )-12(e100 )12(e023 e068 e101 )59.9(e102 )]TJ
+None	(r251 )Tj
+None	(e028 )Tj
+None	(e028 )Tj
+None	(e058 )Tj
+None	(e055 )Tj
+None	(e052 )Tj
+None	(e054 )Tj
+None	[(r252 )-4083.8(e078 )-12(e078 )12(e079 e079 e088 )59.9(e065 )]TJ
+None	(r253 )Tj
+None	(e085 )Tj
+None	(e085 )Tj
+None	(e086 )Tj
+None	(e086 )Tj
+None	(e086 )Tj
+None	(e095 )Tj
+None	[(r254 )-4083.8(e022 )-12(e009 )12(e073 e051 e051 )59.9(e074 )]TJ
+None	(r255 )Tj
+None	(e034 )Tj
+None	(e082 )Tj
+None	(e164 )Tj
+None	(e052 )Tj
+None	(e057 )Tj
+None	(e098 )Tj
+None	[(r256 )-4083.8(e091 )-12(e091 )12(e094 e094 e092 )59.9(e092 )]TJ
+None	(r257 )Tj
+None	(e089 )Tj
+None	(e089 )Tj
+None	(e089 )Tj
+None	(e090 )Tj
+None	(e064 )Tj
+None	(e093 )Tj
+None	[(r258 )-4083.8(e078 )-12(e078 )12(e078 e095 e095 )59.9(e097 )]TJ
+None	(r259 )Tj
+None	(e022 )Tj
+None	(e129 )Tj
+None	(e128 )Tj
+None	(e051 )Tj
+None	(e023 )Tj
+None	(e068 )Tj
+None	[(r260 )-4083.8(e028 )-12(e082 )12(e055 e003 e004 )59.9(e028 )]TJ
+None	(r261 )Tj
+None	(e005 )Tj
+None	(e120 )Tj
+None	(e120 )Tj
+None	(e120 )Tj
+None	(e067 )Tj
+None	(e066 )Tj
+None	[(r262 )-4083.8(e034 )-12(e164 )12(e164 e091 e091 )59.9(e120 )]TJ
+None	(r263 )Tj
+None	(e064 )Tj
+None	(e064 )Tj
+None	(e121 )Tj
+None	(e121 )Tj
+None	(e121 )Tj
+None	(e093 )Tj
+None	[(r264 )-4083.8(e078 )-12(e078 )12(e078 e078 e096 )59.9(e096 )]TJ
+None	(r265 )Tj
+None	(e122 )Tj
+None	(e122 )Tj
+None	(e122 )Tj
+None	(e009 )Tj
+None	(e051 )Tj
+None	(e074 )Tj
+None	[(r266 )-4083.8(e123 )-12(e123 )12(e057 e057 e052 )59.9(e055 )]TJ
+None	(r267 )Tj
+None	(e094 )Tj
+None	(e094 )Tj
+None	(e091 )Tj
+None	(e091 )Tj
+None	(e075 )Tj
+None	(e084 )Tj
+None	[(r268 )-4083.8(e083 )-12(e076 )12(e077 e124 e124 )59.9(e124 )]TJ
+None	(r269 )Tj
+None	(e122 )Tj
+None	(e122 )Tj
+None	(e122 )Tj
+None	(e125 )Tj
+None	(e126 )Tj
+None	(e127 )Tj
+None	[(r270 )-4083.8(e018 )-12(e022 )12(e023 e073 e009 )59.9(e009 )]TJ
+None	(r271 )Tj
+None	(e050 )Tj
+None	(e051 )Tj
+None	(e051 )Tj
+None	(e051 )Tj
+None	(e003 )Tj
+None	(e003 )Tj
+None	[(r272 )-4083.8(e004 )-12(e004 )12(e005 e006 e006 )59.9(e008 )]TJ
+None	(r273 )Tj
+None	(e007 )Tj
+None	(e007 )Tj
+None	(e057 )Tj
+None	(e130 )Tj
+None	(e128 )Tj
+None	(e128 )Tj
+None	[(r274 )-4083.8(e049 )-12(e048 )12(e081 e128 e129 )59.9(e129 )]TJ
+None	(r275 )Tj
+None	(e078 )Tj
+None	(e078 )Tj
+None	(e079 )Tj
+None	(e079 )Tj
+None	(e128 )Tj
+None	(e129 )Tj
+None	[(r276 )-4083.8(e102 )-12(e102 )12(e103 e103 e104 )59.9(e104 )]TJ
+None	(r277 )Tj
+None	(e112 )Tj
+None	(e112 )Tj
+None	(e112 )Tj
+None	(e112 )Tj
+None	(e108 )Tj
+None	(e108 )Tj
+None	[(r278 )-4083.8(e106 )-12(e106 )12(e105 e105 e079 )59.9(e079 )]TJ
+None	(r279 )Tj
+None	(e107 )Tj
+None	(e109 )Tj
+None	(e077 )Tj
+None	(e101 )Tj
+None	(e110 )Tj
+None	(e111 )Tj
+None	[(r280 )-4083.8(e099 )-12(e098 )12(e100 e101 e064 )59.9(e065 )]TJ
+None	( )Tj
+None	( )Tj
+None	( )Tj
+None	( )Tj
+None	( )Tj
+None	
+---PAGE---

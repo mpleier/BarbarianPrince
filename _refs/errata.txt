@@ -1,0 +1,23 @@
+ INCLUDEPICTURE "http://www3.sympatico.ca/ccamfield/games/barbprnc.gif" \* MERGEFORMATINET 
+ INCLUDEPICTURE "http://www3.sympatico.ca/ccamfield/games/bptitle.gif" \* MERGEFORMATINET 
+r209 Dice roll results for '4' and '5' should be interchanged, dice roll result '9' should refer to e050, and dice roll result '11' should reference rule r218 for escape. 
+r210 Dice roll '12' porters have combat skill 1, endurance 2. 
+r212 Dice roll result '12' should be '12, 13' while dice roll result '13 (or higher)' should read '14 (or higher)' instead. 
+r215 In r215c, a dice roll result of '6' should reference e050, with two added (+2) to the die roll in that event. 
+r219 In the last paragraph of this rule, fourth line, the reference to combat r220 should be r306 instead. 
+r220 In strikes (r220c), when facing multiple opponents, a character can strike at only one each round, but can select which one to strike against. Example on the next page is wrong; the Dwarf should roll a '10' and with modifiers result in an '8' to inflict one wound. 
+e013 Raid result: Combat reference in second line should be r306. The fight against the family itself (if you get that far) should have a reference to r305 to set up the combat situation for that. 
+e016 Friendly Approach: Magician is combat skill 3, endurance 5 (in case he joins your party). 
+e018 Die roll result of '1' with 'fight' choce should lead to 'surprise r301.' Note that the die roll for desertion due to mark of Cain is made with just one die. 
+e032 Die roll result 'e-3041' should read '3-e041'. 
+e048 Introductory paragraph is completely wrong. It should read:
+You encounter a person trying to avoid local justice. He or she will join your party as an ally, but will desert whenever you encounter any Constables (unless your party elects to fight them, and kills them all) or whenever you enter any town, castle, or temple. Instead, you can immediately elect to fight the character encountered, see r300. Roll one die to see exactly who you meet: 
+e056 Second paragraph is misplaced; ignore it completely; this event is solely contained in the first paragraph. 
+e067 Die roll result 'e-3046' should read '3-e046'. 
+e076 In second paragraph, second line, reference to victim selection should be r341, not r143. 
+e085 If you fall and survive your wounds (second paragraph), roll one die to see if your party finds you. 
+e116 The eagle who joins is combat skill 4, endurance 3. 
+e121 All characters recover from sunstroke at the evening meal. 
+e137 Die roll result '4-e056' should be '4-e055'. 
+e155 Die roll result of '4', if you agree to make offerings, you only add two (+2) to die roll on r212; do not add three. 
+[Word file provided by David Bate]

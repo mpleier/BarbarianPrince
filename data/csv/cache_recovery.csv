@@ -1,0 +1,4 @@
+open_ended,roll,rolls,text
+False,"1,2,3,4","[1, 2, 3, 4]",Cache is found intact; you recover all items placed there.
+False,5,[5],"You are unable to find the cache, landmarks have disappeared, but you can try again in the future."
+False,6,[6],"You find the cache, but it has been looted, there is nothing there."

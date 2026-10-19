@@ -1,0 +1,12 @@
+open_ended,roll,rolls,text
+False,2,[2],You unwittingly give insult; see r309.
+False,3,[3],"You are forced into combat, unwillingly; see r330."
+False,4,[4],"Character(s) interested in loot, see r340."
+False,5,[5],"Character(s) attempt attack on you, see r306."
+False,6,[6],"Character(s) uninterested in you, see r325."
+False,7,[7],Character(s) reveal themselves gradually; you can either talk further (see r341) or let them pass (see r325).
+False,8,[8],Character(s) are for hire; see r333.
+False,9,[9],"Character(s) may be for hire, see r339."
+False,10,[10],"Character(s) may be sympathetic to your cause, see r337."
+False,11,[11],"Character(s) uninterested, but may be for hire, see r338."
+False,12,[12],"Character(s) aloof, but might consider joining you, see r336."

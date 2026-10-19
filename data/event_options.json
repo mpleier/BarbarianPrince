@@ -1,0 +1,2603 @@
+{
+ "e002": {
+  "title": "Mercenary Royal Guardsmen",
+  "columns": [
+   "negotiate",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r327"
+     },
+     {
+      "label": "attacked",
+      "ref": "r307"
+     },
+     {
+      "label": "surprise",
+      "ref": "r300"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "attack",
+      "ref": "r306"
+     },
+     {
+      "label": "surprise",
+      "ref": "r301"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r329"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "bribe to pass (15)",
+      "ref": "r323"
+     },
+     {
+      "label": "hide",
+      "ref": "r318"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "bribe to pass (25)",
+      "ref": "r323"
+     },
+     {
+      "label": "escape",
+      "ref": "r311"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "escape mtd",
+      "ref": "r312"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   }
+  ]
+ },
+ "e003": {
+  "title": "Swordsman",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "converse",
+      "ref": "r341"
+     },
+     {
+      "label": "escape mtd",
+      "ref": "r312"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "converse",
+      "ref": "r341"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "looter",
+      "ref": "r340"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "hireling",
+      "ref": "r339"
+     },
+     {
+      "label": "bribe (5)",
+      "ref": "r322"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "hireling",
+      "ref": "r333"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attacked",
+      "ref": "r307"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "bribe (10)",
+      "ref": "r332"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "* if your party has winged mounts and/or flying ability, you can use escape flying (r313) instead of rolling the die for the evade option.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e004": {
+  "title": "Mercenary Band",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "hide",
+      "ref": "r319"
+     },
+     {
+      "label": "surprise",
+      "ref": "r301"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "bribe to hire (20)",
+      "ref": "r332"
+     },
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "hirelings",
+      "ref": "r338"
+     },
+     {
+      "label": "pass",
+      "ref": "r329"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "hirelings",
+      "ref": "r339"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "looters",
+      "ref": "r340"
+     },
+     {
+      "label": "pass",
+      "ref": "r327"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "escape mtd",
+      "ref": "r312"
+     },
+     {
+      "label": "attack",
+      "ref": "r306"
+     },
+     {
+      "label": "* if your party has any mounts, add one (+1) to your die roll for this option, results higher than 6 are considered 6; if your party all have winged mounts and/or flying ability, you can use escape flying (r313) instead of rolling the die for the evade option.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e005": {
+  "title": "Amazons",
+  "columns": [
+   "plus",
+   "one",
+   "(+1).",
+   "All",
+   "are",
+   "combat",
+   "skill",
+   "6,",
+   "endurance",
+   "5,",
+   "wealth",
+   "4.",
+   "They",
+   "are",
+   "blood-sisters,",
+   "and",
+   "will",
+   "always",
+   "hire",
+   "out",
+   "together,",
+   "serve",
+   "together,",
+   "and",
+   "if",
+   "any",
+   "are",
+   "abandoned",
+   "or",
+   "left",
+   "behind",
+   "all",
+   "will",
+   "desert",
+   "you.",
+   "Your",
+   "options",
+   "are:",
+   "die",
+   "roll",
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "escape",
+      "ref": "r311"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "hirelings",
+      "ref": "r338"
+     },
+     {
+      "label": "escape",
+      "ref": "r314"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "hirelings",
+      "ref": "r339"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "looters",
+      "ref": "r340"
+     },
+     {
+      "label": "hide",
+      "ref": "r119"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r327"
+     },
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "battle",
+      "ref": "r330"
+     },
+     {
+      "label": "* if your party has mounts, you may use escape mounted (r312) instead of rolling the die when using the evade option.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e006": {
+  "title": "Dwarf",
+  "columns": [
+   ",",
+   "each",
+   "is",
+   "combat",
+   "skill",
+   "5,",
+   "endurance",
+   "6,",
+   "wealth",
+   "12.",
+   "6",
+   "Dwarf",
+   "is",
+   "leader",
+   "of",
+   "a",
+   "band,",
+   "see",
+   "e058",
+   "for",
+   "the",
+   "number",
+   "of",
+   "dwarves",
+   "in",
+   "it,",
+   "and",
+   "use",
+   "the",
+   "option",
+   "selected",
+   "to",
+   "resolve",
+   "the",
+   "event",
+   "in",
+   "that",
+   "section.",
+   "die",
+   "roll*",
+   "talk",
+   "",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "bribe (5)",
+      "ref": "r322"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "bribe to hire (10)",
+      "ref": "r322"
+     },
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "looter",
+      "ref": "r340"
+     },
+     {
+      "label": "escape",
+      "ref": "r314"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "hirelings",
+      "ref": "r339"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "hirelings",
+      "ref": "r333"
+     },
+     {
+      "label": "escape",
+      "ref": "r311"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   }
+  ]
+ },
+ "e007": {
+  "title": "Elf",
+  "columns": [
+   "",
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "hide",
+      "ref": "r318"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape",
+      "ref": "r314"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "escapee",
+      "ref": "r335"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "plead comrades",
+      "ref": "r336"
+     },
+     {
+      "label": "pass",
+      "ref": "r326"
+     },
+     {
+      "label": "battle",
+      "ref": "r330"
+     }
+    ]
+   }
+  ]
+ },
+ "e018": {
+  "title": "Priest",
+  "columns": [
+   "talk",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "plead comrade",
+      "ref": "r336"
+     },
+     {
+      "label": "surprise",
+      "ref": "r301"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "plead comrade",
+      "ref": "r336"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "plead comrade",
+      "ref": "r337"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attack",
+      "ref": "r306"
+     },
+     {
+      "label": "Note: if you do fight the Priest in combat, and kill him, roll one die. If a 5 or 6 results, he casts upon you the \"mark of Cain\". You must immediately roll one die once for each follower in your party. Any time the roll is greater than your wit & wiles the follower will immediately desert you. In addition, all Monks and Priests in the future will recognize the mark, and will not join your party. You can never attempt an audience (r211) with the high priest of any temple marked on the map, but may with high priests of any secret unmarked temples that you find.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e019": {
+  "title": "Hermit Monk",
+  "columns": [
+   "talk",
+   "Avoid",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "*plead comrades",
+      "ref": "r336"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "*plead comrades",
+      "ref": "r336"
+     },
+     {
+      "label": "pass",
+      "ref": "r326"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "surprised",
+      "ref": "r310"
+     },
+     {
+      "label": "attacked",
+      "ref": "r307"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "**monk",
+      "ref": "e022"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "* unless a Priest or Monk is with your party, reduce your wit & wiles by one (-1) temporarily when resolving these events, hermit monks listen poorly. ** monk is not what he seemed, see this event for what you really encountered, select a new option, and resolve the event accordingly.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e020": {
+  "title": "Travelling Monk",
+  "columns": [
+   "Talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "pass",
+      "ref": "r326"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "plead comrades",
+      "ref": "r336"
+     },
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "plead comrades",
+      "ref": "r337"
+     },
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r309"
+     },
+     {
+      "label": "escape",
+      "ref": "r311"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   }
+  ]
+ },
+ "e021": {
+  "title": "Warrior Monks",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "surprise",
+      "ref": "r301"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r329"
+     },
+     {
+      "label": "hide",
+      "ref": "r319"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "bribe to pass (10)",
+      "ref": "r323"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "bribe (10)",
+      "ref": "r324"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "roll again pass",
+      "ref": "r329"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "* if your party has mounts, and the warrior monks do not, you may use escape mounted",
+      "ref": "r312"
+     },
+     {
+      "label": "instead of rolling the die for the evade option; if your party has winged mounts, you may escape flying",
+      "ref": "r313"
+     },
+     {
+      "label": "instead of rolling the die for the evade option, if you wish.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e023": {
+  "title": "Wizard",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "bribe-pass (5)",
+      "ref": "r321"
+     },
+     {
+      "label": "see",
+      "ref": "e024"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "see",
+      "ref": "e024"
+     },
+     {
+      "label": "escape",
+      "ref": "r314"
+     },
+     {
+      "label": "see",
+      "ref": "e024"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "escape",
+      "ref": "r313"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "ally",
+      "ref": "r334"
+     },
+     {
+      "label": "see",
+      "ref": "e024"
+     },
+     {
+      "label": "attacked",
+      "ref": "r307"
+     },
+     {
+      "label": "* if the wizard joins your party, see also e025. Wizard Fireballs: if you get into combat (r220) with the wizard, he may strike at your party with fireballs, instead of making a normal strike. Before each strike by the wizard, roll one die. If the result is 5 or 6, he strikes with a fireball spell. When the spell strikes, roll one die, that is the number of wounds each character in your party suffers, including yourself. If the wizard has any wounds, he will automatically escape when the fireball strikes. Otherwise, he will remain and allow the battle to continue.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e050": {
+  "title": "Local Constabulary",
+  "columns": [
+   "if",
+   "you",
+   "have",
+   "visited",
+   "the",
+   "nearest",
+   "town,",
+   "castle,",
+   "or",
+   "temple",
+   "before",
+   "and",
+   "did",
+   "not",
+   "leave",
+   "it",
+   "by",
+   "an",
+   "escape",
+   "(r218).",
+   "If",
+   "you",
+   "escaped,",
+   "you",
+   "cannot",
+   "add",
+   "two",
+   "because",
+   "you",
+   "are",
+   "undoubtedly",
+   "a",
+   "\"wanted\"",
+   "man.",
+   "If",
+   "you",
+   "have",
+   "never",
+   "visited",
+   "the",
+   "nearest",
+   "town/",
+   "castle/temple",
+   "before,",
+   "you",
+   "can",
+   "add",
+   "one",
+   "(+1)",
+   "to",
+   "the",
+   "die",
+   "roll.",
+   "die",
+   "roll",
+   "Negotiate",
+   "",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "hide",
+      "ref": "r320"
+     },
+     {
+      "label": "attacked",
+      "ref": "r307"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "bribe-pass (10)",
+      "ref": "r322"
+     },
+     {
+      "label": "escape",
+      "ref": "r311"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "bribe-pass (15)",
+      "ref": "r323"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r329"
+     },
+     {
+      "label": "hider318 attacked",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "attacked",
+      "ref": "r305"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   }
+  ]
+ },
+ "e058": {
+  "title": "Band of Dwarves",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape",
+      "ref": "r311"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "bribe-join (30)",
+      "ref": "r331"
+     },
+     {
+      "label": "escape",
+      "ref": "r314"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "bribe-hire (10)",
+      "ref": "r332"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "hirelings",
+      "ref": "r339"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "hide",
+      "ref": "r319"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "* if your party has any mounts, you can use mounted escape",
+      "ref": "r312"
+     },
+     {
+      "label": "instead of rolling the die if you select the evade option. Following: if you follow the dwarves, after follow movement (r219) roll one die. If the result equals or exceeds your wit & wiles the dwarves discover you and attack, striking first in combat (r220). If they don't discover you, roll one die to see where they end the day: 1-Dwarf Mines see e059; 2.3.4.5,6-Campsite see e053.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e071": {
+  "title": "Elven Band",
+  "columns": [
+   "talk",
+   "evade",
+   "fight",
+   "0",
+   "follow",
+   "e072",
+   "passr325",
+   "surprise",
+   "r301"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape-fly",
+      "ref": "r313"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "hide",
+      "ref": "r318"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "hide",
+      "ref": "r320"
+     },
+     {
+      "label": "attacked",
+      "ref": "r307"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "follow",
+      "ref": "e072"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r309"
+     },
+     {
+      "label": "surprised",
+      "ref": "r309"
+     },
+     {
+      "label": "surprised",
+      "ref": "r310"
+     }
+    ]
+   }
+  ]
+ },
+ "e081": {
+  "title": "Mounted Patrol",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape-mid",
+      "ref": "r312"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r327"
+     },
+     {
+      "label": "escape-mtd",
+      "ref": "r312"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "bribe-pass (10)",
+      "ref": "r322"
+     },
+     {
+      "label": "escape",
+      "ref": "r314"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "bribe-pass (8)",
+      "ref": "r324"
+     },
+     {
+      "label": "hide",
+      "ref": "r318"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "* if you have any winged mounts or ability to fly, you may use a flying escape",
+      "ref": "r313"
+     },
+     {
+      "label": "instead of rolling the die to resolve the evade option.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e098": {
+  "title": "Dragon",
+  "columns": [
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "escape flying",
+      "ref": "r313"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "hide",
+      "ref": "r318"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "hide",
+      "ref": "r320"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "surprised",
+      "ref": "r309"
+     },
+     {
+      "label": "Note: if you kill the Dragon, the Dragon's eye is greatly valued by high priests of the temples throughout the land, and may be of assistance in gaining an audience. Carrying the Dragon's eye counts as one load for transport purposes (r206).",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e099": {
+  "title": "Roc",
+  "columns": [
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "escape flying",
+      "ref": "r313"
+     },
+     {
+      "label": "surprise",
+      "ref": "r301"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "escape flying",
+      "ref": "r313"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "hide",
+      "ref": "r319"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "attack",
+      "ref": "r305"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "Note: if you kill the Roc, you can cut off its beak and transport it as one load (r206). Count Drogat of Drogat Castle especially prizes this item, and it may help you gain an audience with him. In addition, the beak can be sold to any merchant, or in any town, castle, or temple whenever you buy food. The beak is worth 35 gold.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e100": {
+  "title": "Griffon",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape-fly",
+      "ref": "r313"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "plead comrades",
+      "ref": "r337"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r307"
+     },
+     {
+      "label": "hide",
+      "ref": "r318"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised i309 attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "Note: if you kill the Griffon, you can remove its claws and carry them as an extra possession. They are especially valued by Lady Aeravir of Aeravir Castle, and may help you gain an audience with her.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e101": {
+  "title": "Harpy",
+  "columns": [
+   "talk",
+   "Evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape-fly",
+      "ref": "r313"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "*pass",
+      "ref": "r329"
+     },
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "looter",
+      "ref": "r340"
+     },
+     {
+      "label": "pass",
+      "ref": "r326"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "looter",
+      "ref": "r340"
+     },
+     {
+      "label": "pass",
+      "ref": "r327"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "attack",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r310"
+     },
+     {
+      "label": "pass",
+      "ref": "r329"
+     },
+     {
+      "label": "surprised",
+      "ref": "r309"
+     },
+     {
+      "label": "If the Harpy joins your party, she has her own wings, and can travel airborne without a winged mount if desired. She also counts as travelling on a normal mount because the wings allow her to make long \"airlifted\" hops as well.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e112": {
+  "title": "Meet Eagle Clan",
+  "columns": [
+   "evade",
+   "follow",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "ambush",
+      "ref": "e113"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r325"
+     },
+     {
+      "label": "hunt",
+      "ref": "e114"
+     },
+     {
+      "label": "attacked",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r326"
+     },
+     {
+      "label": "hunt",
+      "ref": "e114"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r326"
+     },
+     {
+      "label": "lair",
+      "ref": "e115"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "conversation",
+      "ref": "r341"
+     },
+     {
+      "label": "help",
+      "ref": "e116"
+     },
+     {
+      "label": "surprised",
+      "ref": "r308"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "allies",
+      "ref": "e117"
+     },
+     {
+      "label": "surprised",
+      "ref": "r309"
+     },
+     {
+      "label": "*if you select follow, see",
+      "ref": "r319"
+     },
+     {
+      "label": "for procedure for a follow move today, and then consult the event listed. If you elect to follow, you must abandon all members of your party without winged mounts or ability to fly.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e118": {
+  "title": "Giant",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "escape-fly",
+      "ref": "r313"
+     },
+     {
+      "label": "surprise",
+      "ref": "r301"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "plead comrades",
+      "ref": "r337"
+     },
+     {
+      "label": "escape-mid",
+      "ref": "r312"
+     },
+     {
+      "label": "surprise",
+      "ref": "r302"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "looter",
+      "ref": "r340"
+     },
+     {
+      "label": "hide",
+      "ref": "r316"
+     },
+     {
+      "label": "attack",
+      "ref": "r304"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r328"
+     },
+     {
+      "label": "hide",
+      "ref": "r317"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "hide",
+      "ref": "r319"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "surprised",
+      "ref": "r308"
+     },
+     {
+      "label": "hide",
+      "ref": "r320"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "If the giant joins your party, he is too big to be carried on any mount, so you can't use mounted travel (r204) while he is with your party. In addition, he eats double the normal amount of food (r215) each day.",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ },
+ "e130": {
+  "title": "Meet a High Lord",
+  "columns": [
+   "talk",
+   "evade",
+   "fight"
+  ],
+  "rows": [
+   {
+    "roll": 1,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r327"
+     },
+     {
+      "label": "escape-mtd",
+      "ref": "r312"
+     },
+     {
+      "label": "surprise",
+      "ref": "r303"
+     }
+    ]
+   },
+   {
+    "roll": 2,
+    "cells": [
+     {
+      "label": "pass",
+      "ref": "r329"
+     },
+     {
+      "label": "escape",
+      "ref": "r314"
+     },
+     {
+      "label": "attack",
+      "ref": "r305"
+     }
+    ]
+   },
+   {
+    "roll": 3,
+    "cells": [
+     {
+      "label": "*arrested",
+      "ref": "e060"
+     },
+     {
+      "label": "escape",
+      "ref": "r315"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 4,
+    "cells": [
+     {
+      "label": "**audience hide",
+      "ref": "r317"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     }
+    ]
+   },
+   {
+    "roll": 5,
+    "cells": [
+     {
+      "label": "***inquiry",
+      "ref": "r342"
+     },
+     {
+      "label": "hide",
+      "ref": "r319"
+     },
+     {
+      "label": "attacked",
+      "ref": "r307"
+     }
+    ]
+   },
+   {
+    "roll": 6,
+    "cells": [
+     {
+      "label": "attacked",
+      "ref": "r307"
+     },
+     {
+      "label": "attacked",
+      "ref": "r306"
+     },
+     {
+      "label": "surprised",
+      "ref": "r309"
+     },
+     {
+      "label": "*If arrested, you are jailed at the Lord's residence, which is either the appropriate castle, nearest temple for the High Priest, or nearest town for Mayor. Advance time by one day, to represent time spent reaching jail (which may be by a magical means, if the distance was long). **If you achieve an audience with Baron Huldra, roll one die: 1,2-nothing; 3,4-e150; 5-e151, 6-e152; if you gain an audience with Count Drogat see e161; if you gain an audience with Lady Aeravir see e160; if you gain an audience with the High Priest see e155; if you gain an audience with a Town Mayor see e156. ***Any inquiry results that normally allow hiring a character instead permit you to bribe the bodyguards with 10 gold for an audience. If you pay this, see **Audience notes above. If you don't, nothing happens, event ends. +If you fight\" and kill all the guards, the Lord must automatically grant you an **Audience (see above). However, you must still suffer any adverse results from the audience (presumably due to additional guards in the area, magic protection or powers of the Lord, etc.). Alternately, instead of an audience, you can rob the Lord, who is wealth 100. However, if you rob Baron Huldra, Count Drogat, or Lady Aeravir you can never enter the castle hex where they rule .",
+      "ref": null
+     }
+    ]
+   }
+  ]
+ }
+}

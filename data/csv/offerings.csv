@@ -1,0 +1,13 @@
+open_ended,roll,rolls,text
+False,2,[2],"You commit a magnificent error in the rites, the entire temple becomes impure and abandoned, no longer functions as a temple for the rest of the game. You are arrested and sentenced to death, e061."
+False,3,[3],"Good Omens, but no special result."
+False,4,[4],"Bad Omens, you are travelling under a curse. Roll one die for each of your followers, any result except a ""1"" means they believe the omens and immediately desert you. You cannot seek to hire any followers (r210) in this hex for the rest of the game."
+False,5,[5],"High Priest insulted by your northern manners, arrested e060."
+False,6,[6],"Good Omens, you get free food (r215) and lodging (r217) tonight."
+False,7,[7],"Favourable Omens for further worship, if you try this Offerings action again tomorrow, you can add one (+1) to your dice roll. Otherwise no effect."
+False,8,[8],"Gods favour your questions, priests assign a monk to your party. The monk has combat skill 2, endurance 3, serves as a guide when leaving this or any adjacent hex only."
+False,9,[9],"Special omen and riddle provides a clue to treasures, see e147."
+False,10,[10],"Fall in love with priestess (see r229). You immediately escape (r218) with her and can never return to this hex. She is combat skill 2, endurance 4, and has wealth 100 in temple treasures she has stolen!"
+False,11,[11],The High Priest requires an audience with you; see e155.
+False,"12,13","[12, 13]","High Priest spends afternoon talking with you, provides you with final clues to some secret information, roll one die: 1,2-e144; 3,4-e145; 5,6-e146. Alternately, instead of the secret information, you can use his influence in attempting Offerings again tomorrow, and add three (+3) to your dice roll here."
+True,14+,[14],"Gods declare your cause a religious crusade, and the Staff of Command is passed into your hands. If you bring this possession to any hex north of the Tragoth River you will command instant obedience throughout the Northlands, regain your throne and win the game. In the meantime you are given a pair of warrior monks (combat skill 5, endurance 6) with mounts to join your party and help you return northward."

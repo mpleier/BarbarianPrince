@@ -1,0 +1,12 @@
+open_ended,roll,rolls,text
+False,2,[2],A hired assassin surprises you into combat (r220) and always strikes at you personally.
+False,3,[3],"Bandits, who may surprise you, see r308."
+False,4,[4],"Arrogant and surly, the conversation turns into an argument, r305."
+False,5,[5],"Character(s) needs 10 gold now, r331; if they join, they will leave your party in a next town, castle or temple you enter in any event."
+False,6,[6],"Character(s) ask for 5 gold now and employment, see r332."
+False,7,[7],"Character(s) willing to hire as henchmen, see r333."
+False,8,[8],"Character(s) looking for fun and profit, see r338."
+False,9,[9],"Character(s) fugitive from local justice, see r335."
+False,10,[10],"Character(s) down on luck, looking for a turn in fortunes, see r336."
+False,11,[11],"Character(s) obviously plundering mercenaries, see r340."
+False,12,[12],Character(s) discover a common cause with you; see r334.

@@ -1,0 +1,15 @@
+key,value
+game_length_days,70
+gold_needed_to_win,500
+prince,"{""name"": ""Cal Arath"", ""combat_skill"": 8, ""endurance"": 9, ""wealth_code"": 2, ""wit_and_wiles"": ""1d6 (1 counts as 2)""}"
+travel_speed,"{""foot"": 1, ""mounted"": 2, ""winged"": 3}"
+transport,"{""food_unit_loads"": 1, ""gold_per_load"": 100, ""person_loads"": 20, ""foot_capacity"": 10, ""mount_capacity"": 30}"
+food,"{""unit_per_man_day"": 1, ""mount_units"": 2, ""no_water_multiplier"": 2, ""purchase_price"": 1, ""meal_price"": 1}"
+lodging,"{""room_cost"": 1, ""people_per_room"": 2, ""stable_cost"": 1}"
+escape_directions,"{""1"": ""N"", ""2"": ""NE"", ""3"": ""SE"", ""4"": ""S"", ""5"": ""SW"", ""6"": ""NW""}"
+combat_modifiers,"[{""modifier"": 2, ""condition"": ""target wounds >= half endurance""}, {""modifier"": -1, ""condition"": ""striker has one or more wounds""}, {""modifier"": -1, ""condition"": ""striker wounds >= half endurance""}]"
+wounds,"{""serious"": ""wounds >= ceil(endurance/2)"", ""unconscious"": ""wounds == endurance - 1"", ""death"": ""wounds >= endurance""}"
+rout_roll,6
+escape_roll,4
+desertion_roll,4
+raft_speed,"{""downriver"": 3, ""upriver"": 2}"

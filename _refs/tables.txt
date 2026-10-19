@@ -1,0 +1,8 @@
+Roll two dice and refer to the appropriate event section.
+r231 - r280 Travelling Event References
+When the Travel Table (r201) or an event references one of these numbers, find the appropriate number on the list, roll one die, and read across to get the appropriate event section.
+Refer to the Travel Table (r207) and roll one die.  Using the appropriate line for the terrain type you occupy, read across to the 
+ column listed for that die roll.  This will produce a Travel Event Reference (r231 
+ r280) used on the table above.
+[Word file provided by David Bate]
+Microsoft Office Word Document

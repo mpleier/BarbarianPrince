@@ -1,0 +1,219 @@
+> '` bjbj{P{P 1 : : !
+g N N N N R R R R *R l D BU BU BU BU BU V V V el gl gl gl gl gl gl $ *n h p l V V " V V V l N N BU BU { l X X X V N 8 BU BU el X V el X X Y Y BU 6U b%{ R W Y Z \ l 0 l Y q [X : q Y q Y V V X V V V V V l l X V V V l V V V V dK R R N N N N N N R207 Travel Table
+r230 Raft Travel Events
+Roll two dice and refer to the appropriate event section.
+2 e125 3 e226 4 e018 5 e129 6 e127 7 e128 8 r232 9 e051 10 e094 11 e091 12 e126
+r231 - r280 Travelling Event References
+When the Travel Table (r201) or an event references one of these numbers, find the appropriate number on the list, roll one die, and read across to get the appropriate event section.
+r281 Special Travel Reference
+Refer to the Travel Table (r207) and roll one die. Using the appropriate line for the terrain type you occupy, read across to the Event References column listed for that die roll. This will produce a Travel Event Reference (r231 r280) used on the table above.
+Die roll Ref. number 1 2 3 4 5 6 r231 e018 e018 e022 e022 e023 e130 r232 e003 e004 e005 e006 e007 e008 r233 e128 e128 e128 e128 e129 e017 r234 e049 e048 e032 e081 e050 e050 r235 e078 e078 e079 e079 e009 e009 r236 e009 e009 e050 e018 e022 e023 r237 e052 e055 e057 e051 e054 e052 r238 e077 e075 e075 e075 e076 e081 r239 e044 e046 e067 e064 e068 e069 r240 e078 e078 e078 e078 e079 e079 r241 e074 e074 e073 e009 e051 e128 r242 e071 e071 e052 e082 e080 e080 r243 e083 e083 e084 e084 e076 e075 r244 e165 e166 e065 e064 e087 e087 r245 e098 e102 e023 e051 e068 e022 r246 e028 e028 e058 e070 e055 e056 r247 e076 e076 e076 e075 e128 e128 r248 e118 e052 e059 e067 e066 e064 r249 e078 e078 e078 e085 e079 e079 r250 e099 e100 e023 e068 e101 e102 r251 e028 e028 e058 e055 e052 e054 r252 e078 e078 e079 e079 e088 e065 r253 e085 e085 e086 e086 e086 e095 r254 e022 e009 e073 e051 e051 e074 r255 e034 e082 e164 e052 e057 e098 r256 e091 e091 e094 e094 e092 e092 r257 e089 e089 e089 e090 e064 e093 r258 e078 e078 e078 e095 e095 e097 r259 e022 e129 e128 e051 e023 e068 r260 e028 e082 e055 e003 e004 e028 r261 e005 e120 e120 e120 e067 e066 r262 e034 e164 e164 e091 e091 e120 r263 e064 e064 e121 e121 e121 e093 r264 e078 e078 e078 e078 e096 e096 r265 e122 e122 e122 e009 e051 e074 r266 e123 e123 e057 e057 e052 e055 r267 e094 e094 e091 e091 e075 e084 r268 e083 e076 e077 e124 e124 e124 r269 e122 e122 e122 e125 e126 e127 r270 e018 e022 e023 e073 e009 e009 r271 e050 e051 e051 e051 e003 e003 r272 e004 e004 e005 e006 e006 e008 r273 e007 e007 e057 e130 e128 e128 r274 e049 e048 e081 e128 e129 e129 r275 e078 e078 e079 e079 e128 e129 r276 e102 e102 e103 e103 e104 e104 r277 e112 e112 e112 e112 e108 e108 r278 e106 e106 e105 e105 e079 e079 r279 e107 e109 e077 e101 e110 e111 r280 e099 e098 e100 e101 e064 e065
+[Word file provided by David Bate]
+Terrain type Lost Event 1 2 3 4 5 6 hunt fodder Farmland 10+ 8+ e009 r231 r232 r233 r234 r235 yes yes Countryside 9+ 9+ r232 r236 r237 r238 r239 r240 yes yes Forest 8+ 9+ r232 r241 r242 r243 r244 r240 yes yes Hills 8+ 10+ r232 r245 r246 r247 r248 r249 yes yes Mountains 7+ 9+ r232 r250 r251 r252 r253 r248 no no Swamp 5+ 10+ r232 r254 r255 r256 r257 r258 yes no Desert 6+ 10+ r259 r260 r261 r262 r263 r264 *no *no Cross River 8+ 10+ r232 r265 r266 r267 r268 r269 - - On Road never 9+ r270 r271 r272 r273 r274 r275 - - Airborne 12+ 10+ r276 r277 r278 r279 r280 r281 - - Rafting never 10+ See r230 - -
+-
+! . [ b ) 4 : ? ^ e h q z z z z z z z z z z z z # h / B* CJ OJ QJ mH ph sH # h / B* CJ OJ QJ mH ph sH h / 5 B* CJ OJ QJ ph
+h / CJ h / 5 OJ QJ \ ^J h / 5 CJ OJ QJ h / 5 6 CJ OJ QJ h / CJ OJ QJ
+h / 5 CJ h / h / 5 OJ QJ j h / U , - g i n o q v Y kd $ $ If 0 L e a p $ $ If a$ $
+$ If a$ x 1$ 7$
+! v w y ~ [ Y kd $ $ If 0 L e a p $ $ If a$ ? kd $ $ If 0 L e a [ Y kd $ $ If 0 L e a p $ $ If a$ ? kd $ $ If 0 L e a [ Y kd $ $ If 0 L e a p $ $ If a$ ? kd $ $ If 0 L e a [ Y kd $ $ If 0 L e a p $ $ If a$ ? kd $ $ If 0 L e a [ V V V V V 1$ 7$ Y kd $ $ If 0 L e a p $ $ If a$ ? kd $ $ If 0 L e a
+? kd $ $ If 0 ) a $ $ If a$ 1$ 7$
+a V V V V V V V $ $ If a$ kd $ $ If | X$ ) a kd $ $ If | X$ ) F a p F % * / 4 9 : ? V kd $ $ If | X$ ) a $ $ If a$ ? D I N S X ] $ $ If a$ ] ^ kd $ $ If | X$ ) F a p F ^ c h m r w | V kd"
+$ $ If | X$ ) a $ $ If a$ $ $ If a$ kd
+$ $ If | X$ ) F a p F V kd) $ $ If | X$ ) a $ $ If a$ $ $ If a$ kd $ $ If | X$ ) F a p F V kd0 $ $ If | X$ ) a $ $ If a$ ! & + 0 5 $ $ If a$ 5 6 kd $ $ If | X$ ) F a p F 6 ; @ E J O T Y Z _ V kd7 $ $ If | X$ ) a $ $ If a$ _ d i n s x } $ $ If a$ } ~ kd $ $ If | X$ ) F a p F ~ V kd> $ $ If | X$ ) a $ $ If a$ $ $ If a$ kd $ $ If | X$ ) F a p F V kdE $ $ If | X$ ) a $ $ If a$
+$ $ If a$
+kd $ $ If | X$ ) F a p F
+"
+'
+,
+1
+2
+7
+V kdL $ $ If | X$ ) a $ $ If a$ 7
+<
+A
+F
+K
+P
+U
+$ $ If a$ U
+V
+kd $ $ If | X$ ) F a p F V
+[
+`
+e
+j
+o
+t
+y
+z
+V kdS $ $ If | X$ ) a $ $ If a$
+$ $ If a$
+kd $ $ If | X$ ) F a p F
+V kdZ $ $ If | X$ ) a $ $ If a$
+$ $ If a$
+kd $ $ If | X$ ) F a p F
+V kda $ $ If | X$ ) a $ $ If a$ # ( - $ $ If a$ - . kd $ $ If | X$ ) F a p F . 3 8 = B G L Q R W V kdh $ $ If | X$ ) a $ $ If a$ W \ a f k p u $ $ If a$ u v kd $ $ If | X$ ) F a p F v { V kdo $ $ If | X$ ) a $ $ If a$ $ $ If a$ kd!! $ $ If | X$ ) F a p F V kdv" $ $ If | X$ ) a $ $ If a$ $ $ If a$ kd(# $ $ If | X$ ) F a p F $ ) * / V kd}$ $ $ If | X$ ) a $ $ If a$ / 4 9 > C H M $ $ If a$ M N kd/% $ $ If | X$ ) F a p F N S X ] b g l q r w V kd & $ $ If | X$ ) a $ $ If a$ w | $ $ If a$ kd6' $ $ If | X$ ) F a p F V kd ( $ $ If | X$ ) a $ $ If a$ $ $ If a$ kd=) $ $ If | X$ ) F a p F V kd * $ $ If | X$ ) a $ $ If a$ % $ $ If a$ % & kdD+ $ $ If | X$ ) F a p F & + 0 5 : ? D I J O V kd , $ $ If | X$ ) a $ $ If a$ O T Y ^ c h m $ $ If a$ m n kdK- $ $ If | X$ ) F a p F n s x } V kd . $ $ If | X$ ) a $ $ If a$ $ $ If a$ kdR/ $ $ If | X$ ) F a p F V kd 0 $ $ If | X$ ) a $ $ If a$ $ $ If a$ kdY1 $ $ If | X$ ) F a p F
+! " ' V kd 2 $ $ If | X$ ) a $ $ If a$ ' , 1 6 ; @ E $ $ If a$ E F kd`3 $ $ If | X$ ) F a p F F K P U Z _ d i j o V kd 4 $ $ If | X$ ) a $ $ If a$ o t y ~ $ $ If a$ kdg5 $ $ If | X$ ) F a p F V kd 6 $ $ If | X$ ) a $ $ If a$ $ $ If a$ kdn7 $ $ If | X$ ) F a p F V T kd 8 $ $ If | X$ ) a $ $ If a$ ! . 3 9 ; = ? A C E J Q $ $ 1$ 7$ If a$ $ If $ a$ Q R kdu9 $ $ If T "
+| j V C / " " , , , , a T R [ _ b g l q v { Ff < $ $ 1$ 7$ If a$ $ 1$ 7$ If kd ? $ $ If T "
+| j V C / " " , , , , a T
+! % ) Ff B $ $ 1$ 7$ If a$ $ 1$ 7$ If ) * kd E $ $ If T "
+| j V C / " " , , , , a T * 4 7 : ? D I N S X [ ^ _ e h l q v { Ff*I $ $ 1$ 7$ If a$ $ 1$ 7$ If kd L $ $ If T "
+| j V C / " " , , , , a T FfUO $ $ 1$ 7$ If a$ $ 1$ 7$ If kd/R $ $ If T "
+| j V C / " " , , , , a T
+- 1 ; ? C a e n h / h / CJ OJ QJ mH sH # h / B* CJ OJ QJ mH ph sH # hLLv B* CJ OJ QJ mH ph sH # h / B* CJ OJ QJ mH ph sH h / 5 B* CJ OJ QJ ph hLLv 5 B* CJ OJ QJ ph # ( - / 1 2 ; ? C H M R W \ a c e Ff U $ $ 1$ 7$ If a$ $ 1$ 7$ If e f kdZX $ $ If T "
+| j V C / " " , , , , a T f n t x $ $ 1$ 7$ If a$ $ 1$ 7$ If ' % % kd Y $ $ If T "
+/ " " < a p < T $ a$ / 1 h ;0 / =! " # $ % $ $ If !v h 5 5 #v #v :V , 5 5 4 a p d $ $ If !v h 5 5 #v #v :V , 5 5 4 a $ $ If !v h 5 5 #v #v :V , 5 5 4 a p d $ $ If !v h 5 5 #v #v :V , 5 5 4 a $ $ If !v h 5 5 #v #v :V , 5 5 4 a p d $ $ If !v h 5 5 #v #v :V , 5 5 4 a $ $ If !v h 5 5 #v #v :V , 5 5 4 a p d $ $ If !v h 5 5 #v #v :V , 5 5 4 a $ $ If !v h 5 5 #v #v :V , 5 5 4 a p d $ $ If !v h 5 5 #v #v :V , 5 5 4 a $ $ If !v h 5 5 #v #v :V , 5 5 4 a p ^ $ $ If !v h 5 5 #v #v :V 5 5 4 a $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V , 5 5 5 5 5 / 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a S $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V F 5 5 5 5 5 4 a p F $ $ If !v h 5 5 5 5 5 5 5 #v #v #v #v #v :V 5 5 5 5 5 4 a 7 $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V , 5 " 5 5 5 5 5 5 5 5 5
+5
+/ 4 T $ $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V n , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 p n T kd : $ $ If T "
+| j V C / " " n , , , , a p n T ) $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 T $ $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V n , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 p n T kd @ $ $ If T "
+| j V C / " " n , , , , a p n T ) $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 T $ $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V n , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 p n T kd G $ $ If T "
+| j V C / " " n , , , , a p n T ) $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 T $ $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V n , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 p n T kd/M $ $ If T "
+| j V C / " " n , , , , a p n T ) $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 T $ $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V n , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 p n T kdZS $ $ If T "
+| j V C / " " n , , , , a p n T ) $ $ If !v h 5 " 5 5 5 5 5 5 5 5 5
+5
+#v " #v #v #v #v #v #v #v #v #v
+#v
+:V , 5 " 5 5 5 5 5 5 5 5 5
+5
+4 T H $ $ If !v h 5 " 5 5 5 5 5 #v " #v #v #v #v #v :V < , 5 " 5 5 5 5 5 4 p < T \ @ \ N o r m a l 1$
+*$ 7$ 5$ 3$ B* OJ QJ CJ mH sH PJ CJ X @ X H e a d i n g 1
+& F ( $ 1$ 7$ B* OJ QJ 5 5 D A D D e f a u l t P a r a g r a p h F o n t V i@ V T a b l e N o r m a l :V 4 4
+l a ( k@ ( N o L i s t : O : N u m b e r i n g S y m b o l s J O J W W - D e f a u l t P a r a g r a p h F o n t 6 B@ 6 B o d y T e x t
+x J O J H e a d i n g
+x $ OJ QJ CJ PJ CJ < O 2 < T a b l e C o n t e n t s $ L O1 B L
+T a b l e H e a d i n g $ $ a$ 6 5 6 5 8 O R 8 F r a m e c o n t e n t s ^ O b ^ F R 1 d 1$ 7$
+*$ 5$ 3$ B* OJ QJ CJ mH sH PJ CJ f f g - g i n o q v w y ~ % * / 4 9 : ? D I N S X ] ^ c h m r w | ! & + 0 5 6 ; @ E J O T Y Z _ d i n s x } ~
+" ' , 1 2 7 < A F K P U V [ ` e j o t y z
+# ( - . 3 8 = B G L Q R W \ a f k p u v { $ ) * / 4 9 > C H M N S X ] b g l q r w | % & + 0 5 : ? D I J O T Y ^ c h m n s x }
+! " ' , 1 6 ; @ E F K P U Z _ d i j o t y ~ !
+.
+3
+9
+;
+=
+?
+A
+C
+E
+J
+Q
+R
+[
+_
+b
+g
+l
+q
+v
+{
+! % ) * 4 7 : ? D I N S X [ ^ _ e h l q v { # ( - / 1 2 ; ? C H M R W \ a c e f n t x 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 i v
+? ] ^ 5 6 _ } ~
+7
+U
+V
+- . W u v / M N w % & O m n ' E F o Q R ) * e f ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h j k l m n
+8 @ 2 (
+6 3 "
+N
+s * ) 8 - !
+[
+b
+: ? h q ? C a e , !
+[
+^
+_
+a
+: > h k l p ? B a e 3 g !
+LLv / g i n o q v w y ~ % * / 4 9 : ? D I N S X ] ^ c h m r w | ! & + 0 5 6 ; @ E J O T Y Z _ d i n s x } ~
+" ' , 1 2 7 < A F K P U V [ ` e j o t y z
+# ( - . 3 8 = B G L Q R W \ a f k p u v { $ ) * / 4 9 > C H M N S X ] b g l q r w | % & + 0 5 : ? D I J O T Y ^ c h m n s x }
+! " ' , 1 6 ; @ E F K P U Z _ d i j o t y ~ !
+.
+3
+9
+;
+=
+?
+A
+C
+E
+J
+Q
+R
+[
+_
+b
+g
+l
+q
+v
+{
+! % ) * 4 7 : ? D I N S X [ ^ _ e h l q v { # ( - / 1 2 ; ? C H M R W \ a c e f n t x @ ? P @ U n k n o w n G : Ax T i m e s N e w R o m a n 5 S y m b o l 3& : Cx A r i a l A& A l b a n y A r i a l K H G M i n c h o L i g h t J B h Q Q ! 24
+2 HP ? LLv 2 T r a v e l T a b l e S T A F F O R D S H I R E C O U N T Y C O U N C I L C r a i g Oh +' 0 ( 4
+T ` l
+x Travel Table STAFFORDSHIRE COUNTY COUNCIL Normal.dot Craig 2 Microsoft Office Word @ F # @ ^V+ @ N! { @ N! { . +, 0 h p
+Dionysus Software
+'
+Travel Table Title
+! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h i j k l m n o q r s t u v w x y z { | } ~ R o o t E n t r y F %{ D a t a
+p Z 1 T a b l e &q W o r d D o c u m e n t 1 S u m m a r y I n f o r m a t i o n ( D o c u m e n t S u m m a r y I n f o r m a t i o n 8 C o m p O b j q
+F Microsoft Office Word Document
+MSWordDoc Word.Document.8 9 q

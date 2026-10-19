@@ -1,0 +1,1957 @@
+{
+ "travel_table": [
+  {
+   "terrain": "Farmland",
+   "lost": "10+",
+   "event_threshold": "8+",
+   "event_refs": [
+    "e009",
+    "r231",
+    "r232",
+    "r233",
+    "r234",
+    "r235"
+   ],
+   "hunt": "yes",
+   "fodder": "yes"
+  },
+  {
+   "terrain": "Countryside",
+   "lost": "9+",
+   "event_threshold": "9+",
+   "event_refs": [
+    "r232",
+    "r236",
+    "r237",
+    "r238",
+    "r239",
+    "r240"
+   ],
+   "hunt": "yes",
+   "fodder": "yes"
+  },
+  {
+   "terrain": "Forest",
+   "lost": "8+",
+   "event_threshold": "9+",
+   "event_refs": [
+    "r232",
+    "r241",
+    "r242",
+    "r243",
+    "r244",
+    "r240"
+   ],
+   "hunt": "yes",
+   "fodder": "yes"
+  },
+  {
+   "terrain": "Hills",
+   "lost": "8+",
+   "event_threshold": "10+",
+   "event_refs": [
+    "r232",
+    "r245",
+    "r246",
+    "r247",
+    "r248",
+    "r249"
+   ],
+   "hunt": "yes",
+   "fodder": "yes"
+  },
+  {
+   "terrain": "Mountains",
+   "lost": "7+",
+   "event_threshold": "9+",
+   "event_refs": [
+    "r232",
+    "r250",
+    "r251",
+    "r252",
+    "r253",
+    "r248"
+   ],
+   "hunt": "no",
+   "fodder": "no"
+  },
+  {
+   "terrain": "Swamp",
+   "lost": "5+",
+   "event_threshold": "10+",
+   "event_refs": [
+    "r232",
+    "r254",
+    "r255",
+    "r256",
+    "r257",
+    "r258"
+   ],
+   "hunt": "yes",
+   "fodder": "no"
+  },
+  {
+   "terrain": "Desert",
+   "lost": "6+",
+   "event_threshold": "10+",
+   "event_refs": [
+    "r259",
+    "r260",
+    "r261",
+    "r262",
+    "r263",
+    "r264"
+   ],
+   "hunt": "*no",
+   "fodder": "*no"
+  },
+  {
+   "terrain": "Cross River",
+   "lost": "8+",
+   "event_threshold": "10+",
+   "event_refs": [
+    "r232",
+    "r265",
+    "r266",
+    "r267",
+    "r268",
+    "r269"
+   ],
+   "hunt": "-",
+   "fodder": "-"
+  },
+  {
+   "terrain": "On Road",
+   "lost": "never",
+   "event_threshold": "9+",
+   "event_refs": [
+    "r270",
+    "r271",
+    "r272",
+    "r273",
+    "r274",
+    "r275"
+   ],
+   "hunt": "-",
+   "fodder": "-"
+  },
+  {
+   "terrain": "Airborne",
+   "lost": "12+",
+   "event_threshold": "10+",
+   "event_refs": [
+    "r276",
+    "r277",
+    "r278",
+    "r279",
+    "r280",
+    "r281"
+   ],
+   "hunt": "-",
+   "fodder": "-"
+  },
+  {
+   "terrain": "Rafting",
+   "lost": "never",
+   "event_threshold": "10+",
+   "event_refs": [
+    "r230",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-"
+   ],
+   "hunt": "-",
+   "fodder": "-"
+  }
+ ],
+ "raft_travel_events": {
+  "2": "e125",
+  "3": "e226",
+  "4": "e018",
+  "5": "e129",
+  "6": "e127",
+  "7": "e128",
+  "8": "r232",
+  "9": "e051",
+  "10": "e094",
+  "11": "e091",
+  "12": "e126"
+ },
+ "travel_event_refs": {
+  "r231": [
+   "e018",
+   "e018",
+   "e022",
+   "e022",
+   "e023",
+   "e130"
+  ],
+  "r232": [
+   "e003",
+   "e004",
+   "e005",
+   "e006",
+   "e007",
+   "e008"
+  ],
+  "r233": [
+   "e128",
+   "e128",
+   "e128",
+   "e128",
+   "e129",
+   "e017"
+  ],
+  "r234": [
+   "e049",
+   "e048",
+   "e032",
+   "e081",
+   "e050",
+   "e050"
+  ],
+  "r235": [
+   "e078",
+   "e078",
+   "e079",
+   "e079",
+   "e009",
+   "e009"
+  ],
+  "r236": [
+   "e009",
+   "e009",
+   "e050",
+   "e018",
+   "e022",
+   "e023"
+  ],
+  "r237": [
+   "e052",
+   "e055",
+   "e057",
+   "e051",
+   "e054",
+   "e052"
+  ],
+  "r238": [
+   "e077",
+   "e075",
+   "e075",
+   "e075",
+   "e076",
+   "e081"
+  ],
+  "r239": [
+   "e044",
+   "e046",
+   "e067",
+   "e064",
+   "e068",
+   "e069"
+  ],
+  "r240": [
+   "e078",
+   "e078",
+   "e078",
+   "e078",
+   "e079",
+   "e079"
+  ],
+  "r241": [
+   "e074",
+   "e074",
+   "e073",
+   "e009",
+   "e051",
+   "e128"
+  ],
+  "r242": [
+   "e071",
+   "e071",
+   "e052",
+   "e082",
+   "e080",
+   "e080"
+  ],
+  "r243": [
+   "e083",
+   "e083",
+   "e084",
+   "e084",
+   "e076",
+   "e075"
+  ],
+  "r244": [
+   "e165",
+   "e166",
+   "e065",
+   "e064",
+   "e087",
+   "e087"
+  ],
+  "r245": [
+   "e098",
+   "e102",
+   "e023",
+   "e051",
+   "e068",
+   "e022"
+  ],
+  "r246": [
+   "e028",
+   "e028",
+   "e058",
+   "e070",
+   "e055",
+   "e056"
+  ],
+  "r247": [
+   "e076",
+   "e076",
+   "e076",
+   "e075",
+   "e128",
+   "e128"
+  ],
+  "r248": [
+   "e118",
+   "e052",
+   "e059",
+   "e067",
+   "e066",
+   "e064"
+  ],
+  "r249": [
+   "e078",
+   "e078",
+   "e078",
+   "e085",
+   "e079",
+   "e079"
+  ],
+  "r250": [
+   "e099",
+   "e100",
+   "e023",
+   "e068",
+   "e101",
+   "e102"
+  ],
+  "r251": [
+   "e028",
+   "e028",
+   "e058",
+   "e055",
+   "e052",
+   "e054"
+  ],
+  "r252": [
+   "e078",
+   "e078",
+   "e079",
+   "e079",
+   "e088",
+   "e065"
+  ],
+  "r253": [
+   "e085",
+   "e085",
+   "e086",
+   "e086",
+   "e086",
+   "e095"
+  ],
+  "r254": [
+   "e022",
+   "e009",
+   "e073",
+   "e051",
+   "e051",
+   "e074"
+  ],
+  "r255": [
+   "e034",
+   "e082",
+   "e164",
+   "e052",
+   "e057",
+   "e098"
+  ],
+  "r256": [
+   "e091",
+   "e091",
+   "e094",
+   "e094",
+   "e092",
+   "e092"
+  ],
+  "r257": [
+   "e089",
+   "e089",
+   "e089",
+   "e090",
+   "e064",
+   "e093"
+  ],
+  "r258": [
+   "e078",
+   "e078",
+   "e078",
+   "e095",
+   "e095",
+   "e097"
+  ],
+  "r259": [
+   "e022",
+   "e129",
+   "e128",
+   "e051",
+   "e023",
+   "e068"
+  ],
+  "r260": [
+   "e028",
+   "e082",
+   "e055",
+   "e003",
+   "e004",
+   "e028"
+  ],
+  "r261": [
+   "e005",
+   "e120",
+   "e120",
+   "e120",
+   "e067",
+   "e066"
+  ],
+  "r262": [
+   "e034",
+   "e164",
+   "e164",
+   "e091",
+   "e091",
+   "e120"
+  ],
+  "r263": [
+   "e064",
+   "e064",
+   "e121",
+   "e121",
+   "e121",
+   "e093"
+  ],
+  "r264": [
+   "e078",
+   "e078",
+   "e078",
+   "e078",
+   "e096",
+   "e096"
+  ],
+  "r265": [
+   "e122",
+   "e122",
+   "e122",
+   "e009",
+   "e051",
+   "e074"
+  ],
+  "r266": [
+   "e123",
+   "e123",
+   "e057",
+   "e057",
+   "e052",
+   "e055"
+  ],
+  "r267": [
+   "e094",
+   "e094",
+   "e091",
+   "e091",
+   "e075",
+   "e084"
+  ],
+  "r268": [
+   "e083",
+   "e076",
+   "e077",
+   "e124",
+   "e124",
+   "e124"
+  ],
+  "r269": [
+   "e122",
+   "e122",
+   "e122",
+   "e125",
+   "e126",
+   "e127"
+  ],
+  "r270": [
+   "e018",
+   "e022",
+   "e023",
+   "e073",
+   "e009",
+   "e009"
+  ],
+  "r271": [
+   "e050",
+   "e051",
+   "e051",
+   "e051",
+   "e003",
+   "e003"
+  ],
+  "r272": [
+   "e004",
+   "e004",
+   "e005",
+   "e006",
+   "e006",
+   "e008"
+  ],
+  "r273": [
+   "e007",
+   "e007",
+   "e057",
+   "e130",
+   "e128",
+   "e128"
+  ],
+  "r274": [
+   "e049",
+   "e048",
+   "e081",
+   "e128",
+   "e129",
+   "e129"
+  ],
+  "r275": [
+   "e078",
+   "e078",
+   "e079",
+   "e079",
+   "e128",
+   "e129"
+  ],
+  "r276": [
+   "e102",
+   "e102",
+   "e103",
+   "e103",
+   "e104",
+   "e104"
+  ],
+  "r277": [
+   "e112",
+   "e112",
+   "e112",
+   "e112",
+   "e108",
+   "e108"
+  ],
+  "r278": [
+   "e106",
+   "e106",
+   "e105",
+   "e105",
+   "e079",
+   "e079"
+  ],
+  "r279": [
+   "e107",
+   "e109",
+   "e077",
+   "e101",
+   "e110",
+   "e111"
+  ],
+  "r280": [
+   "e099",
+   "e098",
+   "e100",
+   "e101",
+   "e064",
+   "e065"
+  ]
+ },
+ "special_travel_reference": "Refer to the Travel Table (r207) and roll one die. Using the appropriate line for the terrain type you occupy, read across to the Event References column listed for that die roll. This will produce a Travel Event Reference (r231 r280) used on the table above. Die roll Ref. number 1 2 3 4 5 6 r231 e018 e018 e022 e022 e023 e130 r232 e003 e004 e005 e006 e007 e008 r233 e128 e128 e128 e128 e129 e017 r234 e049 e048 e032 e081 e050 e050 r235 e078 e078 e079 e079 e009 e009 r236 e009 e009 e050 e018 e022 e023 r237 e052 e055 e057 e051 e054 e052 r238 e077 e075 e075 e075 e076 e081 r239 e044 e046 e067 e064 e068 e069 r240 e078 e078 e078 e078 e079 e079 r241 e074 e074 e073 e009 e051 e128 r242 e071 e071 e052 e082 e080 e080 r243 e083 e083 e084 e084 e076 e075 r244 e165 e166 e065 e064 e087 e087 r245 e098 e102 e023 e051 e068 e022 r246 e028 e028 e058 e070 e055 e056 r247 e076 e076 e076 e075 e128 e128 r248 e118 e052 e059 e067 e066 e064 r249 e078 e078 e078 e085 e079 e079 r250 e099 e100 e023 e068 e101 e102 r251 e028 e028 e058 e055 e052 e054 r252 e078 e078 e079 e079 e088 e065 r253 e085 e085 e086 e086 e086 e095 r254 e022 e009 e073 e051 e051 e074 r255 e034 e082 e164 e052 e057 e098 r256 e091 e091 e094 e094 e092 e092 r257 e089 e089 e089 e090 e064 e093 r258 e078 e078 e078 e095 e095 e097 r259 e022 e129 e128 e051 e023 e068 r260 e028 e082 e055 e003 e004 e028 r261 e005 e120 e120 e120 e067 e066 r262 e034 e164 e164 e091 e091 e120 r263 e064 e064 e121 e121 e121 e093 r264 e078 e078 e078 e078 e096 e096 r265 e122 e122 e122 e009 e051 e074 r266 e123 e123 e057 e057 e052 e055 r267 e094 e094 e091 e091 e075 e084 r268 e083 e076 e077 e124 e124 e124 r269 e122 e122 e122 e125 e126 e127 r270 e018 e022 e023 e073 e009 e009 r271 e050 e051 e051 e051 e003 e003 r272 e004 e004 e005 e006 e006 e008 r273 e007 e007 e057 e130 e128 e128 r274 e049 e048 e081 e128 e129 e129 r275 e078 e078 e079 e079 e128 e129 r276 e102 e102 e103 e103 e104 e104 r277 e112 e112 e112 e112 e108 e108 r278 e106 e106 e105 e105 e079 e079 r279 e107 e109 e077 e101 e110 e111 r280 e099 e098 e100 e101 e064 e065",
+ "combat_table": {
+  "-1": 1,
+  "3": 1,
+  "5": 1,
+  "8": 1,
+  "11": 1,
+  "10": 2,
+  "12": 2,
+  "13": 2,
+  "17": 2,
+  "14": 3,
+  "16": 5,
+  "18": 5,
+  "19": 5,
+  "20": 6
+ },
+ "treasure_table": [
+  {
+   "code": 0,
+   "results": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "note": "Character has no gold or possessions"
+  },
+  {
+   "code": 1,
+   "results": [
+    "0",
+    "0",
+    "1",
+    "1",
+    "2",
+    "2"
+   ]
+  },
+  {
+   "code": 2,
+   "results": [
+    "0",
+    "1",
+    "2",
+    "2",
+    "3",
+    "4"
+   ]
+  },
+  {
+   "code": 4,
+   "results": [
+    "2",
+    "3",
+    "4",
+    "4",
+    "5",
+    "6"
+   ]
+  },
+  {
+   "code": 5,
+   "results": [
+    "2",
+    "3+A",
+    "4",
+    "6+A",
+    "7",
+    "8+A"
+   ]
+  },
+  {
+   "code": 7,
+   "results": [
+    "3",
+    "4",
+    "6",
+    "8",
+    "10",
+    "11"
+   ]
+  },
+  {
+   "code": 10,
+   "results": [
+    "6",
+    "8",
+    "9",
+    "11",
+    "12",
+    "14"
+   ]
+  },
+  {
+   "code": 12,
+   "results": [
+    "5",
+    "9+C",
+    "11+A",
+    "12",
+    "15+A",
+    "20"
+   ]
+  },
+  {
+   "code": 15,
+   "results": [
+    "10",
+    "12",
+    "14",
+    "16",
+    "18",
+    "20"
+   ]
+  },
+  {
+   "code": 21,
+   "results": [
+    "15",
+    "18",
+    "20",
+    "22",
+    "24",
+    "27"
+   ]
+  },
+  {
+   "code": 25,
+   "results": [
+    "20+A",
+    "22",
+    "24+A",
+    "26",
+    "28+A",
+    "30"
+   ]
+  },
+  {
+   "code": 30,
+   "results": [
+    "23",
+    "27",
+    "29",
+    "31",
+    "33",
+    "37"
+   ]
+  },
+  {
+   "code": 50,
+   "results": [
+    "40",
+    "45",
+    "48",
+    "52",
+    "55",
+    "60"
+   ]
+  },
+  {
+   "code": 60,
+   "results": [
+    "45+A",
+    "50+C",
+    "55",
+    "60+B",
+    "70+A",
+    "80"
+   ]
+  },
+  {
+   "code": 70,
+   "results": [
+    "55",
+    "60",
+    "65",
+    "70",
+    "80",
+    "90"
+   ]
+  },
+  {
+   "code": 100,
+   "results": [
+    "85",
+    "90",
+    "95",
+    "100",
+    "110",
+    "120"
+   ]
+  },
+  {
+   "code": 110,
+   "results": [
+    "80+B",
+    "90+C",
+    "100+B",
+    "110+A",
+    "130+C",
+    "150+A"
+   ]
+  }
+ ],
+ "special_possession_lines": {
+  "A": [
+   "e180",
+   "e181",
+   "e182",
+   "e183",
+   "e184",
+   "e185"
+  ],
+  "B": [
+   "e180",
+   "e186",
+   "e187",
+   "e188",
+   "e190",
+   "e193"
+  ],
+  "C": [
+   "e186",
+   "e188",
+   "e189",
+   "e191",
+   "e192",
+   "e194"
+  ]
+ },
+ "ruins_search": {
+  "2": "e133",
+  "3": "e135",
+  "4": "e136",
+  "5": "e137",
+  "6": "e139",
+  "7": "e131",
+  "8": "e132",
+  "9": "e134",
+  "10": "e138",
+  "11": "e135",
+  "12": "e035"
+ },
+ "news": [
+  {
+   "roll": "2",
+   "rolls": [
+    2
+   ],
+   "open_ended": false,
+   "text": "No news of note, nothing seems to be happening."
+  },
+  {
+   "roll": "3",
+   "rolls": [
+    3
+   ],
+   "open_ended": false,
+   "text": "Discover thieves' den, pillage it while they're out, gain 50 gold."
+  },
+  {
+   "roll": "4",
+   "rolls": [
+    4
+   ],
+   "open_ended": false,
+   "text": "Rumours of secret rites at nearest temple, when making offerings (r212) there add one (+1) to your dice roll from now on."
+  },
+  {
+   "roll": "5",
+   "rolls": [
+    5
+   ],
+   "open_ended": false,
+   "text": "Feel at home, learning nothing, but in the future always add one (+1) whenever resolving this action (r209) or Seeking to Hire (r210) in this hex."
+  },
+  {
+   "roll": "6",
+   "rolls": [
+    6
+   ],
+   "open_ended": false,
+   "text": "A large caravan is in town; if you visit them today, see e129."
+  },
+  {
+   "roll": "7",
+   "rolls": [
+    7
+   ],
+   "open_ended": false,
+   "text": "Discover cheaper lodgings and food, pay half normal price in this hex"
+  },
+  {
+   "roll": "8",
+   "rolls": [
+    8
+   ],
+   "open_ended": false,
+   "text": "A cutpurse picks your pocket; you lose half your wealth."
+  },
+  {
+   "roll": "9",
+   "rolls": [
+    9
+   ],
+   "open_ended": false,
+   "text": "Attract attention of local constabulary; see e050."
+  },
+  {
+   "roll": "10",
+   "rolls": [
+    10
+   ],
+   "open_ended": false,
+   "text": "Discover residence of local magician. If you visit him today, see e016 with a friendly approach."
+  },
+  {
+   "roll": "11",
+   "rolls": [
+    11
+   ],
+   "open_ended": false,
+   "text": "Discover local thieves' guild, you are \"invited\" to join. If you do, participate in a theft of 200 gold tonight after dinner (r215). You must escape (r218) tonight after the job. If you pay the guild 10% (20 gold) after the theft you can return to the hex later in the game, otherwise the guild is angered and you can never return to this hex."
+  },
+  {
+   "roll": "12",
+   "rolls": [
+    12
+   ],
+   "open_ended": false,
+   "text": "Secret informant offers valuable information for 10 gold. If you buy it, roll one die: 1-bogus secrets prove worthless; 2-e147; 3-e143; 4-e144; 5-e145; 6-e146."
+  }
+ ],
+ "hiring": [
+  {
+   "roll": "2",
+   "rolls": [
+    2
+   ],
+   "open_ended": false,
+   "text": "Freeman joins your part at no cost (except food and lodging), he is combat skill 3, endurance 4."
+  },
+  {
+   "roll": "3",
+   "rolls": [
+    3
+   ],
+   "open_ended": false,
+   "text": "Lancer with a horse can be hired for 3 gold per day, he is combat skill 5, endurance 5."
+  },
+  {
+   "roll": "4",
+   "rolls": [
+    4
+   ],
+   "open_ended": false,
+   "text": "One or two mercenaries can be hired for 2 gold per day each. Each is combat skill 4, endurance 4."
+  },
+  {
+   "roll": "5",
+   "rolls": [
+    5
+   ],
+   "open_ended": false,
+   "text": "Horse dealer in area, you can buy horses (for mounts) at 10 gold each."
+  },
+  {
+   "roll": "6",
+   "rolls": [
+    6
+   ],
+   "open_ended": false,
+   "text": "Local guide available (see r205), hires for 2 gold per day, has combat skill 2, endurance 3."
+  },
+  {
+   "roll": "7",
+   "rolls": [
+    7
+   ],
+   "open_ended": false,
+   "text": "Henchmen available, roll one die for the number available for hire, each is combat skill 3, endurance 3, and costs 1 gold per day each."
+  },
+  {
+   "roll": "8",
+   "rolls": [
+    8
+   ],
+   "open_ended": false,
+   "text": "Slave market, see e163."
+  },
+  {
+   "roll": "9",
+   "rolls": [
+    9
+   ],
+   "open_ended": false,
+   "text": "Nothing available, but you gain some news and information, see r209 but subtract one (-1) from your dice roll there."
+  },
+  {
+   "roll": "10",
+   "rolls": [
+    10
+   ],
+   "open_ended": false,
+   "text": "Honest horse dealer in area, can buy horses (for mounts) at 7 gold each."
+  },
+  {
+   "roll": "11",
+   "rolls": [
+    11
+   ],
+   "open_ended": false,
+   "text": "Runaway boy or girl joins your party at no cost (except food and lodging), has combat skill 1, endurance 3."
+  },
+  {
+   "roll": "12",
+   "rolls": [
+    12
+   ],
+   "open_ended": false,
+   "text": "Porters in any quantity available, hire for gold each per day. In addition, a local guide (r205) can be hired for 2 gold per day, has combat skill 1, endurance 2."
+  }
+ ],
+ "offerings": [
+  {
+   "roll": "2",
+   "rolls": [
+    2
+   ],
+   "open_ended": false,
+   "text": "You commit a magnificent error in the rites, the entire temple becomes impure and abandoned, no longer functions as a temple for the rest of the game. You are arrested and sentenced to death, e061."
+  },
+  {
+   "roll": "3",
+   "rolls": [
+    3
+   ],
+   "open_ended": false,
+   "text": "Good Omens, but no special result."
+  },
+  {
+   "roll": "4",
+   "rolls": [
+    4
+   ],
+   "open_ended": false,
+   "text": "Bad Omens, you are travelling under a curse. Roll one die for each of your followers, any result except a \"1\" means they believe the omens and immediately desert you. You cannot seek to hire any followers (r210) in this hex for the rest of the game."
+  },
+  {
+   "roll": "5",
+   "rolls": [
+    5
+   ],
+   "open_ended": false,
+   "text": "High Priest insulted by your northern manners, arrested e060."
+  },
+  {
+   "roll": "6",
+   "rolls": [
+    6
+   ],
+   "open_ended": false,
+   "text": "Good Omens, you get free food (r215) and lodging (r217) tonight."
+  },
+  {
+   "roll": "7",
+   "rolls": [
+    7
+   ],
+   "open_ended": false,
+   "text": "Favourable Omens for further worship, if you try this Offerings action again tomorrow, you can add one (+1) to your dice roll. Otherwise no effect."
+  },
+  {
+   "roll": "8",
+   "rolls": [
+    8
+   ],
+   "open_ended": false,
+   "text": "Gods favour your questions, priests assign a monk to your party. The monk has combat skill 2, endurance 3, serves as a guide when leaving this or any adjacent hex only."
+  },
+  {
+   "roll": "9",
+   "rolls": [
+    9
+   ],
+   "open_ended": false,
+   "text": "Special omen and riddle provides a clue to treasures, see e147."
+  },
+  {
+   "roll": "10",
+   "rolls": [
+    10
+   ],
+   "open_ended": false,
+   "text": "Fall in love with priestess (see r229). You immediately escape (r218) with her and can never return to this hex. She is combat skill 2, endurance 4, and has wealth 100 in temple treasures she has stolen!"
+  },
+  {
+   "roll": "11",
+   "rolls": [
+    11
+   ],
+   "open_ended": false,
+   "text": "The High Priest requires an audience with you; see e155."
+  },
+  {
+   "roll": "12,13",
+   "rolls": [
+    12,
+    13
+   ],
+   "open_ended": false,
+   "text": "High Priest spends afternoon talking with you, provides you with final clues to some secret information, roll one die: 1,2-e144; 3,4-e145; 5,6-e146. Alternately, instead of the secret information, you can use his influence in attempting Offerings again tomorrow, and add three (+3) to your dice roll here."
+  },
+  {
+   "roll": "14+",
+   "rolls": [
+    14
+   ],
+   "open_ended": true,
+   "text": "Gods declare your cause a religious crusade, and the Staff of Command is passed into your hands. If you bring this possession to any hex north of the Tragoth River you will command instant obedience throughout the Northlands, regain your throne and win the game. In the meantime you are given a pair of warrior monks (combat skill 5, endurance 6) with mounts to join your party and help you return northward."
+  }
+ ],
+ "cache_recovery": [
+  {
+   "roll": "1,2,3,4",
+   "rolls": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "open_ended": false,
+   "text": "Cache is found intact; you recover all items placed there."
+  },
+  {
+   "roll": "5",
+   "rolls": [
+    5
+   ],
+   "open_ended": false,
+   "text": "You are unable to find the cache, landmarks have disappeared, but you can try again in the future."
+  },
+  {
+   "roll": "6",
+   "rolls": [
+    6
+   ],
+   "open_ended": false,
+   "text": "You find the cache, but it has been looted, there is nothing there."
+  }
+ ],
+ "trap_locks": [
+  {
+   "roll": "1",
+   "rolls": [
+    1
+   ],
+   "open_ended": false,
+   "text": "Poison needle inflicts one poisoned wound."
+  },
+  {
+   "roll": "2",
+   "rolls": [
+    2
+   ],
+   "open_ended": false,
+   "text": "Burning acid explodes; roll one die for the number of wounds suffered."
+  },
+  {
+   "roll": "3",
+   "rolls": [
+    3
+   ],
+   "open_ended": false,
+   "text": "Poison gas bursts. Roll one die for the number of poison wounds suffered."
+  },
+  {
+   "roll": "4",
+   "rolls": [
+    4
+   ],
+   "open_ended": false,
+   "text": "Plague dust inflicts a sickness. Roll one die and halve the result, rounding upward. You suffer these many wounds at the end of the day. You will continue to suffer the same number after every day, until you recover. To determine recovery, roll one die after the sickness wounds are inflicted. If this second roll is 4 or higher, you recover. Otherwise, sickness continues."
+  },
+  {
+   "roll": "5",
+   "rolls": [
+    5
+   ],
+   "open_ended": false,
+   "text": "Flying spikes and knives explode toward you. Roll one die and add three (+3) for the number of wounds suffered."
+  },
+  {
+   "roll": "6",
+   "rolls": [
+    6
+   ],
+   "open_ended": false,
+   "text": "Trap malfunctions, no wounds suffered."
+  }
+ ],
+ "battle_reference": {
+  "2": "r310",
+  "3": "r309",
+  "4": "r308",
+  "5": "r307",
+  "6": "r306",
+  "7": "r305",
+  "8": "r304",
+  "9": "r303",
+  "10": "r302",
+  "11": "r301",
+  "12": "r300"
+ },
+ "conversation": [
+  {
+   "roll": "2",
+   "rolls": [
+    2
+   ],
+   "open_ended": false,
+   "text": "A hired assassin surprises you into combat (r220) and always strikes at you personally."
+  },
+  {
+   "roll": "3",
+   "rolls": [
+    3
+   ],
+   "open_ended": false,
+   "text": "Bandits, who may surprise you, see r308."
+  },
+  {
+   "roll": "4",
+   "rolls": [
+    4
+   ],
+   "open_ended": false,
+   "text": "Arrogant and surly, the conversation turns into an argument, r305."
+  },
+  {
+   "roll": "5",
+   "rolls": [
+    5
+   ],
+   "open_ended": false,
+   "text": "Character(s) needs 10 gold now, r331; if they join, they will leave your party in a next town, castle or temple you enter in any event."
+  },
+  {
+   "roll": "6",
+   "rolls": [
+    6
+   ],
+   "open_ended": false,
+   "text": "Character(s) ask for 5 gold now and employment, see r332."
+  },
+  {
+   "roll": "7",
+   "rolls": [
+    7
+   ],
+   "open_ended": false,
+   "text": "Character(s) willing to hire as henchmen, see r333."
+  },
+  {
+   "roll": "8",
+   "rolls": [
+    8
+   ],
+   "open_ended": false,
+   "text": "Character(s) looking for fun and profit, see r338."
+  },
+  {
+   "roll": "9",
+   "rolls": [
+    9
+   ],
+   "open_ended": false,
+   "text": "Character(s) fugitive from local justice, see r335."
+  },
+  {
+   "roll": "10",
+   "rolls": [
+    10
+   ],
+   "open_ended": false,
+   "text": "Character(s) down on luck, looking for a turn in fortunes, see r336."
+  },
+  {
+   "roll": "11",
+   "rolls": [
+    11
+   ],
+   "open_ended": false,
+   "text": "Character(s) obviously plundering mercenaries, see r340."
+  },
+  {
+   "roll": "12",
+   "rolls": [
+    12
+   ],
+   "open_ended": false,
+   "text": "Character(s) discover a common cause with you; see r334."
+  }
+ ],
+ "general_inquiry": [
+  {
+   "roll": "2",
+   "rolls": [
+    2
+   ],
+   "open_ended": false,
+   "text": "You unwittingly give insult; see r309."
+  },
+  {
+   "roll": "3",
+   "rolls": [
+    3
+   ],
+   "open_ended": false,
+   "text": "You are forced into combat, unwillingly; see r330."
+  },
+  {
+   "roll": "4",
+   "rolls": [
+    4
+   ],
+   "open_ended": false,
+   "text": "Character(s) interested in loot, see r340."
+  },
+  {
+   "roll": "5",
+   "rolls": [
+    5
+   ],
+   "open_ended": false,
+   "text": "Character(s) attempt attack on you, see r306."
+  },
+  {
+   "roll": "6",
+   "rolls": [
+    6
+   ],
+   "open_ended": false,
+   "text": "Character(s) uninterested in you, see r325."
+  },
+  {
+   "roll": "7",
+   "rolls": [
+    7
+   ],
+   "open_ended": false,
+   "text": "Character(s) reveal themselves gradually; you can either talk further (see r341) or let them pass (see r325)."
+  },
+  {
+   "roll": "8",
+   "rolls": [
+    8
+   ],
+   "open_ended": false,
+   "text": "Character(s) are for hire; see r333."
+  },
+  {
+   "roll": "9",
+   "rolls": [
+    9
+   ],
+   "open_ended": false,
+   "text": "Character(s) may be for hire, see r339."
+  },
+  {
+   "roll": "10",
+   "rolls": [
+    10
+   ],
+   "open_ended": false,
+   "text": "Character(s) may be sympathetic to your cause, see r337."
+  },
+  {
+   "roll": "11",
+   "rolls": [
+    11
+   ],
+   "open_ended": false,
+   "text": "Character(s) uninterested, but may be for hire, see r338."
+  },
+  {
+   "roll": "12",
+   "rolls": [
+    12
+   ],
+   "open_ended": false,
+   "text": "Character(s) aloof, but might consider joining you, see r336."
+  }
+ ],
+ "audience": {
+  "any Town": {
+   "hex": "",
+   "note": "",
+   "rows": [
+    {
+     "roll": "2",
+     "rolls": [
+      2
+     ],
+     "open_ended": false,
+     "text": "Grievously insult the town council, e062."
+    },
+    {
+     "roll": "3",
+     "rolls": [
+      3
+     ],
+     "open_ended": false,
+     "text": "A slanderous aside about the mayor's wife is blamed on you, e060."
+    },
+    {
+     "roll": "4",
+     "rolls": [
+      4
+     ],
+     "open_ended": false,
+     "text": "Meet hostile guards, e158."
+    },
+    {
+     "roll": "5",
+     "rolls": [
+      5
+     ],
+     "open_ended": false,
+     "text": "Encounter the Master of the Household, e153."
+    },
+    {
+     "roll": "6,7,8",
+     "rolls": [
+      6,
+      7,
+      8
+     ],
+     "open_ended": false,
+     "text": "Audience refused today, you may try again."
+    },
+    {
+     "roll": "9,10",
+     "rolls": [
+      9,
+      10
+     ],
+     "open_ended": false,
+     "text": "Audience permitted, el56."
+    },
+    {
+     "roll": "11",
+     "rolls": [
+      11
+     ],
+     "open_ended": false,
+     "text": "Meet daughter of the mayor, e154."
+    },
+    {
+     "roll": "12",
+     "rolls": [
+      12
+     ],
+     "open_ended": false,
+     "text": "Audience permitted, e156."
+    }
+   ]
+  },
+  "any Temple": {
+   "hex": "",
+   "note": "",
+   "rows": [
+    {
+     "roll": "2",
+     "rolls": [
+      2
+     ],
+     "open_ended": false,
+     "text": "Anger temple guards, e063."
+    },
+    {
+     "roll": "3",
+     "rolls": [
+      3
+     ],
+     "open_ended": false,
+     "text": "Priestess resents a lewd remark, e060."
+    },
+    {
+     "roll": "4",
+     "rolls": [
+      4
+     ],
+     "open_ended": false,
+     "text": "Encounter hostile guards, e158."
+    },
+    {
+     "roll": "5",
+     "rolls": [
+      5
+     ],
+     "open_ended": false,
+     "text": "Audience refused today, you may try again."
+    },
+    {
+     "roll": "6",
+     "rolls": [
+      6
+     ],
+     "open_ended": false,
+     "text": "Must purify yourself, e159"
+    },
+    {
+     "roll": "7",
+     "rolls": [
+      7
+     ],
+     "open_ended": false,
+     "text": "Audience refused today, you may try again."
+    },
+    {
+     "roll": "8",
+     "rolls": [
+      8
+     ],
+     "open_ended": false,
+     "text": "Allowed audience if you give temple a Dragon's eye, go to e155; otherwise you must deal with the Master of the Household, e153."
+    },
+    {
+     "roll": "9",
+     "rolls": [
+      9
+     ],
+     "open_ended": false,
+     "text": "Permitted to pay your respects, e250"
+    },
+    {
+     "roll": "10",
+     "rolls": [
+      10
+     ],
+     "open_ended": false,
+     "text": "You must purify yourself, e159."
+    },
+    {
+     "roll": "11+",
+     "rolls": [
+      11
+     ],
+     "open_ended": true,
+     "text": "Audience permitted, e155."
+    }
+   ]
+  },
+  "the Baron of Huldra Castle": {
+   "hex": "1212",
+   "note": "add one (+1) to your dice roll if you dismiss any wizard, magician, or witch in your party (to take service with the Baron instead).",
+   "rows": [
+    {
+     "roll": "2",
+     "rolls": [
+      2
+     ],
+     "open_ended": false,
+     "text": "Audience permanently refused, cannot try again."
+    },
+    {
+     "roll": "3",
+     "rolls": [
+      3
+     ],
+     "open_ended": false,
+     "text": "Meet Baron's Daughter, e154."
+    },
+    {
+     "roll": "4",
+     "rolls": [
+      4
+     ],
+     "open_ended": false,
+     "text": "Must learn court manners, e149."
+    },
+    {
+     "roll": "5",
+     "rolls": [
+      5
+     ],
+     "open_ended": false,
+     "text": "Confronted by hostile guards, e158."
+    },
+    {
+     "roll": "6,7",
+     "rolls": [
+      6,
+      7
+     ],
+     "open_ended": false,
+     "text": "Audience refused today, you may try again."
+    },
+    {
+     "roll": "8",
+     "rolls": [
+      8
+     ],
+     "open_ended": false,
+     "text": "Encounter the Master of the Household, e153."
+    },
+    {
+     "roll": "9",
+     "rolls": [
+      9
+     ],
+     "open_ended": false,
+     "text": "Seneschal requires a bribe, e148."
+    },
+    {
+     "roll": "10,11",
+     "rolls": [
+      10,
+      11
+     ],
+     "open_ended": false,
+     "text": "Pay your respects to the Baron, e150."
+    },
+    {
+     "roll": "12",
+     "rolls": [
+      12
+     ],
+     "open_ended": false,
+     "text": "Find favour in the eyes of the Baron, e151."
+    },
+    {
+     "roll": "13+",
+     "rolls": [
+      13
+     ],
+     "open_ended": true,
+     "text": "Baron becomes your Noble ally, e152."
+    }
+   ]
+  },
+  "Count Drogat of Drogat Castle": {
+   "hex": "0323",
+   "note": "",
+   "rows": [
+    {
+     "roll": "2",
+     "rolls": [
+      2
+     ],
+     "open_ended": false,
+     "text": "You are the Count's next victim; see e061."
+    },
+    {
+     "roll": "3",
+     "rolls": [
+      3
+     ],
+     "open_ended": false,
+     "text": "The Captain of the Guard dislikes your haircut; see e062."
+    },
+    {
+     "roll": "4",
+     "rolls": [
+      4
+     ],
+     "open_ended": false,
+     "text": "Meet the daughter of the Count, e154."
+    },
+    {
+     "roll": "5",
+     "rolls": [
+      5
+     ],
+     "open_ended": false,
+     "text": "Encounter the Master of the Household, e153."
+    },
+    {
+     "roll": "6",
+     "rolls": [
+      6
+     ],
+     "open_ended": false,
+     "text": "Confronted by hostile guards, e158."
+    },
+    {
+     "roll": "7",
+     "rolls": [
+      7
+     ],
+     "open_ended": false,
+     "text": "Gain an audience (e161) if you give the Roc's Beak to the Doorman; otherwise you are deemed unworthy and unwise, and are arrested (e060)."
+    },
+    {
+     "roll": "8",
+     "rolls": [
+      8
+     ],
+     "open_ended": false,
+     "text": "Seneschal requires a bribe, e148."
+    },
+    {
+     "roll": "9",
+     "rolls": [
+      9
+     ],
+     "open_ended": false,
+     "text": "Must learn court manners, e149."
+    },
+    {
+     "roll": "10",
+     "rolls": [
+      10
+     ],
+     "open_ended": false,
+     "text": "Find favour in the eyes of the Count, e151."
+    },
+    {
+     "roll": "11+",
+     "rolls": [
+      11
+     ],
+     "open_ended": true,
+     "text": "Audience granted with Count, e161."
+    }
+   ]
+  },
+  "Lady Aeravir of Aeravir Castle": {
+   "hex": "1923",
+   "note": "",
+   "rows": [
+    {
+     "roll": "2",
+     "rolls": [
+      2
+     ],
+     "open_ended": false,
+     "text": "You insult the Lady's dignity, arrested e060."
+    },
+    {
+     "roll": "3",
+     "rolls": [
+      3
+     ],
+     "open_ended": false,
+     "text": "You must purify yourself first, e159."
+    },
+    {
+     "roll": "4",
+     "rolls": [
+      4
+     ],
+     "open_ended": false,
+     "text": "Untoward remark makes the guards hostile, e158."
+    },
+    {
+     "roll": "5",
+     "rolls": [
+      5
+     ],
+     "open_ended": false,
+     "text": "Must learn better court manners, e149."
+    },
+    {
+     "roll": "6",
+     "rolls": [
+      6
+     ],
+     "open_ended": false,
+     "text": "Meet the Master of the Household, e153."
+    },
+    {
+     "roll": "7",
+     "rolls": [
+      7
+     ],
+     "open_ended": false,
+     "text": "Gain an audience (e160) if you give the Griffon's Claw, otherwise audience refused but you may try again."
+    },
+    {
+     "roll": "8",
+     "rolls": [
+      8
+     ],
+     "open_ended": false,
+     "text": "Audience refused, but you may try again."
+    },
+    {
+     "roll": "9",
+     "rolls": [
+      9
+     ],
+     "open_ended": false,
+     "text": "Seneschal requires a bribe, e148."
+    },
+    {
+     "roll": "10",
+     "rolls": [
+      10
+     ],
+     "open_ended": false,
+     "text": "Audience granted, e160."
+    },
+    {
+     "roll": "11",
+     "rolls": [
+      11
+     ],
+     "open_ended": false,
+     "text": "Meet daughter of the Lady Aeravir, e154."
+    },
+    {
+     "roll": "12+",
+     "rolls": [
+      12
+     ],
+     "open_ended": true,
+     "text": "Audience granted, e160."
+    }
+   ]
+  }
+ },
+ "constants": {
+  "game_length_days": 70,
+  "gold_needed_to_win": 500,
+  "prince": {
+   "name": "Cal Arath",
+   "combat_skill": 8,
+   "endurance": 9,
+   "wealth_code": 2,
+   "wit_and_wiles": "1d6 (1 counts as 2)"
+  },
+  "travel_speed": {
+   "foot": 1,
+   "mounted": 2,
+   "winged": 3
+  },
+  "transport": {
+   "food_unit_loads": 1,
+   "gold_per_load": 100,
+   "person_loads": 20,
+   "foot_capacity": 10,
+   "mount_capacity": 30
+  },
+  "food": {
+   "unit_per_man_day": 1,
+   "mount_units": 2,
+   "no_water_multiplier": 2,
+   "purchase_price": 1,
+   "meal_price": 1
+  },
+  "lodging": {
+   "room_cost": 1,
+   "people_per_room": 2,
+   "stable_cost": 1
+  },
+  "escape_directions": {
+   "1": "N",
+   "2": "NE",
+   "3": "SE",
+   "4": "S",
+   "5": "SW",
+   "6": "NW"
+  },
+  "combat_modifiers": [
+   {
+    "modifier": 2,
+    "condition": "target wounds >= half endurance"
+   },
+   {
+    "modifier": -1,
+    "condition": "striker has one or more wounds"
+   },
+   {
+    "modifier": -1,
+    "condition": "striker wounds >= half endurance"
+   }
+  ],
+  "wounds": {
+   "serious": "wounds >= ceil(endurance/2)",
+   "unconscious": "wounds == endurance - 1",
+   "death": "wounds >= endurance"
+  },
+  "rout_roll": 6,
+  "escape_roll": 4,
+  "desertion_roll": 4,
+  "raft_speed": {
+   "downriver": 3,
+   "upriver": 2
+  }
+ },
+ "errata": [
+  {
+   "section": "r209",
+   "correction": "Dice roll results for '4' and '5' should be interchanged, dice roll result '9' should refer to e050, and dice roll result '11' should reference rule r218 for escape."
+  },
+  {
+   "section": "r210",
+   "correction": "Dice roll '12' porters have combat skill 1, endurance 2."
+  },
+  {
+   "section": "r212",
+   "correction": "Dice roll result '12' should be '12, 13' while dice roll result '13 (or higher)' should read '14 (or higher)' instead."
+  },
+  {
+   "section": "r215",
+   "correction": "In r215c, a dice roll result of '6' should reference e050, with two added (+2) to the die roll in that event."
+  },
+  {
+   "section": "r219",
+   "correction": "In the last paragraph of this rule, fourth line, the reference to combat r220 should be r306 instead."
+  },
+  {
+   "section": "r220",
+   "correction": "In strikes (r220c), when facing multiple opponents, a character can strike at only one each round, but can select which one to strike against. Example on the next page is wrong; the Dwarf should roll a '10' and with modifiers result in an '8' to inflict one wound."
+  },
+  {
+   "section": "e013",
+   "correction": "Raid result: Combat reference in second line should be r306. The fight against the family itself (if you get that far) should have a reference to r305 to set up the combat situation for that."
+  },
+  {
+   "section": "e016",
+   "correction": "Friendly Approach: Magician is combat skill 3, endurance 5 (in case he joins your party)."
+  },
+  {
+   "section": "e018",
+   "correction": "Die roll result of '1' with 'fight' choce should lead to 'surprise r301.' Note that the die roll for desertion due to mark of Cain is made with just one die."
+  },
+  {
+   "section": "e032",
+   "correction": "Die roll result 'e-3041' should read '3-e041'."
+  },
+  {
+   "section": "e048",
+   "correction": "Introductory paragraph is completely wrong. It should read: You encounter a person trying to avoid local justice. He or she will join your party as an ally, but will desert whenever you encounter any Constables (unless your party elects to fight them, and kills them all) or whenever you enter any town, castle, or temple. Instead, you can immediately elect to fight the character encountered, see r300. Roll one die to see exactly who you meet:"
+  },
+  {
+   "section": "e056",
+   "correction": "Second paragraph is misplaced; ignore it completely; this event is solely contained in the first paragraph."
+  },
+  {
+   "section": "e067",
+   "correction": "Die roll result 'e-3046' should read '3-e046'."
+  },
+  {
+   "section": "e076",
+   "correction": "In second paragraph, second line, reference to victim selection should be r341, not r143."
+  },
+  {
+   "section": "e085",
+   "correction": "If you fall and survive your wounds (second paragraph), roll one die to see if your party finds you."
+  },
+  {
+   "section": "e116",
+   "correction": "The eagle who joins is combat skill 4, endurance 3."
+  },
+  {
+   "section": "e121",
+   "correction": "All characters recover from sunstroke at the evening meal."
+  },
+  {
+   "section": "e137",
+   "correction": "Die roll result '4-e056' should be '4-e055'."
+  },
+  {
+   "section": "e155",
+   "correction": "Die roll result of '4', if you agree to make offerings, you only add two (+2) to die roll on r212; do not add three. [Word file provided by David Bate]"
+  }
+ ]
+}

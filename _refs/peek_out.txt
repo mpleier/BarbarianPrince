@@ -1,0 +1,19 @@
+=== e002 at 1489 ===
+
+'swordbelt, and get ready to start the first day of your adventure. See r203 for possible actions available to you.\nImportant Note: if you finish actions for a day on any hex north of the Tragoth River, the mercenary royal guardsmen may find you. See e002 after normal events are concluded, but before you take your evening meal (r215).\n\ne002 Mercenary Royal Guardsmen\nRoll one die, subtract three (-3), then add one (+1) if you are in Ogon (0101) or Weshor (1501). If the result is one (1) or more, t'
+
+=== e003 at 2548 ===
+
+'r306 7 escape mtd r312 \n*\tif your party all winged mounts, you can use a flying escape r313 instead of rolling for the evade option; if your entire party has mounts, add one (+1) to die roll. You can abandon un-mounted members of the party for this. e003 Swordsman\nYou meet a swordsman adventurer. He is mounted on a horse with combat skill 6, endurance 6, and wealth 7. Sitting there on his horse he takes an active interest in your party. Your options are:\n\ndie roll talk *evade fight 1 converse r3'
+
+=== e005 at 4055 ===
+
+'y has any mounts, add one (+1) to your die roll for this option, results higher than 6 are considered 6; if your party all have winged mounts and/or flying ability, you can use escape flying (r313) instead of rolling the die for the evade option.\n\n\n e005 Amazons\nYou see a group of Amazon warriors approaching, all on foot. The number in the group is one die roll plus one (+1). All are combat skill 6, endurance 5, wealth 4. They are blood-sisters, and will always hire out together, serve together,'
+
+=== e012 at 9455 ===
+
+', but that will consume the rest of the day, ending all travel for today. Alternately, you can go up to it. If you approach the farm, you must decide whether to make it a friendly approach, or a raid. After you make this choice, then roll two dice 2-e012; 3-e012; 4-e011; 5-e014; 6-e010; 7-e011; 8-e013; 9-e015; 10-e012; 11-e016;12-e016.\nIf you select a raid, and remain in this hex at the end of today, you may be attacked by a revengeful mob tomorrow morning, before you have a chance to select you'
+
+=== e160 at 29264 ===
+
+'s secret put to use. Otherwise, this event ends.\nThe secret of the alcove is simple: it sends voices and thoughts. Using it you can command an audience with either a High Priest (e155), the Mayor of a Town (e156), the Lady Aeravir of Aeravir Castle (e160), or Count Drogat of Drogat Castle (e161). For the audience you are temporarily transported to that location, and will return at the end of that day, just before the evening meal, regardless of where you are. Followers given from an audience can'

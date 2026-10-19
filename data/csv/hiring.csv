@@ -1,0 +1,12 @@
+open_ended,roll,rolls,text
+False,2,[2],"Freeman joins your part at no cost (except food and lodging), he is combat skill 3, endurance 4."
+False,3,[3],"Lancer with a horse can be hired for 3 gold per day, he is combat skill 5, endurance 5."
+False,4,[4],"One or two mercenaries can be hired for 2 gold per day each. Each is combat skill 4, endurance 4."
+False,5,[5],"Horse dealer in area, you can buy horses (for mounts) at 10 gold each."
+False,6,[6],"Local guide available (see r205), hires for 2 gold per day, has combat skill 2, endurance 3."
+False,7,[7],"Henchmen available, roll one die for the number available for hire, each is combat skill 3, endurance 3, and costs 1 gold per day each."
+False,8,[8],"Slave market, see e163."
+False,9,[9],"Nothing available, but you gain some news and information, see r209 but subtract one (-1) from your dice roll there."
+False,10,[10],"Honest horse dealer in area, can buy horses (for mounts) at 7 gold each."
+False,11,[11],"Runaway boy or girl joins your party at no cost (except food and lodging), has combat skill 1, endurance 3."
+False,12,[12],"Porters in any quantity available, hire for gold each per day. In addition, a local guide (r205) can be hired for 2 gold per day, has combat skill 1, endurance 2."
