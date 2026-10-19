@@ -17,7 +17,7 @@ import re
 from collections import Counter, defaultdict
 
 from geometry import (NC, NR, R, DX, DY, SCANS, TERRAIN_TO_TRAVEL, MOVEMENT_MODES,
-                      centre, best_scan, neighbours)
+                      centre, board_xy, best_scan, neighbours)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
@@ -34,7 +34,7 @@ def build_grid(hexes):
     for h in hexes:
         col, row = h['col'], h['row']
         scan = best_scan(col, row)
-        cx, cy = centre(col, row, scan)
+        cx, cy = board_xy(col, row)
         grid[h['id']] = {
             'id': h['id'],
             'col': col,

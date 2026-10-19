@@ -1,0 +1,50 @@
+﻿constants: R=106.0 DX=159.000 DY=183.597
+SCANS   : {'map1.jpg': {'x0': 377.0, 'y0': 98.2, 'first_row': 1, 'last_row': 12}, 'map2.jpg': {'x0': 377.0, 'y0': 203.3, 'first_row': 13, 'last_row': 23}}
+BOARD_Y_OFF = {'map1.jpg': 0.0, 'map2.jpg': 2098.0686272276116}
+SEAM_Y      = 2209.57
+
+map1.jpg: 11 printed grid lines detected in the column-1 band
+   row  0/ 1 boundary: model     6.40  printed    190.5  err -184.10
+   row  1/ 2 boundary: model   190.00  printed    190.5  err -0.50
+   row  2/ 3 boundary: model   373.60  printed    373.5  err +0.10
+   row  3/ 4 boundary: model   557.19  printed    557.5  err -0.31
+   row  4/ 5 boundary: model   740.79  printed    741.5  err -0.71
+   row  5/ 6 boundary: model   924.39  printed    924.0  err +0.39
+   row  6/ 7 boundary: model  1107.99  printed   1106.5  err +1.49
+   row  7/ 8 boundary: model  1291.58  printed   1291.0  err +0.58
+   row  8/ 9 boundary: model  1475.18  printed   1473.5  err +1.68
+   row  9/10 boundary: model  1658.78  printed   1657.5  err +1.28
+   row 10/11 boundary: model  1842.38  printed   1842.0  err +0.38
+   row 11/12 boundary: model  2025.97  printed   2027.5  err -1.53
+   measured row pitch: 183.55 px (DY = 183.60, R = 105.97)
+   max |row residual|: 1.68 px
+
+map2.jpg: 13 printed grid lines detected in the column-1 band
+   row 12/13 boundary: model   111.50  printed    111.5  err +0.00
+   row 13/14 boundary: model   295.10  printed    297.0  err -1.90
+   row 14/15 boundary: model   478.70  printed    482.5  err -3.80
+   row 15/16 boundary: model   662.29  printed    666.5  err -4.21
+   row 16/17 boundary: model   845.89  printed    850.5  err -4.61
+   row 17/18 boundary: model  1029.49  printed   1034.5  err -5.01
+   row 18/19 boundary: model  1213.09  printed   1218.0  err -4.91
+   row 19/20 boundary: model  1396.68  printed   1402.0  err -5.32
+   row 20/21 boundary: model  1580.28  printed   1586.0  err -5.72
+   row 21/22 boundary: model  1763.88  printed   1770.5  err -6.62
+   row 22/23 boundary: model  1947.48  printed   1954.5  err -7.02
+   measured row pitch: 184.16 px (DY = 183.60, R = 106.33)
+   max |row residual|: 7.02 px
+
+column pitch check (flat hex edges on row boundaries, map1.jpg):
+   y= 1842  edge centre   1328.5  column  7  err -2.50
+   y= 1842  edge centre   1648.5  column  9  err -0.50
+   y= 1842  edge centre   1966.5  column 11  err -0.50
+   y= 2026  edge centre   1017.0  column  5  err +4.00
+   y= 2026  edge centre   2277.0  column 13  err -8.00
+   mean column error -1.50 px, max 8.00 px  -> x0 = 377.0 is solid
+
+seam line: map1 frame 2209.57, map2 frame 2209.57, SEAM_Y 2209.57
+seam vs printed 12/13 line: local 111.5 (unified 2209.6) -> err +0.00 px
+lattice extents: x 271.0..3504.0   y 6.4..4320.9
+map1 coloured content: x 0..3509  y 6..2135
+map2 coloured content: x 4..3503  y 4..2143 (unified y 2102..4241)
+scan sizes: map1 3510x2136, map2 3510x2148

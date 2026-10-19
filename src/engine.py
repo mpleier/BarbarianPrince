@@ -1,0 +1,1516 @@
+"""Rules-accurate Barbarian Prince game engine (r201-r228 core loop).
+
+The engine is UI-agnostic: it maintains a queue of *prompts* that any interface
+(tkinter GUI, CLI, tests) can render and answer.
+
+Prompt kinds
+  'encounter'  an event with a talk / evade / fight option matrix
+  'combat'     a round-by-round battle (r220)
+  'choice'     a plain decision
+  'info'       text the player must acknowledge
+"""
+import json
+import os
+import random
+import re
+
+from game_model import GameModel
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(ROOT, 'data')
+
+GAME_DAYS = 70
+TARGET_GOLD = 500
+
+# r220c Combat Results Table
+COMBAT_TABLE = {-1: 1, 3: 1, 5: 1, 8: 1, 11: 1,
+                10: 2, 12: 2, 13: 2, 17: 2,
+                14: 3, 16: 5, 18: 5, 19: 5, 20: 6}
+
+# r330 Battle Reference
+BATTLE_REFERENCE = {2: 'r310', 3: 'r309', 4: 'r308', 5: 'r307', 6: 'r306',
+                    7: 'r305', 8: 'r304', 9: 'r303', 10: 'r302', 11: 'r301',
+                    12: 'r300'}
+
+# r341 Conversation
+CONVERSATION = {2: 'r310', 3: 'r308', 4: 'r305', 5: 'r331', 6: 'r332', 7: 'r333',
+                8: 'r338', 9: 'r335', 10: 'r336', 11: 'r340', 12: 'r334'}
+
+# r342 General Inquiry
+INQUIRY = {2: 'r309', 3: 'r330', 4: 'r340', 5: 'r306', 6: 'r325', 7: 'r341',
+           8: 'r333', 9: 'r339', 10: 'r337', 11: 'r338', 12: 'r336'}
+
+REF_RE = re.compile(r'\b([re]\d{3})\b')
+STAT_RE = re.compile(r'combat skill (\d+)(?:,\s*(?:and\s*)?endurance (\d+))?'
+                     r'(?:,\s*wealth (\d+))?')
+DIRECTIONS = ['N', 'NE', 'SE', 'S', 'SW', 'NW']
+HUNT_TERRAIN = ('Farmland', 'Countryside', 'Forest', 'Hills')
+POPULATED = ('town', 'castle', 'temple')
+
+
+def threshold(spec):
+    """'10+' -> 10, 'never' -> None, '-' -> None."""
+    if not spec:
+        return None
+    m = re.search(r'\d+', spec)
+    return int(m.group(0)) if m else None
+
+
+def parse_options(text):
+    """Extract the 'die roll / talk / evade / fight' option matrix of an event."""
+    idx = text.find('Your options are:')
+    if idx < 0:
+        return None
+    body = text[idx + len('Your options are:'):]
+    star = body.find('*')
+    note = body[star:].strip() if star >= 0 else ''
+    if star >= 0:
+        body = body[:star]
+    tokens = body.split()
+    i = 0
+    headers = []
+    while i < len(tokens) and not tokens[i].isdigit():
+        h = tokens[i].strip('*').strip()
+        if h.lower() not in ('die', 'roll'):
+            headers.append(h)
+        i += 1
+    if not headers:
+        return None
+    rows = []
+    while i < len(tokens):
+        if not tokens[i].isdigit():
+            i += 1
+            continue
+        roll = int(tokens[i])
+        i += 1
+        cells = []
+        while i < len(tokens) and not tokens[i].isdigit():
+            label = []
+            while (i < len(tokens) and not tokens[i].isdigit()
+                   and not re.fullmatch(r'[re]\d{3}', tokens[i])):
+                label.append(tokens[i])
+                i += 1
+            if i < len(tokens) and re.fullmatch(r'[re]\d{3}', tokens[i]):
+                cells.append((' '.join(label) or 'option', tokens[i]))
+                i += 1
+            else:
+                break
+        if cells:
+            rows.append((roll, cells))
+    return headers, rows, note
+
+
+def parse_foes(text):
+    """Parse the stat block(s) of the characters an event describes."""
+    stats = [(int(s), int(e) if e else 5, int(w) if w else 0)
+             for s, e, w in STAT_RE.findall(text)]
+    if not stats:
+        return []
+    count = 1
+    low = text.lower()
+    if 'roll one die for the number of' in low:
+        count = random.randint(1, 6)
+    elif 'roll two dice for the number of' in low:
+        count = random.randint(1, 6) + random.randint(1, 6)
+    elif 'number in the group is one die roll plus one' in low:
+        count = random.randint(1, 6) + 1
+    else:
+        m = re.search(r'(\d+)\s+(?:men|warriors|guards|tribesmen|bandits|horsemen|'
+                      r'assassins|constables|priests|monks|witches|magicians|wizards|'
+                      r'dwarves|elves|orcs|giants|trolls|centaurs|amazons|mercenaries|'
+                      r'henchmen|retainers|riders|thugs|soldiers|pirates|nomads|'
+                      r'bodyguards|guardsmen|peasants|villagers|outlaws|robbers)\b', low)
+        if m:
+            count = int(m.group(1))
+    return [Character(f'Foe {i + 1}', *(stats[i % len(stats)])) for i in range(count)]
+
+
+
+class Character:
+    """Any character: the Prince, followers, or encountered foes."""
+
+    def __init__(self, name, skill, endurance, wealth=0, mount='none',
+                 guide=False, pay=0, prince=False):
+        self.name = name
+        self.skill = skill
+        self.endurance = endurance
+        self.wounds = 0
+        self.wealth = wealth
+        self.mount = mount          # 'none' | 'horse' | 'winged'
+        self.guide = guide
+        self.pay = pay
+        self.prince = prince
+        self.alive = True
+        self.starved = 0
+        self.poisoned = 0
+        self.unreliable = False
+        self.town_leaver = False
+
+    @property
+    def effective_skill(self):
+        return max(0, self.skill - self.starved)
+
+    @property
+    def remaining(self):
+        return self.endurance - self.wounds
+
+    @property
+    def serious(self):
+        return self.wounds * 2 >= self.endurance
+
+    @property
+    def unconscious(self):
+        return self.wounds == self.endurance - 1
+
+    @property
+    def dead(self):
+        return self.wounds >= self.endurance
+
+    def load_capacity(self):
+        cap = 10
+        for _ in range(self.starved):
+            cap //= 2
+        return cap
+
+    def __repr__(self):
+        return (f'{self.name} (skill {self.skill}, endurance {self.endurance}, '
+                f'wounds {self.wounds}, mount {self.mount})')
+
+
+
+class Combat:
+    """r220 - round-by-round combat."""
+
+    def __init__(self, party, foes, rng, party_first=True, name='Battle',
+                 surprise=None, note=None):
+        self.party = [c for c in party if not c.dead]
+        self.foes = [c for c in foes if not c.dead]
+        self.rng = rng
+        self.party_first = party_first
+        self.surprise = surprise            # 'party' | 'foes' | None
+        self.name = name
+        self.round = 0
+        self.over = False
+        self.result = None
+        self.log = []
+        self.note = note or (lambda t: None)
+
+    def modifiers(self, striker, target):
+        total = 0
+        if target.wounds * 2 >= target.endurance:
+            total += 2
+        if striker.wounds >= 1:
+            total -= 1
+        if striker.wounds * 2 >= striker.endurance:
+            total -= 1
+        return total
+
+    def strike(self, striker, target):
+        base = striker.effective_skill - target.effective_skill
+        dice = self.rng.randint(1, 6) + self.rng.randint(1, 6)
+        total = base + dice + self.modifiers(striker, target)
+        wounds = COMBAT_TABLE.get(total, 0)
+        if wounds:
+            target.wounds += wounds
+            self.log.append(f'{striker.name} ({total}) strikes {target.name}: '
+                            f'{wounds} wound(s) [{target.wounds}/{target.endurance}]'
+                            + (' -> dead' if target.dead else ''))
+        else:
+            self.log.append(f'{striker.name} ({total}) strikes {target.name}: missed')
+        return wounds
+
+    def pairing_of(self, attackers, defenders):
+        """r220b - strongest vs strongest; extras pile onto one opponent."""
+        attackers = sorted([c for c in attackers if not c.dead],
+                           key=lambda c: -c.effective_skill)
+        defenders = sorted([c for c in defenders if not c.dead],
+                           key=lambda c: -c.effective_skill)
+        return [(a, defenders[i % len(defenders)]) for i, a in enumerate(attackers)]
+
+    def round_side(self, attackers, defenders):
+        for striker, target in self.pairing_of(attackers, defenders):
+            if not target.dead and not striker.dead:
+                self.strike(striker, target)
+        for c in attackers + defenders:
+            if c.dead:
+                c.alive = False
+
+    def rout_possible(self):
+        return any(f.skill < 9 and f.endurance < 9 for f in self.foes)
+
+    def step(self):
+        """Resolve one combat round (r220a)."""
+        if self.over:
+            return self.result
+        self.round += 1
+        self.log.append(f'--- round {self.round} ---')
+        if self.surprise and self.round == 1:
+            strikers = self.party if self.surprise == 'party' else self.foes
+            targets = self.foes if self.surprise == 'party' else self.party
+            for s in list(strikers):
+                if not s.dead and targets:
+                    self.strike(s, targets[0])
+            self.surprise = None
+            for c in self.party + self.foes:
+                if c.dead:
+                    c.alive = False
+        first, second = ((self.party, self.foes) if self.party_first
+                         else (self.foes, self.party))
+        self.round_side(first, second)
+        if self.party and self.foes:
+            self.round_side(second, first)
+        survivors = [c for c in self.party if c.alive and not c.dead]
+        foes_left = [c for c in self.foes if c.alive and not c.dead]
+        killed = len(self.foes) - len(foes_left)
+        self.party, self.foes = survivors, foes_left
+        if killed and self.foes and self.rout_possible():
+            die = self.rng.randint(1, 6)
+            if die == 6:
+                self.note('The enemy routs and flees!')
+                self.foes = []
+                self.over, self.result = True, 'foes routed'
+            else:
+                self.log.append(f'Rout check: die {die} - they stand their ground.')
+        if not self.foes:
+            self.over, self.result = True, 'party wins'
+        elif not self.party:
+            self.over, self.result = True, 'party wiped out'
+        return self.result
+
+    def attempt_escape(self):
+        """r220e - all or none escape; no strikes that round."""
+        self.round += 1
+        die = self.rng.randint(1, 6)
+        if die >= 4:
+            self.over = True
+            self.result = 'party escaped'
+            return True, die
+        self.log.append(f'Escape attempt fails (die {die}).')
+        return False, die
+
+
+
+class Game:
+    """The Barbarian Prince rules engine."""
+
+    ACTIONS = [
+        ('Travel to a new hex (r204)', 'travel'),
+        ('Rest and heal wounds (r222)', 'rest'),
+        ('Seek news & information (r209)', 'news'),
+        ('Seek to hire followers (r210)', 'hire'),
+        ('Seek an audience (r211)', 'audience'),
+        ('Submit an offering (r212)', 'offerings'),
+        ('Search the ruins (r208)', 'ruins'),
+        ('Recover a hidden cache (r214)', 'cache'),
+        ('Raft down the river (r213)', 'raft'),
+    ]
+
+    def __init__(self, model=None, features=None, seed=None, start_hex='0101'):
+        self.model = model or GameModel.load()
+        if features is None:
+            with open(os.path.join(DATA, 'features.json'), encoding='utf-8') as f:
+                features = json.load(f)
+        self.features = features
+        self.rng = random.Random(seed)
+        self.log = []
+        self.prompts = []
+        self.day = 1
+        self.hex = start_hex
+        self.gold = 0
+        self.food = 0
+        self.caches = {}
+        self.visited = {start_hex}
+        self.items = []
+        self.raft = False
+        self.raft_days = 0
+        self.news_bonus = {}
+        self.offering_bonus = 0
+        self.free_lodging = False
+        self.staff = False
+        self.party = []
+        self.combat = None
+        self.pending_event = None
+        self.action = None
+        self.phase = 'action'
+        self.moves_left = 0
+        self.flying = False
+        self.game_over = False
+        self.won = False
+        self.reason = ''
+        self.wit = self.d1()
+        if self.wit == 1:
+            self.wit = 2
+        self.start()
+
+    # ------------------------------------------------------------ dice & logging
+    def d1(self):
+        return self.rng.randint(1, 6)
+
+    def d2(self):
+        return self.rng.randint(1, 6) + self.rng.randint(1, 6)
+
+    def note(self, text):
+        self.log.append(text)
+
+    def treasure_roll(self, code):
+        """r226 Treasure Table: wealth code + one die -> gold (and maybe an item)."""
+        table = {int(r['code']): r['results'] for r in self.model.tables['treasure_table']}
+        code = int(code)
+        if code not in table:
+            code = max(0, min(110, code))
+            if code not in table:
+                return 0, None
+        raw = table[code][self.d1() - 1]
+        raw = str(raw)
+        item = None
+        if '+' in raw:
+            gold, letter = raw.split('+')
+            item = f'Special possession {letter}'
+        else:
+            gold = raw
+        return int(gold), item
+
+    # ------------------------------------------------------------ party helpers
+    def living(self):
+        return [c for c in self.party if c.alive and not c.dead]
+
+    def prince(self):
+        for c in self.party:
+            if c.prince:
+                return c
+        return None
+
+    def has_guide(self):
+        return any(c.guide for c in self.living())
+
+    def speed(self):
+        """r204a - 3 hexes if the whole party has winged mounts,
+        2 if everyone is mounted, otherwise 1 (on foot)."""
+        party = self.living()
+        if not party:
+            return 1
+        if all(c.mount == 'winged' for c in party):
+            return 3
+        if all(c.mount != 'none' for c in party):
+            return 2
+        return 1
+
+
+    def start(self):
+        self.party.append(Character('Cal Arath (the Prince)', 8, 9, 2,
+                                    prince=True))
+        self.gold = 0
+        self.note(f'The Barbarian Prince begins his quest in hex {self.hex}. '
+                  f'Wit & wiles = {self.wit}.')
+
+    def place(self, hid):
+        return self.features['places'].get(hid)
+
+    def place_name(self, hid):
+        p = self.place(hid)
+        return p['name'] if p else None
+
+    def place_kind(self, hid):
+        p = self.place(hid)
+        return p['kind'] if p else None
+
+    def cache(self, amount):
+        """r214 - bury gold in the current hex as a hidden cache."""
+        if amount <= 0 or amount > self.gold:
+            return False
+        self.gold -= amount
+        code = min(110, max(1, (amount + 99) // 100))
+        self.caches[self.hex] = (code, amount)
+        self.note(f'Cached {amount} gold in hex {self.hex}.')
+        return True
+
+
+    # ------------------------------------------------------------ travel (r204, r205)
+    def is_road_move(self, a, b):
+        return frozenset((a, b)) in self.features['road_sides']
+
+    def is_river_move(self, a, b):
+        return frozenset((a, b)) in self.features['river_sides']
+
+    def check_lost(self, terrain):
+        """r205 - roll 2 dice vs the terrain threshold; a guide subtracts 1."""
+        row = self.model.travel_row(terrain)
+        thr = threshold(row['lost']) if row else None
+        if thr is None:
+            return False
+        r = self.d2() - (1 if self.has_guide() else 0)
+        self.note(f'Getting lost check [{terrain}]: rolled {r} vs {thr}+ '
+                  + ('-> LOST' if r >= thr else '-> ok'))
+        return r >= thr
+
+    def travel_event(self, hid, road=False, flying=False, rafting=False):
+        terrain = ('Rafting' if rafting else 'On Road' if road
+                   else 'Airborne' if flying
+                   else self.model.travel_terrain(hid))
+        row = self.model.travel_row(terrain)
+        if not row:
+            return
+        thr = threshold(row['event_threshold'])
+        r = self.d2()
+        if thr is not None and r >= thr:
+            die = self.d1()
+            ref = row['event_refs'][die - 1]
+            code = self.model.resolve_event_ref(ref, die)
+            self.note(f'Travel event [{terrain}]: rolled {r} (needs {thr}+), '
+                      f'die {die} -> {ref} -> {code}')
+            self.encounter(code)
+        else:
+            self.note(f'No travel event [{terrain}]: rolled {r} (needs {thr}+).')
+
+    def begin_travel(self):
+        self.action = 'travel'
+        self.moves_left = self.speed()
+        self.flying = self.speed() == 3
+        self.note(f'Travel action: the party moves {self.moves_left} hex/day '
+                  + ('(airborne)' if self.flying else
+                     '(mounted)' if self.speed() == 2 else '(on foot)'))
+        self.choose_move()
+
+    def choose_move(self):
+        nbs = self.model.neighbors(self.hex)
+        opts = []
+        for d, hid in sorted(nbs.items()):
+            label = f'{d} -> {hid} ({self.model.travel_terrain(hid)})'
+            if self.is_road_move(self.hex, hid):
+                label += ' [road]'
+            if self.is_river_move(self.hex, hid):
+                label += ' [river]'
+            opts.append({'label': label,
+                         'handler': (lambda hid=hid: self.move(hid))})
+        opts.append({'label': 'Stop travelling for the day',
+                     'handler': (lambda: self.stop_travel())})
+        self.push('choice', f'Move ({self.moves_left} hex(es) left)',
+                  f'In hex {self.hex}. Choose the next hex to enter (r204).', opts)
+
+    def stop_travel(self):
+        self.moves_left = 0
+        self.note('The party stops travelling for the day.')
+        return 'Travel ended.'
+
+    def move(self, dest):
+        src = self.hex
+        if self.moves_left <= 0:
+            self.note('No movement left this day.')
+            return False
+        if dest not in self.model.neighbors(src).values():
+            self.note(f'{dest} is not adjacent to {src}.')
+            return False
+        road = self.is_road_move(src, dest)
+        river = self.is_river_move(src, dest)
+        self.note(f'Travel {src} -> {dest}: {self.model.travel_terrain(src)} -> '
+                  f'{self.model.travel_terrain(dest)}'
+                  + (' [road]' if road else '') + (' [river]' if river else ''))
+        # r205: getting lost is checked for every hex entered, using the terrain
+        # of the hex the party is leaving (roads are exempt).
+        if not road:
+            lost = self.check_lost('Airborne' if self.flying
+                                   else self.model.travel_terrain(src))
+            if lost:
+                self.moves_left = 0
+                if river:
+                    self.note('Lost crossing the river - no crossing found, the day '
+                              'is spent on the bank (r205d). No travel event.')
+                    return False
+                if self.flying:
+                    if self.d1() >= 4:
+                        d = self.d1()
+                        drift = self.model.neighbors(src).get(DIRECTIONS[d - 1])
+                        if drift:
+                            self.hex = drift
+                            self.visited.add(drift)
+                            self.note(f'Airborne and lost: blown to {drift} (r205c).')
+                else:
+                    self.note('Lost - the day is spent wandering in ' + src + ', '
+                              'checking the hex that was entered (r205b).')
+                self.travel_event(dest, road=road, flying=self.flying)
+                return False
+
+        self.hex = dest
+        self.moves_left -= 1
+        self.visited.add(dest)
+        self.travel_event(dest, road=road, flying=self.flying)
+        return True
+
+
+    # ------------------------------------------------------------ prompt plumbing
+    def push(self, kind, title, text, options):
+        self.prompts.append({'kind': kind, 'title': title, 'text': text,
+                             'options': options})
+
+    def current(self):
+        return self.prompts[0] if self.prompts else None
+
+    def answer(self, index=0):
+        p = self.prompts.pop(0)
+        opt = p['options'][index]
+        return opt['handler']()
+
+    def is_busy(self):
+        return bool(self.prompts)
+
+    def advance(self):
+        """Move the day state machine forward until a prompt is available."""
+        while not self.prompts:
+            if self.game_over:
+                return None
+            if self.combat:
+                self.push_combat()
+                continue
+            if self.phase == 'action':
+                if self.action is None:
+                    self.daily_menu()
+                elif self.action == 'travel' and self.moves_left > 0:
+                    self.choose_move()
+                else:
+                    self.phase = 'endday'
+                    self.food_done = False
+                    self.end_day()
+            elif self.phase == 'endday':
+                if not self.food_done:
+                    self.food_done = True
+                    self.lodging()
+                else:
+                    self.finish_day()
+                    self.phase = 'action'
+        return self.current()
+
+
+
+    # ------------------------------------------------------------ encounters (r207)
+    def encounter(self, code):
+        ev = self.model.events.get(code)
+        if not ev:
+            self.note(f'(event {code} is not in the booklet - nothing happens)')
+            return
+        opts = parse_options(ev['text'])
+        self.pending_event = {'code': code, 'title': ev['title'], 'text': ev['text'],
+                              'headers': [], 'rows': []}
+        if opts:
+            headers, rows, note = opts
+            self.pending_event.update({'headers': headers, 'rows': rows, 'note': note})
+            self.push('encounter', f'{code} - {ev["title"]}',
+                      ev['text'] + ('\n' + note if note else ''),
+                      self.option_choices(headers))
+        else:
+            self.push('info', f'{code} - {ev["title"]}', ev['text'],
+                      [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+
+    def option_choices(self, headers):
+        return [{'label': f'{h} (roll 2 dice)',
+                 'handler': (lambda i=i: self.roll_option(i))}
+                for i, h in enumerate(headers)]
+
+    def roll_option(self, header_index):
+        ev = self.pending_event
+        dice = self.d2()
+        row = None
+        for roll, cells in ev['rows']:
+            if roll == dice:
+                row = cells
+                break
+        if not row:
+            self.note(f'No entry for a roll of {dice}.')
+            return 'Nothing happens.'
+        cell = row[header_index] if header_index < len(row) else row[-1]
+        label, ref = cell
+        header = ev['headers'][header_index]
+        self.note(f'{header} - rolled {dice}: {label} -> {ref}')
+        return self.resolve_ref(ref, ev)
+
+    def re_encounter(self):
+        """Return to the event and pick another option (r314, r317, ...)."""
+        ev = self.pending_event
+        if not ev or not ev.get('headers'):
+            return 'The encounter ends.'
+        self.push('choice', f'{ev["code"]} - {ev["title"]} (try again)',
+                  'That option failed. Choose another approach.',
+                  self.option_choices(ev['headers']))
+        return 'Choose another option.'
+
+
+    # ------------------------------------------------------------ combat (r220)
+    def battle_situation(self, ref):
+        """r300-r310: who strikes first, and who has surprise."""
+        die = self.d1()
+        if ref == 'r300':
+            self.note(f'{ref}: your party surprises them.')
+            return True, 'party'
+        if ref == 'r301':
+            s = 'party' if self.wit >= die else None
+            self.note(f'{ref}: die {die}, wit {self.wit} '
+                      + ('-> surprise' if s else '-> you strike first'))
+            return True, s
+        if ref == 'r302':
+            s = 'party' if self.wit > die else None
+            self.note(f'{ref}: die {die}, wit {self.wit} '
+                      + ('-> surprise' if s else '-> you strike first'))
+            return True, s
+        if ref == 'r303':
+            s = 'party' if len(self.living()) < die else None
+            self.note(f'{ref}: die {die}, party {len(self.living())} '
+                      + ('-> surprise' if s else '-> you strike first'))
+            return True, s
+        if ref == 'r304':
+            self.note(f'{ref}: your party strikes first.')
+            return True, None
+        if ref == 'r305':
+            first = self.wit >= die
+            self.note(f'{ref}: die {die}, wit {self.wit} '
+                      + ('-> you strike first' if first else '-> they strike first'))
+            return first, None
+        if ref == 'r306':
+            first = self.wit > die
+            self.note(f'{ref}: die {die}, wit {self.wit} '
+                      + ('-> you strike first' if first else '-> they strike first'))
+            return first, None
+        if ref == 'r307':
+            self.note(f'{ref}: they strike first.')
+            return False, None
+        if ref == 'r308':
+            s = None if self.wit >= die else 'foes'
+            self.note(f'{ref}: die {die}, wit {self.wit} '
+                      + ('-> you sense danger' if s is None else '-> they surprise you'))
+            return False, s
+        if ref == 'r309':
+            s = None if self.wit > die else 'foes'
+            self.note(f'{ref}: die {die}, wit {self.wit} '
+                      + ('-> you sense danger' if s is None else '-> they surprise you'))
+            return False, s
+        self.note(f'{ref}: they surprise your party.')
+        return False, 'foes'
+
+    def start_combat(self, ev=None, modifier=0):
+        total = self.d2() + modifier
+        ref = BATTLE_REFERENCE.get(min(12, max(2, total)), 'r306')
+        self.note(f'Battle reference: rolled {total} -> {ref}')
+        first, surprise = self.battle_situation(ref)
+        foes = parse_foes(ev['text'] if ev else '')
+        if not foes:
+            foes = [Character('Foe 1', 4, 5, 0)]
+        self.combat = Combat(self.living(), foes, self.rng, first,
+                             (ev['title'] if ev else 'Battle'), surprise, self.note)
+        self.note(f'Combat: party ({len(self.combat.party)}) vs '
+                  f'foes ({len(self.combat.foes)})')
+        self.push_combat()
+        return 'Combat begins.'
+
+    def push_combat(self):
+        c = self.combat
+        body = '\n'.join(c.log[-12:])
+        body += '\nParty: ' + ', '.join(repr(x) for x in c.party)
+        body += '\nFoes:  ' + ', '.join(repr(x) for x in c.foes)
+        self.push('combat', f'Combat - {c.name} (round {c.round})', body,
+                  [{'label': 'Fight this round', 'handler': (lambda: self.fight_round())},
+                   {'label': 'Attempt to escape (r220e)',
+                    'handler': (lambda: self.flee_combat())}])
+
+    def fight_round(self):
+        result = self.combat.step()
+        if self.combat.over:
+            return self.finish_combat()
+        self.push_combat()
+        return 'Combat continues.'
+
+    def flee_combat(self):
+        ok, die = self.combat.attempt_escape()
+        if ok:
+            self.note('The party breaks off and escapes the battle.')
+            self.combat = None
+            self.escape_move()
+            return 'Escaped from combat.'
+        self.push_combat()
+        return 'Escape fails.'
+
+    def finish_combat(self):
+        c = self.combat
+        self.note(f'Combat ends: {c.result}.')
+        if c.result in ('party wins', 'foes routed'):
+            for foe in c.foes:
+                if foe.alive:
+                    gold, item = self.treasure_roll(foe.wealth)
+                    self.gold += gold
+                    if item:
+                        self.items.append(item)
+                    self.note(f'Loot from {foe.name}: {gold} gold'
+                              + (f' + {item}' if item else ''))
+        self.combat = None
+        self.party = [x for x in self.party if x.alive]
+        if not self.living():
+            self.game_over = True
+            self.reason = 'The whole party has been wiped out.'
+        return f'Combat over ({c.result}).'
+
+
+    # ------------------------------------------------------------ escape & hide (r218)
+    def escape_move(self):
+        """Move randomly to an adjacent hex; rivers and off-map are re-rolled."""
+        for _ in range(12):
+            d = self.rng.choice(DIRECTIONS)
+            hid = self.model.neighbors(self.hex).get(d)
+            if hid is None:
+                self.note('Escape direction leads off the map - roll again.')
+                continue
+            if self.is_river_move(self.hex, hid) and not self.flying:
+                self.note('Escape across a river is prohibited - roll again.')
+                continue
+            self.hex = hid
+            self.visited.add(hid)
+            self.note(f'Escaped to hex {hid} ({self.model.travel_terrain(hid)}).')
+            return hid
+        self.note('No escape route available - the party stays put.')
+        return self.hex
+
+    def hide_here(self):
+        self.note('The party hides in this hex for the rest of the day.')
+        self.moves_left = 0
+        self.action = 'hide'
+        return 'Hiding.'
+
+    def escape_ref(self, ref, ev):
+        if ref == 'r311':
+            self.escape_move()
+            return 'Escaped.'
+        if ref == 'r312':
+            if all(c.mount != 'none' for c in self.living()):
+                self.escape_move()
+                return 'Escaped mounted.'
+            opts = [{'label': 'Abandon the unmounted and ride away',
+                     'handler': (lambda: self.abandon_unmounted())},
+                    {'label': 'Stand and fight (r330)',
+                     'handler': (lambda: self.start_combat(ev))}]
+            self.push('choice', 'Escape mounted (r312)',
+                      'Not everyone in the party has a mount.', opts)
+            return 'Decide what to do.'
+        if ref == 'r313':
+            if all(c.mount == 'winged' for c in self.living()):
+                self.escape_move()
+                return 'Escaped by flight.'
+            opts = [{'label': 'Abandon those who cannot fly',
+                     'handler': (lambda: self.abandon_unmounted())},
+                    {'label': 'Stand and fight (r330)',
+                     'handler': (lambda: self.start_combat(ev))}]
+            self.push('choice', 'Escape flying (r313)',
+                      'Not everyone in the party can fly.', opts)
+            return 'Decide what to do.'
+        die = self.d1()
+        if (ref == 'r314' and self.wit >= die) or (ref == 'r315' and self.wit > die):
+            self.note(f'Talking escape: die {die}, wit {self.wit} -> it works.')
+            self.escape_move()
+            return 'Escaped.'
+        self.note(f'Talking escape: die {die}, wit {self.wit} -> it fails.')
+        return self.re_encounter()
+
+    def abandon_unmounted(self):
+        left = [c for c in self.living() if c.mount == 'none' and not c.prince]
+        for c in left:
+            self.note(f'{c.name} is abandoned.')
+            c.alive = False
+        self.party = [c for c in self.party if c.alive]
+        self.escape_move()
+        return 'Escaped, leaving the unmounted behind.'
+
+    def hide_ref(self, ref, ev):
+        if ref == 'r316':
+            return self.hide_here()
+        die = self.d1()
+        if ref == 'r317' and self.wit >= die:
+            return self.hide_here()
+        if ref == 'r318' and self.wit > die:
+            return self.hide_here()
+        if ref == 'r319' and len(self.living()) <= die:
+            return self.hide_here()
+        if ref == 'r320' and len(self.living()) < die:
+            return self.hide_here()
+        self.note(f'Hiding attempt fails (die {die}).')
+        return self.re_encounter()
+
+    # ------------------------------------------------------------ bribe & pass (r321-r329)
+    def bribe_amount(self, ev):
+        if not ev:
+            return 10
+        m = re.search(r'(\d+)\s*(?:gold|gp)', ev['text'])
+        return int(m.group(1)) if m else 10
+
+    def bribe_ref(self, ref, ev):
+        amount = self.bribe_amount(ev)
+        if self.gold < amount:
+            self.note(f'You cannot afford the {amount} gold bribe.')
+            if ref == 'r324':
+                return self.forced_battle(ev, 0, foes_first=True)
+            mod = 1 if ref == 'r321' else (-1 if ref == 'r323' else 0)
+            return self.forced_battle(ev, mod)
+        self.gold -= amount
+        self.note(f'Bribed them {amount} gold - the encounter ends.')
+        return 'Passed by.'
+
+
+    def forced_battle(self, ev, modifier=0, foes_first=False):
+        if foes_first:
+            self.combat = Combat(self.living(), parse_foes(ev['text'] if ev else ''),
+                                 self.rng, False, (ev['title'] if ev else 'Battle'),
+                                 'foes', self.note)
+            self.push_combat()
+            return 'Combat begins.'
+        return self.start_combat(ev, modifier)
+
+    def pass_ref(self, ref, ev):
+        if ref == 'r325':
+            self.note('They lose interest and let you pass.')
+            return 'Passed by.'
+        die = self.d1()
+        ok = (ref in ('r326', 'r327') and self.wit >= die) or \
+             (ref in ('r328', 'r329') and self.wit > die)
+        if ok:
+            self.note(f'Talk your way past: die {die}, wit {self.wit} -> they let you pass.')
+            return 'Passed by.'
+        mod = 1 if ref in ('r326',) else (-1 if ref == 'r329' else 0)
+        self.note(f'Talking fails (die {die}, wit {self.wit}) - forced to fight.')
+        return self.forced_battle(ev, mod)
+
+
+    # ------------------------------------------------------------ hiring (r331-r340)
+    def offer_hire(self, ev, pay, bonus=0, unreliable=False, town_leaver=False,
+                    on_refuse=None):
+        foes = parse_foes(ev['text'] if ev else '')
+        if not foes:
+            return 'Nobody to hire.'
+        opts = [{'label': f'Hire all {len(foes)} for {pay} gold/day'
+                          + (f' (+{bonus} bonus now)' if bonus else ''),
+                 'handler': (lambda: self.accept_hire(foes, pay, unreliable,
+                                                      town_leaver))}]
+        opts.append({'label': 'Refuse',
+                     'handler': on_refuse or (lambda: 'They pass by.')})
+        self.push('choice', 'Hiring (r331-r340)',
+                  f'{len(foes)} character(s) offer to join: '
+                  + ', '.join(repr(f) for f in foes), opts)
+        return 'Decide whether to hire.'
+
+    def accept_hire(self, foes, pay, unreliable=False, town_leaver=False):
+        bonus = pay * len(foes)
+        if bonus and self.gold < bonus:
+            self.note('You cannot pay today\'s wages - they refuse.')
+            return 'Hiring fails.'
+        self.gold -= bonus
+        for f in foes:
+            f.pay = pay
+            f.unreliable = unreliable
+            f.town_leaver = town_leaver
+            f.name = f.name.replace('Foe', 'Hired')
+        self.party.extend(foes)
+        self.note(f'{len(foes)} character(s) join the party at {pay} gold/day each.')
+        return 'Followers acquired.'
+
+    def refuse_roll(self, ev, mapping):
+        die = self.d1()
+        ref = mapping.get(die, 'r325')
+        self.note(f'Refusal roll {die} -> {ref}')
+        return self.resolve_ref(ref, ev)
+
+    def hire_ref(self, ref, ev):
+        amount = self.bribe_amount(ev)
+        if ref == 'r331':
+            if self.gold >= amount:
+                self.gold -= amount
+                return self.accept_hire(parse_foes(ev['text']), 0, unreliable=True)
+            die = self.d1()
+            if die <= 3:
+                self.note('They ignore you - the encounter ends.')
+                return 'They ignore you.'
+            return self.bribe_ref({4: 'r321', 5: 'r322', 6: 'r323'}[die], ev)
+        if ref == 'r332':
+            return self.offer_hire(ev, 2, bonus=amount,
+                                  on_refuse=lambda: self.refuse_roll(
+                                      ev, {3: 'r321', 4: 'r322', 5: 'r323', 6: 'r324'}))
+        if ref == 'r333':
+            return self.offer_hire(ev, 2)
+        if ref == 'r334':
+            return self.accept_hire(parse_foes(ev['text']), 0)
+        if ref == 'r335':
+            return self.accept_hire(parse_foes(ev['text']), 0, town_leaver=True)
+        if ref == 'r336':
+            die = self.d1()
+            if self.wit >= die:
+                return self.accept_hire(parse_foes(ev['text']), 0)
+            self.note('They decline - the encounter ends.')
+            return 'They leave.'
+        if ref == 'r337':
+            die = self.d1()
+            if self.wit > die:
+                return self.accept_hire(parse_foes(ev['text']), 0)
+            die = self.d1()
+            if die == 1:
+                return 'They pass by.'
+            if die == 2:
+                return self.forced_battle(ev)
+            if die == 3:
+                return self.hire_ref('r340', ev)
+            if die <= 5:
+                return self.conversation(ev)
+            return self.general_inquiry(ev)
+        return 'Nothing happens.'
+
+
+    def hire_ref2(self, ref, ev):
+        if ref == 'r338':
+            die = self.d1()
+            if self.wit >= die:
+                pay = 1 if self.wit > die else 2
+                return self.accept_hire(parse_foes(ev['text']), pay)
+            self.note('You fail to convince them - they pass by.')
+            return 'They pass by.'
+        if ref == 'r339':
+            die = self.d1()
+            if self.wit > die:
+                return self.accept_hire(parse_foes(ev['text']), 2)
+            die = self.d1()
+            return ('They pass by.' if die <= 3 else self.forced_battle(ev))
+        if ref == 'r340':
+            opts = [{'label': 'Let them pass', 'handler': (lambda: 'They pass by.')},
+                    {'label': 'Try to convince them to join',
+                     'handler': (lambda: self.looter(ev))}]
+            self.push('choice', 'Looters (r340)', 'Let them pass or convince them?', opts)
+            return 'Decide.'
+        return 'Nothing happens.'
+
+    def looter(self, ev):
+        die = self.d1()
+        if self.wit >= die:
+            return self.accept_hire(parse_foes(ev['text']), 0, unreliable=True)
+        die = self.d1()
+        if die <= 2:
+            self.note('They attack you personally, striking first.')
+            self.combat = Combat(self.living(), parse_foes(ev['text']), self.rng,
+                                 False, ev['title'], 'foes', self.note)
+            self.push_combat()
+            return 'Combat.'
+        if die <= 4:
+            return self.forced_battle(ev)
+        self.note('They depart angry, without fighting.')
+        return 'They leave.'
+
+    # ------------------------------------------------------------ conversation (r341, r342)
+    def conversation(self, ev):
+        self.note('Conversation (r341) takes the whole day - no further travel.')
+        self.moves_left = 0
+        self.action = 'conversation'
+        total = self.d2()
+        ref = CONVERSATION.get(total, 'r325')
+        self.note(f'Conversation roll {total} -> {ref}')
+        if ref == 'r310':
+            self.combat = Combat(self.living(), parse_foes(ev['text']), self.rng,
+                                 False, ev['title'], 'foes', self.note)
+            self.push_combat()
+            return 'Combat.'
+        if ref in ('r308', 'r305'):
+            return self.start_combat(ev)
+        return self.resolve_ref(ref, ev)
+
+    def general_inquiry(self, ev):
+        total = self.d2()
+        ref = INQUIRY.get(total, 'r325')
+        self.note(f'General inquiry roll {total} -> {ref}')
+        if ref == 'r330':
+            return self.forced_battle(ev)
+        if ref in ('r309', 'r306'):
+            return self.start_combat(ev)
+        return self.resolve_ref(ref, ev)
+
+    def victim_selection(self, ev):
+        """r343 - randomly select a party member as the victim."""
+        party = self.living()
+        for _ in range(12):
+            c = self.rng.choice(party)
+            if self.d1() == 6 or len(party) == 1:
+                self.note(f'The victim selected is {c.name}.')
+                return c
+        self.note(f'The victim selected is {party[0].name}.')
+        return party[0]
+
+    # ------------------------------------------------------------ reference resolver
+    def resolve_ref(self, ref, ev=None):
+        if not ref:
+            return 'Nothing happens.'
+        if ref in ('r300', 'r301', 'r302', 'r303', 'r304', 'r305', 'r306',
+                   'r307', 'r308', 'r309', 'r310'):
+            return self.start_combat(ev)
+        if ref in ('r311', 'r312', 'r313', 'r314', 'r315'):
+            return self.escape_ref(ref, ev)
+        if ref in ('r316', 'r317', 'r318', 'r319', 'r320'):
+            return self.hide_ref(ref, ev)
+        if ref in ('r321', 'r322', 'r323', 'r324'):
+            return self.bribe_ref(ref, ev)
+        if ref in ('r325', 'r326', 'r327', 'r328', 'r329'):
+            return self.pass_ref(ref, ev)
+        if ref == 'r330':
+            return self.forced_battle(ev)
+        if ref in ('r331', 'r332', 'r333', 'r334', 'r335', 'r336', 'r337'):
+            return self.hire_ref(ref, ev)
+        if ref in ('r338', 'r339', 'r340'):
+            return self.hire_ref2(ref, ev)
+        if ref == 'r341':
+            return self.conversation(ev)
+        if ref == 'r342':
+            return self.general_inquiry(ev)
+        if ref == 'r343':
+            self.victim_selection(ev)
+            return self.forced_battle(ev)
+        self.note(f'(reference {ref} is not implemented - nothing happens)')
+        return 'Nothing happens.'
+
+
+    # ------------------------------------------------------------ daily actions
+    def begin_action(self, action):
+        self.action = action
+        if action == 'travel':
+            return self.begin_travel()
+        if action == 'rest':
+            return self.rest()
+        if action == 'news':
+            return self.seek_news()
+        if action == 'hire':
+            return self.seek_hire()
+        if action == 'audience':
+            return self.seek_audience()
+        if action == 'offerings':
+            return self.make_offerings()
+        if action == 'ruins':
+            return self.search_ruins()
+        if action == 'cache':
+            return self.recover_cache()
+        if action == 'raft':
+            return self.raft_action()
+        if action == 'explore':
+            return self.explore()
+        return 'Unknown action.'
+
+    def seek_news(self):
+        """r209 - seek news & information: 2 dice, +1 per follower with skill 6+."""
+        bonus = sum(1 for c in self.living() if c.skill >= 6)
+        total = self.d2() + bonus
+        self.note(f'Seeking news: rolled {total} (bonus {bonus}).')
+        if total <= 10:
+            self.note('Nothing learned - the day is wasted.')
+            return 'Nothing learned.'
+        kind = self.place_kind(self.hex)
+        if kind in ('Town', 'Castle', 'Temple'):
+            self.note(f'You learn about the {kind} in hex {self.hex}.')
+            self.push('info', f'News about {kind} in {self.hex}',
+                      'You gather useful information about this place.',
+                      [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+            return 'News gathered.'
+        self.note('You learn nothing specific about this hex.')
+        return 'Nothing learned.'
+
+    def search_ruins(self):
+        """r208 - search the ruins: 2 dice, +1 per follower with skill 6+."""
+        bonus = sum(1 for c in self.living() if c.skill >= 6)
+        total = self.d2() + bonus
+        self.note(f'Searching the ruins: rolled {total} (bonus {bonus}).')
+        if total <= 10:
+            self.note('Nothing found - the day is wasted.')
+            return 'Nothing found.'
+        code = RUINS.get(total, 'r325')
+        self.note(f'Ruins roll {total} -> {code}')
+        self.encounter(code)
+        return 'Ruins searched.'
+
+    def recover_cache(self):
+        """r214 - recover a hidden cache buried in this hex."""
+        if self.hex not in self.caches:
+            self.note('There is no cache hidden in this hex.')
+            return 'No cache here.'
+        code, amount = self.caches.pop(self.hex)
+        gold, item = self.treasure_roll(code)
+        self.gold += gold
+        if item:
+            self.items.append(item)
+        self.note(f'Recovered the cache: {gold} gold' + (f' + {item}' if item else ''))
+        return 'Cache recovered.'
+
+    def raft_action(self):
+        """r213 - raft down the river: 2 dice, +1 per follower with skill 6+."""
+        bonus = sum(1 for c in self.living() if c.skill >= 6)
+        total = self.d2() + bonus
+        self.note(f'Rafting: rolled {total} (bonus {bonus}).')
+        if total <= 10:
+            self.note('The raft is lost and the day is wasted.')
+            self.raft = False
+            return 'Raft lost.'
+        code = RAFTING.get(total, 'r325')
+        self.note(f'Rafting roll {total} -> {code}')
+        self.raft_days += 1
+        self.encounter(code)
+        return 'Rafting continues.'
+
+    def seek_audience(self):
+        """r211 - seek an audience: 2 dice, +1 per follower with skill 6+."""
+        kind = self.place_kind(self.hex)
+        if kind not in ('Town', 'Castle', 'Temple'):
+            self.note('There is nobody here to grant an audience.')
+            return 'No audience available.'
+        bonus = sum(1 for c in self.living() if c.skill >= 6)
+        total = self.d2() + bonus
+        self.note(f'Seeking an audience in {kind} {self.hex}: rolled {total}.')
+        if total <= 10:
+            self.note('The audience is refused - the day is wasted.')
+            return 'Audience refused.'
+        code = AUDIENCE.get(total, 'r325')
+        self.note(f'Audience roll {total} -> {code}')
+        self.encounter(code)
+        return 'Audience sought.'
+
+    def make_offerings(self):
+        """r212 - submit offerings at a temple or town."""
+        kind = self.place_kind(self.hex)
+        if kind not in ('Town', 'Temple', 'Castle'):
+            self.note('There is nowhere here to make offerings.')
+            return 'No offerings possible.'
+        opts = [{'label': f'Offer {g} gold',
+                 'handler': (lambda g=g: self.offering(g))}
+                for g in (1, 5, 10, 20, 50) if g <= self.gold]
+        if not opts:
+            self.note('You have no gold to offer.')
+            return 'No offerings.'
+        opts.append({'label': 'Withdraw', 'handler': (lambda: 'Offerings abandoned.')})
+        self.push('choice', 'Submit offerings (r212)',
+                  f'How much gold do you offer in {kind} {self.hex}?', opts)
+        return 'Choose an offering.'
+
+    def offering(self, amount):
+        self.gold -= amount
+        code = OFFERINGS.get(min(100, amount), 'r325')
+        self.note(f'Offering of {amount} gold -> {code}')
+        self.encounter(code)
+        return 'Offerings made.'
+
+
+    # ------------------------------------------------------------ rest (r222)
+    def rest(self):
+        self.note('Resting in hex ' + self.hex + ' (r222).')
+        self.moves_left = 0
+        self.action = 'rest'
+        before = len(self.log)
+        self.travel_event(self.hex, road=self.is_road_move(self.hex, self.hex))
+        events = self.log[before:]
+        combat_or_escape = any('combat' in e.lower() or 'escape' in e.lower()
+                               or 'rout' in e.lower() for e in events)
+        if self.prompts:
+            return 'Rest interrupted by an encounter.'
+        for c in self.living():
+            if c.wounds > 0:
+                c.wounds -= 1
+                self.note(f'{c.name} heals a wound ({c.wounds}/{c.endurance}).')
+        if combat_or_escape:
+            self.note('The rest was disturbed, so no wounds are healed.')
+        return 'Rested and healed.'
+
+    # ------------------------------------------------------------ food (r215, r216)
+    def foraging_ok(self):
+        t = self.model.terrain(self.hex)
+        return t in ('farmland', 'countryside', 'forest', 'hills')
+
+    def food_need(self):
+        need = len(self.living())
+        if not self.foraging_ok():
+            need += 2 * sum(1 for c in self.living() if c.mount != 'none')
+        if self.model.terrain(self.hex) == 'desert':
+            need *= 2
+        return need
+
+    def feed_party(self):
+        need = self.food_need()
+        kind = self.place_kind(self.hex)
+        opts = []
+        if self.food >= need:
+            opts.append({'label': f'Eat from stores ({need} units)',
+                         'handler': (lambda: self.eat_stores(need))})
+        if kind in ('town', 'castle', 'temple'):
+            opts.append({'label': f'Buy meals ({need} gold)',
+                         'handler': (lambda: self.buy_meals(need))})
+        if not (kind in ('town', 'castle', 'temple')):
+            opts.append({'label': 'Go hunting (r215b)',
+                         'handler': (lambda: self.hunt(need))})
+        opts.append({'label': 'Go hungry (r216)',
+                     'handler': (lambda: self.starve(need))})
+        self.push('choice', f'Evening meal - need {need} food units',
+                  f'Party needs {need} food units; you have {self.food} in stores.',
+                  opts)
+
+    def eat_stores(self, need):
+        self.food -= need
+        self.note(f'Ate {need} food units from stores.')
+        return 'Fed.'
+
+    def buy_meals(self, need):
+        if self.gold >= need:
+            self.gold -= need
+            self.note(f'Bought meals for {need} gold.')
+            return 'Fed.'
+        self.note('Not enough gold to buy meals.')
+        return self.starve(need)
+
+    def hunt(self, need):
+        hunter = max(self.living(), key=lambda c: c.skill + c.remaining // 2)
+        total = hunter.skill + hunter.remaining // 2
+        total += sum(1 for c in self.living() if c.guide)
+        dice = self.d2()
+        gained = total - dice
+        self.note(f'Hunting by {hunter.name}: {total} - {dice} = {gained} units.')
+        if dice == 12:
+            wounds = self.d1()
+            hunter.wounds += wounds
+            self.note(f'The hunter is hurt: {wounds} wounds '
+                      f'({hunter.wounds}/{hunter.endurance})'
+                      + (' -> dead' if hunter.dead else ''))
+            if hunter.dead:
+                hunter.alive = False
+                gained = 0
+        if self.model.terrain(self.hex) == 'farmland':
+            die = self.d1()
+            if die == 5:
+                self.note('Peasant mob in pursuit (e017).')
+                self.encounter('e017')
+            elif die == 6:
+                self.note('Pursued by constabulary (e050).')
+                self.encounter('e050')
+        if gained > 0:
+            self.food += gained
+            self.note(f'Hunt yields {gained} food units.')
+        if gained < need:
+            self.note(f'Still short {need - gained} units - some go hungry.')
+            self.starve(need - gained)
+        return 'Hunted.'
+
+    def starve(self, shortfall):
+        self.note(f'{shortfall} food unit(s) short - starvation (r216).')
+        for c in self.living():
+            if c.prince:
+                continue
+            die = self.d2() - self.wit
+            if die >= 4:
+                self.note(f'{c.name} deserts because of hunger.')
+                c.alive = False
+            else:
+                c.starved += 1
+                self.note(f'{c.name} starves (skill now {c.effective_skill}).')
+        self.party = [c for c in self.party if c.alive]
+        if not self.living():
+            self.game_over = True
+            self.reason = 'The whole party deserted or died.'
+        return 'Starvation resolved.'
+
+
+    # ------------------------------------------------------------ hiring (r210)
+    def seek_hire(self):
+        kind = self.place_kind(self.hex)
+        if kind not in ('town', 'castle'):
+            self.note('You can only seek to hire followers in a town or castle.')
+            return 'No hiring possible here.'
+        bonus = 1 if self.news_bonus.get(self.hex) else 0
+        total = self.d2() + bonus
+        row = self.model.roll_row(self.model.tables['hiring'], total)
+        text = row['text'] if row else 'Nothing available.'
+        self.note(f'Seeking to hire: rolled {total} -> {text}')
+        m = re.search(r'e(\d{3})', text)
+        if m:
+            self.encounter('e' + m.group(1))
+            return 'Hiring attempt led to an encounter.'
+        if total == 2:
+            return self.offer_hire({'text': 'Freeman (skill 3, endurance 4)'}, 0)
+        if total == 3:
+            return self.offer_hire({'text': 'Lancer (skill 5, endurance 5, horse)'},
+                                   3)
+        if total == 4:
+            n = self.d1()
+            n = min(2, max(1, n - 4))
+            return self.offer_hire({'text': f'Mercenary x{n} (skill 4, endurance 4)'}, 2)
+        if total in (5, 10):
+            price = 10 if total == 5 else 7
+            opts = [{'label': f'Buy {i} horse(s) for {i * price} gold',
+                     'handler': (lambda i=i: self.buy_horses(i, price))}
+                    for i in (1, 2, 3) if i * price <= self.gold]
+            opts.append({'label': 'Decline', 'handler': (lambda: 'No horses bought.')})
+            self.push('choice', 'Horse dealer', f'Horses cost {price} gold each.', opts)
+            return 'Horse dealer offers.'
+        if total == 6:
+            return self.offer_hire({'text': 'Local guide (skill 2, endurance 3)'}, 2)
+        if total == 7:
+            n = self.d1()
+            return self.offer_hire({'text': f'Henchmen x{n} (skill 3, endurance 3)'}, 1)
+        if total == 11:
+            return self.offer_hire({'text': 'Runaway (skill 1, endurance 3)'}, 0)
+        if total >= 12:
+            opts = [{'label': 'Hire a porter (1 gold/day)',
+                     'handler': (lambda: self.accept_hire(
+                         [Character('Porter', 1, 3, 0)], 1))},
+                    {'label': 'Hire a guide (2 gold/day, skill 1, endurance 2)',
+                     'handler': (lambda: self.accept_hire(
+                         [Character('Guide', 1, 2, 0, guide=True)], 2))},
+                    {'label': 'Decline', 'handler': (lambda: 'Nobody hired.')}]
+            self.push('choice', 'Porters & guides available', 'Who do you hire?', opts)
+            return 'Hiring options.'
+        return 'Nothing available.'
+
+    def buy_horses(self, n, price):
+        if self.gold < n * price:
+            self.note('Not enough gold for horses.')
+            return 'No horses bought.'
+        self.gold -= n * price
+        for c in self.living():
+            if c.mount == 'none':
+                c.mount = 'horse'
+                n -= 1
+                if n == 0:
+                    break
+        self.note(f'Bought horses; party now mounted.')
+        return 'Horses bought.'
+
+    # ------------------------------------------------------------ lodging (r217)
+    def lodging(self):
+        kind = self.place_kind(self.hex)
+        if kind not in ('town', 'castle', 'temple'):
+            return 'Camp for the night in the open.'
+        special = sum(1 for c in self.living()
+                      if any(w in c.name.lower() for w in
+                             ('priest', 'monk', 'magician', 'wizard', 'witch')))
+        others = len(self.living()) - special
+        rooms = 1 + special + (others + 1) // 2
+        mounts = sum(1 for c in self.living() if c.mount != 'none')
+        cost = rooms + mounts
+        if self.free_lodging:
+            self.free_lodging = False
+            self.note('Lodging is provided free of charge.')
+            return 'Free lodging.'
+        opts = [{'label': f'Pay {cost} gold for lodging',
+                 'handler': (lambda: self.pay_lodging(cost))},
+                {'label': 'Sleep rough (risk desertion)',
+                 'handler': (lambda: self.sleep_rough())}]
+        self.push('choice', f'Lodging in {kind} {self.hex} (r217)',
+                  f'{rooms} room(s) + {mounts} stable(s) = {cost} gold.', opts)
+        return 'Lodging decision pending.'
+
+    def pay_lodging(self, cost):
+        if self.gold >= cost:
+            self.gold -= cost
+            self.note(f'Paid {cost} gold for lodging.')
+            return 'Lodged.'
+        self.note('Cannot afford lodging.')
+        return self.sleep_rough()
+
+    def sleep_rough(self):
+        self.note('No lodging purchased - rolling for desertion (r217).')
+        for c in list(self.living()):
+            if c.prince:
+                continue
+            die = self.d2() - self.wit
+            if die >= 4:
+                self.note(f'{c.name} deserts - no lodging provided.')
+                c.alive = False
+            else:
+                self.note(f'{c.name} stays ({die}).')
+            if c.mount != 'none':
+                if self.d1() >= 4:
+                    self.note(f'{c.name}\'s mount is stolen during the night.')
+                    c.mount = 'none'
+        self.party = [c for c in self.party if c.alive]
+        if not self.living():
+            self.game_over = True
+            self.reason = 'The party deserted.'
+        return 'Slept rough.'
+
+
+    # ------------------------------------------------------------ end of day
+    def skip_day(self):
+        self.note('The party does nothing today.')
+        self.action = 'skip'
+        return 'Day passed.'
+
+    def end_day(self):
+        if self.combat:
+            self.note('A battle is still in progress - the day cannot end.')
+            return 'Day not finished.'
+        self.feed_party()
+        return 'End-of-day routines started.'
+
+    def finish_day(self):
+        """Called after food/lodging prompts are answered."""
+        self.day += 1
+        self.action = None
+        self.pending_event = None
+        if self.staff:
+            self.game_over = True
+            self.won = True
+            self.reason = 'The Staff of Command has been recovered - the ' \
+                         'Northlands are yours again.'
+        elif self.day > 70:
+            self.game_over = True
+            self.reason = 'Ten weeks have passed; the campaign is over.'
+        elif not self.living():
+            self.game_over = True
+            self.reason = 'The party is gone.'
+        else:
+            self.note(f'Day {self.day} begins in hex {self.hex}.')
+        return 'Day advanced.'
+
+    def daily_menu(self):
+        kind = self.place_kind(self.hex)
+        opts = []
+        for label, act in self.ACTIONS:
+            if act in ('news', 'audience') and kind not in ('town', 'castle', 'temple'):
+                continue
+            if act == 'offerings' and kind != 'temple':
+                continue
+            if act == 'ruins' and kind != 'ruins':
+                continue
+            if act == 'hire' and kind not in ('town', 'castle'):
+                continue
+            if act == 'cache' and self.hex not in self.caches:
+                continue
+            opts.append({'label': label,
+                         'handler': (lambda a=act: self.begin_action(a))})
+        opts.append({'label': 'End the day (food & lodging)',
+                     'handler': (lambda: self.skip_day())})
+        self.push('choice', f'Day {self.day} - action in hex {self.hex}',
+                  f'You are in {self.model.travel_terrain(self.hex)} '
+                  f'({self.model.terrain(self.hex)})'
+                  + (f', at {self.place_name(self.hex)}' if self.place_name(self.hex) else '')
+                  + '. Choose today\'s action (r203).', opts)
+
+    # ------------------------------------------------------------ status
+    def status(self):
+        return {
+            'day': self.day,
+            'hex': self.hex,
+            'terrain': self.model.terrain(self.hex),
+            'travel_terrain': self.model.travel_terrain(self.hex),
+            'place': self.place_name(self.hex),
+            'gold': self.gold,
+            'food': self.food,
+            'wit': self.wit,
+            'party': [c.name for c in self.living()],
+            'party_detail': [(c.name, c.skill, c.endurance, c.wounds, c.mount)
+                             for c in self.living()],
+            'caches': dict(self.caches),
+            'items': list(self.items),
+            'staff': self.staff,
+            'game_over': self.game_over,
+            'won': self.won,
+            'reason': self.reason,
+        }
+
+    def run_until_idle(self, max_steps=200):
+        """Resolve prompts automatically (used for testing / auto-play)."""
+        steps = 0
+        while steps < max_steps:
+            self.advance()
+            if not self.prompts or self.game_over:
+                break
+            self.answer(0)
+            steps += 1
+        return steps
+

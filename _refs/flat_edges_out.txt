@@ -1,0 +1,25 @@
+﻿=== map1.jpg  (x0=377.0, y0=98.2)
+  line y= 190 (row  1/ 2): white runs >=60px: [(250, 425)]
+  line y= 374 (row  2/ 3): white runs >=60px: [(260, 437)]
+  line y= 557 (row  3/ 4): white runs >=60px: [(260, 437)]
+  line y= 741 (row  4/ 5): white runs >=60px: [(250, 432)]
+  line y= 924 (row  5/ 6): white runs >=60px: [(260, 432)]
+  line y=1108 (row  6/ 7): white runs >=60px: [(250, 436)]
+  line y=1292 (row  7/ 8): white runs >=60px: [(250, 380)]
+  line y=1475 (row  8/ 9): white runs >=60px: [(250, 435)]
+  line y=1659 (row  9/10): white runs >=60px: [(250, 436)]
+  line y=1842 (row 10/11): white runs >=60px: [(250, 435)]
+  line y=2026 (row 11/12): white runs >=60px: [(250, 323), (343, 435)]
+
+=== map2.jpg  (x0=377.0, y0=203.3)
+  line y= 295 (row 13/14): white runs >=60px: [(250, 367)]
+  line y= 479 (row 14/15): white runs >=60px: [(250, 329)]
+  line y= 662 (row 15/16): white runs >=60px: [(250, 328)]
+  line y= 846 (row 16/17): white runs >=60px: [(250, 328)]
+  line y=1029 (row 17/18): white runs >=60px: []
+  line y=1213 (row 18/19): white runs >=60px: [(250, 328)]
+  line y=1397 (row 19/20): white runs >=60px: [(250, 327)]
+  line y=1580 (row 20/21): white runs >=60px: [(250, 326)]
+  line y=1764 (row 21/22): white runs >=60px: [(261, 328)]
+  line y=1947 (row 22/23): white runs >=60px: [(250, 326)]
+

@@ -1,0 +1,40 @@
+﻿model board extents: x 271.0..6.4  y 3504.0..4320.9
+
+map1.jpg: content x 0..3509, y 0..2135
+    y= 106  left=   0  right=3474
+    y= 213  left=   0  right=3509
+    y= 534  left=   0  right=3507
+    y=1068  left=   0  right=3507
+    y=1602  left=   0  right=3505
+    y=1922  left=   0  right=3501
+    y=2029  left=   0  right=3501
+
+map2.jpg: content x 5..3509, y 4..2143
+    y= 107  left=  74  right=3509
+    y= 214  left= 146  right=3509
+    y= 537  left=  99  right=3509
+    y=1074  left= 329  right=3509
+    y=1611  left= 328  right=3509
+    y=1933  left= 327  right=3509
+    y=2040  left= 328  right=3509
+
+model board extents: x 271.0..6.4  y 3504.0..4320.9
+
+map1.jpg: content x 0..3509, y 0..2135
+    y= 106  left=   0  right=3474
+    y= 213  left=   0  right=3509
+    y= 534  left=   0  right=3507
+    y=1068  left=   0  right=3507
+    y=1602  left=   0  right=3505
+    y=1922  left=   0  right=3501
+    y=2029  left=   0  right=3501
+
+map2.jpg: content x 5..3509, y 4..2143
+    y= 107  left=  74  right=3509
+    y= 214  left= 146  right=3509
+    y= 537  left=  99  right=3509
+    y=1074  left= 329  right=3509
+    y=1611  left= 328  right=3509
+    y=1933  left= 327  right=3509
+    y=2040  left= 328  right=3509
+
