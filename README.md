@@ -22,6 +22,22 @@ python src/build_model.py
 python -m unittest discover -s tests
 ```
 
+## Playing it
+
+| Interface | Command |
+|---|---|
+| Browser (web GUI) | `python src/web.py` then open http://127.0.0.1:8000 |
+| Tkinter desktop | `python src/main.py` |
+| Terminal | `python src/main.py --cli` |
+| Auto-play (no input) | `python src/main.py --auto --seed 42` |
+
+The web front-end (`src/web.py` + `web/`) needs FastAPI and uvicorn
+(`pip install fastapi uvicorn`).  It serves an SVG of the 20x23 board - terrain
+fills, roads, rivers, named places, optional scan underlay - plus the party
+status, the prompt panel and the adventure log.  One `engine.Game` is kept per
+browser session, so several tabs can run independent games.  `python
+_refs/web_smoke.py --port 8000` drives the API end to end as a smoke test.
+
 ## Geometry
 
 The board is a 20-column x 23-row hex grid (460 hexes), **flat-top** hexes.
