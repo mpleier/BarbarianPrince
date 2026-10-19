@@ -80,6 +80,21 @@ class GeometryTests(unittest.TestCase):
                                    msg=f'map2 boundary {k} off by '
                                        f'{predicted - line:.2f} px')
 
+    def test_column_axes_match_the_printed_flat_edges(self):
+        """Flat hex edges on a row boundary must be centred on the column axis.
+
+        On the row 10/11 boundary only the columns with an even index present a
+        flat R-px edge; those edges were measured directly from the map1 scan.
+        """
+        measured_edges = [1328.5, 1648.5, 1966.5]      # columns 7, 9, 11
+        for c in measured_edges:
+            col = round((c - 377.0) / DX) + 1
+            predicted = centre(col, 11)[0]
+            self.assertAlmostEqual(c, predicted, delta=3.0,
+                                   msg=f'flat edge at x={c} is '
+                                       f'{c - predicted:.2f} px off column {col}')
+            self.assertEqual(col % 2, 1, 'even-index columns are odd-numbered')
+
     def test_seam_matches_the_printed_line(self):
         """The stitch line must land on the printed 12/13 grid line.
 
@@ -93,9 +108,11 @@ class GeometryTests(unittest.TestCase):
     def test_board_extents_match_the_printed_board(self):
         """The lattice must span the printed board rectangle.
 
-        The printed board runs from x ~ 288 to x ~ 3504 and its top edge is at
-        y ~ 6 in the stitched frame.  The lattice's leftmost vertex (column 1)
-        and rightmost vertex (column 20) must sit on those edges.
+        The printed board's right edge is directly measurable in the scans:
+        coloured content runs out at x ~ 3504-3509.  The lattice's rightmost
+        vertex (column 20) must sit on it.  The left vertex (column 1) is
+        inferred from x0 and R, because the white paper margin blends with the
+        white hex fills.
         """
         minx, miny, maxx, maxy = board_bounds()
         self.assertAlmostEqual(minx, 271.0, delta=1.0)

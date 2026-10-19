@@ -15,7 +15,7 @@ Anchor points measured from the scans (flat horizontal hex edges are R px
 long and are centred on the column axis, so an edge at y = cy +/- sqrt(3)R/2
 pins the row, and its x-extent pins the column):
 
-  map1.jpg  row1/row2 boundary  y = 190.0   -> row 1 centre y = 98.2
+  map1.jpg  row1/row2 boundary  y = 190.5   -> row 1 centre y = 98.2
             column 1 flat edge  x = 324..430 -> column 1 centre x = 377.0
             row11/row12 boundary y = 2027.5
   map2.jpg  row12/row13 boundary y = 111.5  -> row 13 centre y = 203.3
@@ -33,9 +33,15 @@ DX = 1.5 * 106.0, and the flat hex edges on the row boundaries sit on the
 predicted column axes to within ~2.5 px.
 
 Resulting board extents in the stitched (map1) pixel frame:
-  x 271.0 .. 3504.0   (printed board: ~288 .. 3504-3509)
-  y   6.4 .. 4320.9   (printed top edge ~6; the scan is cropped at unified
-                       y ~ 4241, so the bottom row's zigzag overhangs the paper)
+  x 271.0 .. 3504.0   (the right vertex is directly measurable - the scan's
+                       coloured content ends at x = 3509, i.e. the printed edge
+                       sits on column 20's right vertex; the left vertex is
+                       inferred, because the white paper margin blends with the
+                       white hex fills)
+  y   6.4 .. 4320.9   (the lattice's top edge is at y = 6.4 but is hidden under
+                       the scan's grey border band, y ~ 0-17; the scan is
+                       cropped at unified y ~ 4241, so the bottom row's zigzag
+                       overhangs the paper)
 The stitch seam sits at SEAM_Y = 2209.57, against a printed 12/13 line measured
 at 2209.5 - a 0.07 px error.
 """
