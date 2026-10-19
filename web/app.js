@@ -152,6 +152,7 @@ function renderStatus(st) {
       </table>
     </div>
     ${caches}${items}`;
+}
 
 function renderPrompt(p) {
   const title = document.getElementById('prompt-title');
@@ -318,7 +319,13 @@ async function init() {
   newGame();
 }
 
-init();
+init().catch(err => {
+  document.getElementById('prompt-title').textContent = 'Could not reach the game server';
+  document.getElementById('prompt-text').textContent =
+    'Run "python src/web.py" and open http://127.0.0.1:8000 - ' +
+    'the page must be served by the FastAPI app, not opened as a file. ' +
+    '(' + err.message + ')';
+});
 
 async function showRef(ref) {
   try {
@@ -329,6 +336,4 @@ async function showRef(ref) {
   } catch (err) {
     appendLog('(no entry for ' + ref + ')');
   }
-}
-
 }

@@ -35,8 +35,13 @@ The web front-end (`src/web.py` + `web/`) needs FastAPI and uvicorn
 (`pip install fastapi uvicorn`).  It serves an SVG of the 20x23 board - terrain
 fills, roads, rivers, named places, optional scan underlay - plus the party
 status, the prompt panel and the adventure log.  One `engine.Game` is kept per
-browser session, so several tabs can run independent games.  `python
-_refs/web_smoke.py --port 8000` drives the API end to end as a smoke test.
+browser session, so several tabs can run independent games.  Two smoke tests
+drive it end to end:
+
+```powershell
+python _refs/web_smoke.py --port 8000   # API: board, game start, answers
+node  _refs/js_smoke.mjs  http://127.0.0.1:8000   # app.js against a DOM shim
+```
 
 ## Geometry
 
