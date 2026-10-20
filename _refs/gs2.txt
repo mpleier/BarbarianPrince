@@ -1,1 +1,0 @@
-﻿{'ruins searches': 44, 'combats': 10, 'combat ends': 7, 'combat loot': 7, 'event gold': 1, 'failed offerings': 32}

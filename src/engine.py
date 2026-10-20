@@ -42,7 +42,7 @@ INQUIRY = {2: 'r309', 3: 'r330', 4: 'r340', 5: 'r306', 6: 'r325', 7: 'r341',
 
 REF_RE = re.compile(r'\b([re]\d{3})\b')
 GOLD_TEXT_RE = re.compile(r'(?:gain|find|worth|receive)\s+(\d+)\s+gold', re.I)
-DIE_TABLE_RE = re.compile(r'roll one die|one die rolled|die roll for')
+DIE_TABLE_RE = re.compile(r'roll one die|one die rolled|die roll for', re.I)
 STAT_RE = re.compile(r'combat skill (\d+)(?:,\s*(?:and\s*)?endurance (\d+))?'
                      r'(?:,\s*wealth (\d+))?')
 DIRECTIONS = ['N', 'NE', 'SE', 'S', 'SW', 'NW']
@@ -53,7 +53,28 @@ with open(os.path.join(DATA, 'tables.json'), encoding='utf-8') as _f:
     _TABLES = json.load(_f)
 
 RUINS = {int(k): v for k, v in _TABLES['ruins_search'].items()}
+RUINS = {int(k): v for k, v in _TABLES['ruins_search'].items()}
 RAFTING = {int(k): v for k, v in _TABLES['raft_travel_events'].items()}
+
+# An option cell ends with a booklet reference.  The OCR occasionally renders
+# 'r309' as 'i309', so that variant is accepted and normalised later.
+OPTION_REF_RE = re.compile(r'^[rcei]\d{3}$')
+OPTION_VERBS = {
+    'pass', 'converse', 'conversation', 'inquiry', 'looter', 'looters',
+    'hireling', 'hirelings', 'plead', 'bribe', 'escape', 'escapee', 'hide',
+    'attack', 'attacked', 'surprise', 'surprised', 'battle', 'ally',
+    'arrest', 'arrested', 'audience', 'roll', 'surrender', 'rob', 'steal',
+    'negotiate', 'parley', 'reason', 'refuse', 'decline', 'flee', 'fight',
+    'ignore', 'pursue', 'pursued', 'ambush', 'capture', 'demand', 'offer',
+}
+
+
+def normalise_ref(ref):
+    """Repair the booklet's misprinted references (i309 -> r309)."""
+    if ref and ref[0] == 'i':
+        return 'r' + ref[1:]
+    return ref
+
 
 
 
@@ -66,6 +87,52 @@ def threshold(spec):
     return int(m.group(0)) if m else None
 
 
+def _split_cells(tokens, n_headers):
+    """Split one matrix row into its header-aligned cells.
+
+    Each cell is a label followed by a reference.  When a row carries fewer
+    references than headers (e002 roll 7, e130 roll 4) the booklet has left a
+    cell without a reference, so a bare option verb starts a new cell.
+    """
+    split_on_verb = sum(1 for t in tokens if OPTION_REF_RE.match(t)) < n_headers
+    cells = []
+    label = []
+    for tok in tokens:
+        if OPTION_REF_RE.match(tok):
+            lab = ' '.join(label).strip('*').strip()
+            cells.append((lab or 'option', normalise_ref(tok)))
+            label = []
+            continue
+        if split_on_verb and label and tok.strip('*').lower() in OPTION_VERBS:
+            lab = ' '.join(label).strip('*').strip()
+            if lab:
+                cells.append((lab, None))
+            label = [tok]
+            continue
+        label.append(tok)
+    if label:
+        lab = ' '.join(label).strip('*').strip()
+        if lab:
+            cells.append((lab, None))
+    return cells
+
+
+def _pad_cells(cells, n, foot_col):
+    """A row with fewer cells than headers: the missing ones do nothing.
+
+    A single cell in a footnote row belongs to the footnoted column (e002
+    roll 7 'escape mtd' is an *evade* option, not a talk option).  Extra
+    cells are the footnote text bleeding into the row.
+    """
+    if len(cells) > n:
+        return cells[:n]
+    if len(cells) == 1 and foot_col is not None and 0 <= foot_col < n:
+        return ([('nothing happens', None)] * foot_col
+                + cells
+                + [('nothing happens', None)] * (n - foot_col - 1))
+    return cells + [('nothing happens', None)] * (n - len(cells))
+
+
 def parse_options(text):
     """Extract the 'die roll / talk / evade / fight' option matrix of an event.
 
@@ -73,56 +140,78 @@ def parse_options(text):
     followed by one row per die roll, each row holding one label + reference per
     header.  A '*' is only a footnote marker, so it must not be treated as the
     end of the matrix - doing so silently dropped the evade/fight columns and
-    left the player (or the bot) with a single 'talk' option.
+    left the player (or the bot) with a single 'talk' option.  A bare '*' or a
+    'Note:' line *does* end the matrix: it is the footnote, not a row.
     """
-    idx = text.find('Your options are:')
-    if idx < 0:
+    m = re.search(r'options are', text, re.I)
+    if not m:
         return None
-    body = text[idx + len('Your options are:'):]
-    tokens = body.split()
+    tokens = text[m.end():].split()
+    # The matrix always begins with the 'die roll' header row; anything before
+    # it (e112 'listed below. If your party has ...') is prose, not a header.
     i = 0
-    headers = []
-    while i < len(tokens) and not tokens[i].isdigit():
-        h = tokens[i].strip('*').strip()
-        if h.lower() not in ('die', 'roll'):
-            headers.append(h)
+    while i + 1 < len(tokens) and not (tokens[i].strip('*').lower() == 'die'
+                                       and tokens[i + 1].strip('*').lower() == 'roll'):
         i += 1
+    if i + 1 >= len(tokens):
+        return None
+    i += 2
+    headers = []
+    foot_col = None
+    while i < len(tokens) and not tokens[i].isdigit():
+        raw = tokens[i]
+        head = raw.strip('*').strip()
+        i += 1
+        if not head:
+            continue
+        if '*' in raw:
+            foot_col = len(headers)
+        headers.append(head)
     if not headers:
         return None
+
     rows = []
-    while i < len(tokens) and tokens[i].isdigit():
+    while i < len(tokens) and tokens[i].isdigit() and int(tokens[i]) <= 12:
         roll = int(tokens[i])
         i += 1
-        cells = []
-        for _ in range(len(headers)):
-            label = []
-            while (i < len(tokens) and not tokens[i].isdigit()
-                   and not re.fullmatch(r'[re]\d{3}', tokens[i])):
-                label.append(tokens[i])
-                i += 1
-            if i < len(tokens) and re.fullmatch(r'[re]\d{3}', tokens[i]):
-                cells.append((' '.join(label).strip('*').strip() or 'option',
-                              tokens[i]))
-                i += 1
-            else:
+        span = i
+        while span < len(tokens):
+            tok = tokens[span]
+            if tok.lower().startswith('note:'):
                 break
-        if len(cells) != len(headers):
+            if tok.isdigit() and int(tok) <= 12:
+                break
+            # A footnote marker ends the row, but only once the row has already
+            # produced a cell: in e130 roll 4 the row *opens* with '**audience'.
+            if tok == '*' or (tok.startswith('**')
+                              and any(OPTION_REF_RE.match(t) for t in tokens[i:span])):
+                break
+            span += 1
+        cells = _split_cells(tokens[i:span], len(headers))
+        if not cells:
             break
-        rows.append((roll, cells))
+        rows.append((roll, _pad_cells(cells, len(headers), foot_col)))
+        i = span
     note = ' '.join(tokens[i:]).strip()
     return headers, rows, note
 
 
+
 def die_entries(text):
-    """Return the '1-x; 2-y; ...' entries of a 'roll one die' table, if any."""
+    """Return the '1-x; 2-y; ...' entries of a 'roll one die' table, if any.
+
+    Entries may list several rolls for one outcome ('5,6-Town Mayor'), so each
+    entry is returned as (list_of_rolls, outcome_text).
+    """
     m = DIE_TABLE_RE.search(text)
     if not m:
         return None
     entries = []
     for chunk in text[m.end():].split(';'):
-        d = re.match(r'\s*(\d)\s*-\s*(.+)', chunk)
+        d = re.search(r'(\d+(?:,\s*\d+)*)\s*-\s*(.+)', chunk)
         if d:
-            entries.append((int(d.group(1)), d.group(2).strip()))
+            entries.append(([int(x) for x in d.group(1).split(',')],
+                            d.group(2).strip()))
     return entries if len(entries) >= 3 else None
 
 
@@ -396,7 +485,7 @@ class Game:
             code = max(0, min(110, code))
             if code not in table:
                 return 0, None
-        raw = table[code][self.d1() - 1]
+        raw = table[code][(self.d1() - 1) % len(table[code])]
         raw = str(raw)
         item = None
         if '+' in raw:
@@ -623,15 +712,23 @@ class Game:
         if not ev:
             self.note(f'(event {code} is not in the booklet - nothing happens)')
             return
+        # A chain of booklet cross-references can loop back on itself (e130
+        # audience notes).  Refuse to re-enter an event already on the queue.
+        chain = {p.get('code') for p in self.prompts if p.get('code')}
+        if code in chain:
+            self.note(f'(event {code} repeats itself - nothing further happens)')
+            return
         opts = parse_options(ev['text'])
         self.pending_event = {'code': code, 'title': ev['title'], 'text': ev['text'],
-                              'headers': [], 'rows': []}
+                              'headers': [], 'rows': [], 'note': '', 'setup': None}
         if opts:
             headers, rows, note = opts
             self.pending_event.update({'headers': headers, 'rows': rows, 'note': note})
+            self.pending_event['setup'] = self.event_setup(ev)
             self.push('encounter', f'{code} - {ev["title"]}',
                       ev['text'] + ('\n' + note if note else ''),
                       self.option_choices(headers))
+            self.prompts[-1]['code'] = code
         else:
             entries = die_entries(ev['text'])
             if entries:
@@ -642,18 +739,38 @@ class Game:
                 self.note(f'Gain {m.group(1)} gold from {ev["title"]}.')
             self.push('info', f'{code} - {ev["title"]}', ev['text'],
                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+            self.prompts[-1]['code'] = code
+
+    def event_setup(self, ev):
+        """Resolve the 'roll one die for ...' table that precedes the options.
+
+        e130 rolls the identity of the lord before the option matrix, and the
+        audience footnote later depends on who that lord turned out to be.
+        """
+        m = re.search(r'options are', ev['text'], re.I)
+        head = ev['text'][:m.start()] if m else ev['text']
+        entries = die_entries(head)
+        if not entries:
+            return None
+        die = self.d1()
+        entry = next((text for rolls, text in entries if die in rolls), None)
+        if entry is None:
+            return None
+        self.note(f'{ev["title"]}: die {die} - {entry}')
+        return entry
+
 
     def roll_die_table(self, entries, ev):
         """Resolve a "roll one die: 1-x; 2-y; ..." table inside an event."""
         die = self.d1()
-        entry = next((text for num, text in entries if num == die), None)
+        entry = next((text for rolls, text in entries if die in rolls), None)
         if entry is None:
             self.note(f'{ev["title"]}: die {die} has no entry - nothing happens.')
             return 'Nothing happens.'
         m = REF_RE.search(entry)
-        if m and m.group(1) in self.model.events:
+        if m and m.group(1) in self.model.index:
             self.note(f'{ev["title"]}: die {die} -> {m.group(1)}')
-            return self.encounter(m.group(1))
+            return self.resolve_ref(m.group(1), ev)
         gm = re.search(r'wealth\s+(\d+)', entry, re.I) or \
             re.search(r'(\d+)\s*gold', entry, re.I)
         if gm:
@@ -665,32 +782,150 @@ class Game:
         return 'Nothing happens.'
 
 
+    def evade_override(self, ev, header):
+        """A footnote may replace the evade die roll with a free escape.
+
+        e003 roll 6: 'if your party has wing mounts ... you may use escape
+        mounted r312 instead of rolling the die' - the mounted escape is free,
+        no die is rolled.  Flying escapes need a winged mount for everyone.
+        """
+        if header.lower() != 'evade':
+            return None
+        note = ev.get('note') or ''
+        low = note.lower()
+        if 'instead of rolling' not in low and 'instead of a die' not in low:
+            return None
+        party = self.living()
+        if not party:
+            return None
+        if 'not in forest' in low and self.model.terrain(self.hex) == 'forest':
+            return None
+        flying = re.search(r'escape flying\s*\(?([rc]\d{3})', low)
+        mounted = re.search(r'escape mounted\s*\(?([rc]\d{3})', low)
+        if flying and all(c.mount == 'winged' for c in party):
+            return normalise_ref(flying.group(1))
+        if mounted and any(c.mount != 'none' for c in party):
+            return normalise_ref(mounted.group(1))
+        return None
+
+    def option_bonus(self, ev):
+        """Footnote bonuses to the option die: mounts (+1), forest (+2).
+
+        The booklet states the bonus explicitly, e.g. e002 'if your entire
+        party has mounts, add one (+1) to die roll' and e007 'if the event
+        occurs in a forest, add two (+2) to the die roll'.
+        """
+        note = ev.get('note') or ''
+        party = self.living()
+        bonus = 0
+        for clause in re.split(r'[;,]', note):
+            low = clause.lower()
+            if 'add one (+1)' in low:
+                if party and any(c.mount != 'none' for c in party):
+                    if 'entire party' in low or 'all ' in low:
+                        if all(c.mount != 'none' for c in party):
+                            bonus += 1
+                    else:
+                        bonus += 1
+            elif 'add two (+2)' in low:
+                if self.model.terrain(self.hex) == 'forest':
+                    bonus += 2
+        return bonus
+
     def option_choices(self, headers):
-        return [{'label': f'{h} (roll 2 dice)',
+        return [{'label': f'{h} (roll one die)',
                  'handler': (lambda i=i: self.roll_option(i))}
                 for i, h in enumerate(headers)]
 
     def roll_option(self, header_index):
         ev = self.pending_event
-        dice = self.d2()
-        row = None
-        for roll, cells in ev['rows']:
-            if roll == dice:
-                row = cells
-                break
-        if not row:
-            self.note(f'No entry for a roll of {dice}.')
-            return 'Nothing happens.'
-        cell = row[header_index] if header_index < len(row) else row[-1]
-        label, ref = cell
         header = ev['headers'][header_index]
-        self.note(f'{header} - rolled {dice}: {label} -> {ref}')
-        return self.resolve_ref(ref, ev)
+        override = self.evade_override(ev, header)
+        if override:
+            self.note(f'{header}: {override} used instead of a die roll.')
+            return self.resolve_ref(override, ev)
+        die = self.d1()
+        bonus = self.option_bonus(ev)
+        roll = die + bonus
+        rolls = [r for r, _ in ev['rows']]
+        limit = max(rolls) if rolls else 6
+        m = re.search(r'higher than (\d+)', ev.get('note') or '', re.I)
+        if m:
+            limit = min(limit, int(m.group(1)))
+        if roll > limit:
+            self.note(f'Option die {die} + {bonus} = {roll}, treated as {limit}.')
+            roll = limit
+        row = next((cells for r, cells in ev['rows'] if r == roll), None)
+        if not row:
+            self.note(f'No entry for a roll of {roll}.')
+            return 'Nothing happens.'
+        label, ref = row[header_index] if header_index < len(row) else row[-1]
+        self.note(f'{header} - die {die}' + (f' + {bonus}' if bonus else '')
+                 + f' = {roll}: {label}')
+        if ref is None:
+            return self.resolve_label(label, ev, header_index)
+        return self.resolve_ref(ref, ev, label)
+
+    def resolve_label(self, label, ev, header_index):
+        """An option cell with no reference: 'roll again', 'audience', etc."""
+        low = label.lower()
+        if 'roll again' in low:
+            ev['rerolls'] = ev.get('rerolls', 0) + 1
+            if ev['rerolls'] >= 3:
+                self.note('Rolling again produces nothing further; the encounter ends.')
+                return 'The encounter ends.'
+            self.note('Roll again.')
+            return self.roll_option(header_index)
+        if 'audience' in low:
+            return self.lord_audience(ev)
+        self.note(f'{label}: nothing further happens.')
+        return 'The encounter ends.'
+
+    def lord_audience(self, ev):
+        """e130: the lord grants an audience, whose outcome is footnoted."""
+        lord = ev.get('setup') or 'the lord'
+        note = ev.get('note') or ''
+        clauses = note.split(';')
+        table = []
+        for k, clause in enumerate(clauses):
+            m = re.search(r'roll one die:\s*(.+)', clause, re.I)
+            if m:
+                table.append(m.group(1))
+                for nxt in clauses[k + 1:]:
+                    if re.match(r'\s*\d+(?:,\s*\d+)*\s*-', nxt):
+                        table.append(nxt)
+                    else:
+                        break
+                break
+        die = self.d1()
+        for chunk in table:
+            d = re.match(r'\s*(\d+(?:,\s*\d+)*)\s*-\s*(.+)', chunk)
+            if d and die in [int(x) for x in d.group(1).split(',')]:
+                outcome = d.group(2).strip()
+                ref = REF_RE.search(outcome)
+                if ref:
+                    self.note(f'Audience with {lord}: die {die} -> {ref.group(1)}')
+                    return self.resolve_ref(ref.group(1), ev)
+                self.note(f'Audience with {lord}: die {die} - {outcome}')
+                return 'The audience ends.'
+        clause = next((c for c in clauses
+                       if lord.split()[0].lower() in c.lower()), '')
+        ref = REF_RE.search(clause)
+        if ref:
+            self.note(f'Audience with {lord} -> {ref.group(1)}')
+            return self.resolve_ref(ref.group(1), ev)
+        self.note(f'Audience with {lord}: nothing comes of it.')
+        return 'The audience ends.'
 
     def re_encounter(self):
         """Return to the event and pick another option (r314, r317, ...)."""
         ev = self.pending_event
         if not ev or not ev.get('headers'):
+            return 'The encounter ends.'
+        ev['attempts'] = ev.get('attempts', 0) + 1
+        if ev['attempts'] >= 3:
+            self.note('Three attempts at this encounter have failed; it ends.')
+            self.pending_event = None
             return 'The encounter ends.'
         self.push('choice', f'{ev["code"]} - {ev["title"]} (try again)',
                   'That option failed. Choose another approach.',
@@ -897,14 +1132,18 @@ class Game:
         return self.re_encounter()
 
     # ------------------------------------------------------------ bribe & pass (r321-r329)
-    def bribe_amount(self, ev):
+    def bribe_amount(self, ev, label=''):
+        """The bribe is stated in the option cell, e.g. 'bribe (10)'."""
+        m = re.search(r'\((\d+)\)', label)
+        if m:
+            return int(m.group(1))
         if not ev:
             return 10
         m = re.search(r'(\d+)\s*(?:gold|gp)', ev['text'])
         return int(m.group(1)) if m else 10
 
-    def bribe_ref(self, ref, ev):
-        amount = self.bribe_amount(ev)
+    def bribe_ref(self, ref, ev, label=''):
+        amount = self.bribe_amount(ev, label)
         if self.gold < amount:
             self.note(f'You cannot afford the {amount} gold bribe.')
             if ref == 'r324':
@@ -978,8 +1217,8 @@ class Game:
         self.note(f'Refusal roll {die} -> {ref}')
         return self.resolve_ref(ref, ev)
 
-    def hire_ref(self, ref, ev):
-        amount = self.bribe_amount(ev)
+    def hire_ref(self, ref, ev, label=''):
+        amount = self.bribe_amount(ev, label)
         if ref == 'r331':
             if self.gold >= amount:
                 self.gold -= amount
@@ -1099,9 +1338,15 @@ class Game:
         return party[0]
 
     # ------------------------------------------------------------ reference resolver
-    def resolve_ref(self, ref, ev=None):
+    def resolve_ref(self, ref, ev=None, label=''):
         if not ref:
             return 'Nothing happens.'
+        ref = self.model.index.get('reference_fixes', {}).get(ref, ref)
+        if ref.startswith('e'):
+            # an event reference: the encounter continues in that booklet entry
+            self.encounter(ref)
+            title = self.model.events.get(ref, {}).get('title', ref)
+            return f'The encounter continues at {ref} - {title}.'
         if ref in ('r300', 'r301', 'r302', 'r303', 'r304', 'r305', 'r306',
                    'r307', 'r308', 'r309', 'r310'):
             return self.start_combat(ev)
@@ -1110,13 +1355,13 @@ class Game:
         if ref in ('r316', 'r317', 'r318', 'r319', 'r320'):
             return self.hide_ref(ref, ev)
         if ref in ('r321', 'r322', 'r323', 'r324'):
-            return self.bribe_ref(ref, ev)
+            return self.bribe_ref(ref, ev, label)
         if ref in ('r325', 'r326', 'r327', 'r328', 'r329'):
             return self.pass_ref(ref, ev)
         if ref == 'r330':
             return self.forced_battle(ev)
         if ref in ('r331', 'r332', 'r333', 'r334', 'r335', 'r336', 'r337'):
-            return self.hire_ref(ref, ev)
+            return self.hire_ref(ref, ev, label)
         if ref in ('r338', 'r339', 'r340'):
             return self.hire_ref2(ref, ev)
         if ref == 'r341':

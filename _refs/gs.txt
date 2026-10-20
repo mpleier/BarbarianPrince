@@ -1,1 +1,0 @@
-﻿{'news den': 74, 'event gold': 38, 'ruins searches': 8, 'combats': 6, 'combat ends': 6, 'combat loot': 6}
