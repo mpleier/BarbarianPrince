@@ -1,0 +1,62 @@
+﻿1:                     kind = g.place_kind(hid)
+2:                     s += PLACE_SCORE.get(kind, 0)
+3:                     if hid not in g.visited:
+4:                         s += 4                       # new ground = more events
+5:                     if hid == back:
+6:                         s -= 8                       # stop ping-ponging
+7:                     if goal and hid in dgoal:
+8:                         s += 12 * (here - dgoal[hid])  # progress towards goal
+9:                     s -= self.p['caution'] * TERRAIN_RISK.get(
+10:                         g.model.travel_terrain(hid), 0)
+11:             if best_score is None or s > best_score:
+12:                 best, best_score = i, s
+13:         m = HEX_RE.search(opts[best]['label'])
+14:         if m and record:
+15:             self.path.append(m.group(1))
+16:         return best
+17: 
+18:     # ---- daily action (r203)
+19:     def _action(self, prompt, record=True):
+20:         g = self.game
+21:         party = self.party()
+22:         wounded = any(c.wounds > 0 for c in party)
+23:         kind = g.place_kind(g.hex)
+24:         goal = self.goal_hex()
+25:         best, best_score = 0, None
+26:         for i, o in enumerate(prompt['options']):
+27:             label = o['label'].lower()
+28:             act = next((a for a, key in ACTION_KEYS if key in label), None)
+29:             if 'travel' in label:
+30:                 s = self.p['travel']               # travel drives the whole game
+31:                 if self.camping():
+32:                     s -= 20                        # do not leave the temple
+33:             elif 'rest' in label:
+34:                 s = 13 if wounded and kind in ('town', 'castle', 'temple') else 3
+35:             elif 'news' in label:
+36:                 s = self.p['news'] if g.gold >= 5 or g.wit >= 5 else 4
+37:             elif 'hire' in label:
+38:                 s = self.p['hire'] if len(party) < self.p['max_party'] \
+39:                     and g.gold >= 25 else 2
+40:             elif 'audience' in label:
+41:                 s = self.p['audience']             # r211 - gold or trouble
+42:             elif 'offering' in label:
+43:                 # r212 is the win condition: 14+ needs 10+ gold and an omen.
+44:                 if g.gold >= 10:
+45:                     s = 30 if g.offering_bonus else 26
+46:                 else:
+47:                     s = 4                          # go and earn gold first
+48:             elif 'ruins' in label:
+49:                 s = self.p['ruins']                # r214 - loot, but r215 hurts
+50:             elif 'cache' in label:
+51:                 s = 14
+52:             elif 'raft' in label:
+53:                 s = 5
+54:             elif 'end the day' in label:
+55:                 s = -6
+56:             else:
+57:                 s = 0
+58:             if goal and g.hex == goal and 'travel' not in label:
+59:                 s += 4
+60:             if act in ('ruins', 'cache') and (g.hex, act) in self.done:
+61:                 s -= 12                              # one-off per hex
+62:             if act != 'offering':

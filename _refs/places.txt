@@ -1,0 +1,3 @@
+﻿places: {'0101': 'town', '0109': 'town', '0801': 'ruins', '1005': 'town', '1109': 'town', '1209': 'temple', '1212': 'castle', '1501': 'town', '1611': 'camp', '1706': 'temple', '2018': 'temple', '2008': 'ruins', '0307': 'ruins', '0611': 'temple', '0921': 'temple', '0420': 'town', '0423': 'town', '0323': 'castle', '1923': 'castle', '2004': 'pass', '1812': 'pass', '1423': 'marsh'}
+start 0101
+dist to temples: [(13, '0611'), (14, '1209'), (16, '1706'), (24, '0921'), (27, '2018')]

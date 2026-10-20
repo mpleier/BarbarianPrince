@@ -1,0 +1,5 @@
+﻿Battle reference: rolled 8 -> r304
+Combat: party (1) vs foes (1)
+Combat ends: party wins.
+talk - rolled 5: hireling -> r333
+FINAL gold 0 day 71 party 1

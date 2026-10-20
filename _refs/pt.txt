@@ -1,0 +1,223 @@
+﻿[step 1] choice    Day 1 - action in hex 0101               -> Travel to a new hex (r204)
+[step 2] choice    Move (1 hex(es) left)                    -> S -> 0102 (Countryside)
+[step 3] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 4] choice    Day 2 - action in hex 0102               -> Travel to a new hex (r204)
+[step 5] choice    Move (1 hex(es) left)                    -> SE -> 0202 (Forest)
+[step 6] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 7] choice    Day 3 - action in hex 0102               -> Travel to a new hex (r204)
+[step 8] choice    Move (1 hex(es) left)                    -> SE -> 0202 (Forest)
+[step 9] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 10] choice    Day 4 - action in hex 0202               -> Travel to a new hex (r204)
+[step 11] choice    Move (1 hex(es) left)                    -> S -> 0203 (Forest)
+[step 12] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 13] choice    Day 5 - action in hex 0202               -> Travel to a new hex (r204)
+[step 14] choice    Move (1 hex(es) left)                    -> S -> 0203 (Forest)
+[step 15] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 16] choice    Day 6 - action in hex 0203               -> Travel to a new hex (r204)
+[step 17] choice    Move (1 hex(es) left)                    -> SE -> 0304 (Farmland)
+[step 18] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 19] info      e050 - Local Constabulary                -> Continue
+[step 20] choice    Day 7 - action in hex 0304               -> Travel to a new hex (r204)
+[step 21] choice    Move (1 hex(es) left)                    -> S -> 0305 (Countryside)
+[step 22] info      e009 - Farm                              -> Continue
+[step 23] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 24] choice    Day 8 - action in hex 0305               -> Travel to a new hex (r204)
+[step 25] choice    Move (1 hex(es) left)                    -> SE -> 0405 (Mountains)
+[step 26] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 27] choice    Day 9 - action in hex 0305               -> Travel to a new hex (r204)
+[step 28] choice    Move (1 hex(es) left)                    -> SE -> 0405 (Mountains)
+[step 29] encounter e100 - Griffon                           -> fight (roll 2 dice)
+[step 30] combat    Combat - Griffon (round 0)               -> Fight this round
+[step 31] combat    Combat - Griffon (round 1)               -> Fight this round
+[step 32] combat    Combat - Griffon (round 2)               -> Fight this round
+[step 33] combat    Combat - Griffon (round 3)               -> Fight this round
+[step 34] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 35] choice    Day 10 - action in hex 0405              -> Travel to a new hex (r204)
+[step 36] choice    Move (1 hex(es) left)                    -> S -> 0406 (Farmland)
+[step 37] info      e009 - Farm                              -> Continue
+[step 38] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 39] choice    Day 11 - action in hex 0405              -> Travel to a new hex (r204)
+[step 40] choice    Move (1 hex(es) left)                    -> S -> 0406 (Farmland)
+[step 41] info      e128 - Merchant                          -> Continue
+[step 42] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 43] choice    Day 12 - action in hex 0406              -> Travel to a new hex (r204)
+[step 44] choice    Move (1 hex(es) left)                    -> SW -> 0307 (Hills)
+[step 45] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 46] choice    Day 13 - action in hex 0307              -> Travel to a new hex (r204)
+[step 47] choice    Move (1 hex(es) left)                    -> SW -> 0207 (Farmland)
+[step 48] info      e128 - Merchant                          -> Continue
+[step 49] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 50] choice    Day 14 - action in hex 0207              -> Travel to a new hex (r204)
+[step 51] choice    Move (1 hex(es) left)                    -> S -> 0208 (Countryside)
+[step 52] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 53] choice    Day 15 - action in hex 0208              -> Travel to a new hex (r204)
+[step 54] choice    Move (1 hex(es) left)                    -> SE -> 0309 (Forest)
+[step 55] encounter e003 - Swordsman                         -> fight (roll 2 dice)
+[step 56] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 57] choice    Day 16 - action in hex 0208              -> Travel to a new hex (r204)
+[step 58] choice    Move (1 hex(es) left)                    -> SE -> 0309 (Forest)
+[step 59] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 60] choice    Day 17 - action in hex 0309              -> Travel to a new hex (r204)
+[step 61] choice    Move (1 hex(es) left)                    -> S -> 0310 (Forest)
+[step 62] encounter e003 - Swordsman                         -> talk (roll 2 dice)
+[step 63] choice    Hiring (r331-r340)                       -> Refuse
+[step 64] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 65] choice    Day 18 - action in hex 0310              -> Travel to a new hex (r204)
+[step 66] choice    Move (1 hex(es) left)                    -> SE -> 0410 (Countryside)
+[step 67] info      e079 - Heavy Rains                       -> Continue
+[step 68] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 69] choice    Day 19 - action in hex 0310              -> Travel to a new hex (r204)
+[step 70] choice    Move (1 hex(es) left)                    -> SE -> 0410 (Countryside)
+[step 71] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 72] choice    Day 20 - action in hex 0410              -> Travel to a new hex (r204)
+[step 73] choice    Move (1 hex(es) left)                    -> SE -> 0511 (Swamp)
+[step 74] info      e009 - Farm                              -> Continue
+[step 75] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 76] choice    Day 21 - action in hex 0511              -> Travel to a new hex (r204)
+[step 77] choice    Move (1 hex(es) left)                    -> SE -> 0611 (Swamp)
+[step 78] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 79] choice    Day 22 - action in hex 0511              -> Travel to a new hex (r204)
+[step 80] choice    Move (1 hex(es) left)                    -> SE -> 0611 (Swamp)
+[step 81] info      e097 - Marsh Gas and Rot                 -> Continue
+[step 82] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 83] choice    Day 23 - action in hex 0511              -> Raft down the river (r213)
+[step 84] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 85] choice    Day 24 - action in hex 0511              -> Rest and heal wounds (r222)
+[step 86] info      e009 - Farm                              -> Continue
+[step 87] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 88] choice    Day 25 - action in hex 0511              -> Travel to a new hex (r204)
+[step 89] choice    Move (1 hex(es) left)                    -> SE -> 0611 (Swamp)
+[step 90] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 91] choice    Day 26 - action in hex 0511              -> Raft down the river (r213)
+[step 92] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 93] choice    Day 27 - action in hex 0511              -> Rest and heal wounds (r222)
+[step 94] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 95] choice    Day 28 - action in hex 0511              -> Travel to a new hex (r204)
+[step 96] choice    Move (1 hex(es) left)                    -> SE -> 0611 (Swamp)
+[step 97] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 98] choice    Day 29 - action in hex 0511              -> Raft down the river (r213)
+[step 99] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 100] choice    Day 30 - action in hex 0511              -> End the day (food & lodging)
+[step 101] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 102] choice    Day 31 - action in hex 0511              -> End the day (food & lodging)
+[step 103] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 104] choice    Day 32 - action in hex 0511              -> End the day (food & lodging)
+[step 105] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 106] choice    Day 33 - action in hex 0511              -> End the day (food & lodging)
+[step 107] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 108] choice    Day 34 - action in hex 0511              -> End the day (food & lodging)
+[step 109] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 110] choice    Day 35 - action in hex 0511              -> End the day (food & lodging)
+[step 111] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 112] choice    Day 36 - action in hex 0511              -> End the day (food & lodging)
+[step 113] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 114] choice    Day 37 - action in hex 0511              -> End the day (food & lodging)
+[step 115] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 116] choice    Day 38 - action in hex 0511              -> End the day (food & lodging)
+[step 117] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 118] choice    Day 39 - action in hex 0511              -> End the day (food & lodging)
+[step 119] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 120] choice    Day 40 - action in hex 0511              -> End the day (food & lodging)
+[step 121] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 122] choice    Day 41 - action in hex 0511              -> End the day (food & lodging)
+[step 123] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 124] choice    Day 42 - action in hex 0511              -> End the day (food & lodging)
+[step 125] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 126] choice    Day 43 - action in hex 0511              -> End the day (food & lodging)
+[step 127] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 128] choice    Day 44 - action in hex 0511              -> End the day (food & lodging)
+[step 129] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 130] choice    Day 45 - action in hex 0511              -> End the day (food & lodging)
+[step 131] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 132] choice    Day 46 - action in hex 0511              -> End the day (food & lodging)
+[step 133] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 134] choice    Day 47 - action in hex 0511              -> End the day (food & lodging)
+[step 135] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 136] choice    Day 48 - action in hex 0511              -> End the day (food & lodging)
+[step 137] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 138] choice    Day 49 - action in hex 0511              -> End the day (food & lodging)
+[step 139] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 140] choice    Day 50 - action in hex 0511              -> End the day (food & lodging)
+[step 141] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 142] choice    Day 51 - action in hex 0511              -> End the day (food & lodging)
+[step 143] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 144] choice    Day 52 - action in hex 0511              -> End the day (food & lodging)
+[step 145] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 146] choice    Day 53 - action in hex 0511              -> End the day (food & lodging)
+[step 147] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 148] choice    Day 54 - action in hex 0511              -> End the day (food & lodging)
+[step 149] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 150] choice    Day 55 - action in hex 0511              -> End the day (food & lodging)
+[step 151] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 152] choice    Day 56 - action in hex 0511              -> End the day (food & lodging)
+[step 153] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 154] choice    Day 57 - action in hex 0511              -> End the day (food & lodging)
+[step 155] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 156] choice    Day 58 - action in hex 0511              -> End the day (food & lodging)
+[step 157] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 158] choice    Day 59 - action in hex 0511              -> End the day (food & lodging)
+[step 159] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 160] choice    Day 60 - action in hex 0511              -> End the day (food & lodging)
+[step 161] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 162] choice    Day 61 - action in hex 0511              -> End the day (food & lodging)
+[step 163] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 164] choice    Day 62 - action in hex 0511              -> End the day (food & lodging)
+[step 165] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 166] choice    Day 63 - action in hex 0511              -> End the day (food & lodging)
+[step 167] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 168] choice    Day 64 - action in hex 0511              -> End the day (food & lodging)
+[step 169] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 170] choice    Day 65 - action in hex 0511              -> End the day (food & lodging)
+[step 171] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 172] choice    Day 66 - action in hex 0511              -> End the day (food & lodging)
+[step 173] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 174] choice    Day 67 - action in hex 0511              -> End the day (food & lodging)
+[step 175] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+[step 176] choice    Day 68 - action in hex 0511              -> End the day (food & lodging)
+[step 177] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 178] choice    Day 69 - action in hex 0511              -> End the day (food & lodging)
+[step 179] choice    Evening meal - need 1 food units         -> Eat from stores (1 units)
+[step 180] choice    Day 70 - action in hex 0511              -> End the day (food & lodging)
+[step 181] choice    Evening meal - need 1 food units         -> Go hunting (r215b)
+day 71 gold 0 hex 0511 party 1
+--- last 40 log lines ---
+  Ate 1 food units from stores.
+  Day 59 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 60 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 61 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 62 begins in hex 0511.
+  The party does nothing today.
+  Hunting by Cal Arath (the Prince): 12 - 8 = 4 units.
+  Hunt yields 4 food units.
+  Day 63 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 64 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 65 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 66 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 67 begins in hex 0511.
+  The party does nothing today.
+  Hunting by Cal Arath (the Prince): 12 - 10 = 2 units.
+  Hunt yields 2 food units.
+  Day 68 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 69 begins in hex 0511.
+  The party does nothing today.
+  Ate 1 food units from stores.
+  Day 70 begins in hex 0511.
+  The party does nothing today.
+  Hunting by Cal Arath (the Prince): 12 - 3 = 9 units.
+  Hunt yields 9 food units.

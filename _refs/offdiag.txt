@@ -1,0 +1,45 @@
+﻿seed   1 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed   2 day  71 gold   60 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed   3 day  71 gold  120 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed   4 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed   5 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed   6 day  71 gold  274 offerings  32 won False  Ten weeks have passed; the campaign is over.
+seed   7 day  71 gold  120 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed   8 day  71 gold  120 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed   9 day  71 gold  120 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  10 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  11 day  67 gold  427 offerings  11 won True  The Staff of Command has been recovered - the Northlands are yours again.
+seed  12 day  71 gold  555 offerings   1 won False  Ten weeks have passed; the campaign is over.
+seed  13 day  71 gold   60 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  14 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  15 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  16 day  71 gold  117 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  17 day  71 gold  548 offerings   4 won False  Ten weeks have passed; the campaign is over.
+seed  18 day  71 gold   60 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  19 day  71 gold  120 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  20 day  71 gold   60 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  21 day  71 gold   60 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  22 day  71 gold  332 offerings  31 won False  Ten weeks have passed; the campaign is over.
+seed  23 day  71 gold  139 offerings   5 won False  Ten weeks have passed; the campaign is over.
+seed  24 day  44 gold  380 offerings  19 won True  The Staff of Command has been recovered - the Northlands are yours again.
+seed  25 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  26 day  71 gold  408 offerings  19 won False  Ten weeks have passed; the campaign is over.
+seed  27 day  71 gold  178 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  28 day  71 gold   96 offerings   3 won False  Ten weeks have passed; the campaign is over.
+seed  29 day  71 gold  120 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  30 day  71 gold  398 offerings  13 won False  Ten weeks have passed; the campaign is over.
+seed  31 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  32 day  71 gold  352 offerings  36 won False  Ten weeks have passed; the campaign is over.
+seed  33 day  66 gold  388 offerings  19 won True  The Staff of Command has been recovered - the Northlands are yours again.
+seed  34 day  71 gold  118 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  35 day  71 gold  530 offerings   6 won False  Ten weeks have passed; the campaign is over.
+seed  36 day  71 gold    0 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  37 day  71 gold  390 offerings  24 won False  Ten weeks have passed; the campaign is over.
+seed  38 day  71 gold  425 offerings  15 won False  Ten weeks have passed; the campaign is over.
+seed  39 day  71 gold   60 offerings   0 won False  Ten weeks have passed; the campaign is over.
+seed  40 day  44 gold  420 offerings   9 won True  The Staff of Command has been recovered - the Northlands are yours again.
+
+offering totals: {2: 3, 3: 12, 4: 23, 5: 23, 6: 26, 7: 39, 8: 33, 9: 21, 10: 26, 11: 17, 12: 16, 13: 4, 14: 3, 15: 1}
+offerings per game: 6.2
+games that offered at all: 16
+wins: 4

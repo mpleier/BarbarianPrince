@@ -1,0 +1,132 @@
+﻿Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 4 (bonus 1).
+Ruins roll 5 -> e137
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 12 -> e035
+Searching the ruins: rolled 3 (bonus 1).
+Ruins roll 4 -> e136
+Hidden Treasures: die 6 - nothing.
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 10 -> e138
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 12 -> e035
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 10 -> e138
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 9 -> e134
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 10 -> e138
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 11 -> e135
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 9 -> e134
+Searching the ruins: rolled 12 (bonus 1).
+Ruins roll 13 -> e035
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 10 -> e138
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 6 -> e140
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 11 -> e135
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 3 -> e038
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 12 -> e035
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 11 -> e135
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 9 -> e134
+Searching the ruins: rolled 3 (bonus 1).
+Ruins roll 4 -> e136
+Hidden Treasures: die 2 -> e038
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 11 -> e135
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 9 -> e134
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 9 -> e134
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 12 -> e035
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 6 -> e140
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 3 -> e038
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 11 -> e135
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 4 (bonus 1).
+Ruins roll 5 -> e137
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 11 -> e135
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 4 (bonus 1).
+Ruins roll 5 -> e137
+Searching the ruins: rolled 2 (bonus 1).
+Ruins roll 3 -> e135
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 3 -> e038
+Searching the ruins: rolled 6 (bonus 1).
+Ruins roll 7 -> e131
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 3 -> e038
+Searching the ruins: rolled 3 (bonus 1).
+Ruins roll 4 -> e136
+Hidden Treasures: die 2 -> e038
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 9 -> e134
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 9 -> e134
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 10 -> e138
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 10 -> e138
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 1 has no entry - nothing happens.
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 6 -> e139
+Minor Treasures: die 1 has no entry - nothing happens.
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 10 -> e138
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 8 -> e132
+final gold 0

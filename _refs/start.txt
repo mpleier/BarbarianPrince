@@ -1,0 +1,1 @@
+﻿start gold 0 food 0 hex 0101 party 1

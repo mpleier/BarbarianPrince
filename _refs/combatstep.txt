@@ -1,0 +1,48 @@
+﻿1:     def step(self):
+2:         """Resolve one combat round (r220a)."""
+3:         if self.over:
+4:             return self.result
+5:         self.round += 1
+6:         self.log.append(f'--- round {self.round} ---')
+7:         if self.surprise and self.round == 1:
+8:             strikers = self.party if self.surprise == 'party' else self.foes
+9:             targets = self.foes if self.surprise == 'party' else self.party
+10:             for s in list(strikers):
+11:                 if not s.dead and targets:
+12:                     self.strike(s, targets[0])
+13:             self.surprise = None
+14:             for c in self.party + self.foes:
+15:                 if c.dead:
+16:                     c.alive = False
+17:         first, second = ((self.party, self.foes) if self.party_first
+18:                          else (self.foes, self.party))
+19:         self.round_side(first, second)
+20:         if self.party and self.foes:
+21:             self.round_side(second, first)
+22:         survivors = [c for c in self.party if c.alive and not c.dead]
+23:         foes_left = [c for c in self.foes if c.alive and not c.dead]
+24:         killed = len(self.foes) - len(foes_left)
+25:         self.party, self.foes = survivors, foes_left
+26:         if killed and self.foes and self.rout_possible():
+27:             die = self.rng.randint(1, 6)
+28:             if die == 6:
+29:                 self.note('The enemy routs and flees!')
+30:                 self.foes = []
+31:                 self.over, self.result = True, 'foes routed'
+32:             else:
+33:                 self.log.append(f'Rout check: die {die} - they stand their ground.')
+34:         if not self.foes:
+35:             self.over, self.result = True, 'party wins'
+36:         elif not self.party:
+37:             self.over, self.result = True, 'party wiped out'
+38:         return self.result
+39: 
+40:     def attempt_escape(self):
+41:         """r220e - all or none escape; no strikes that round."""
+42:         self.round += 1
+43:         die = self.rng.randint(1, 6)
+44:         if die >= 4:
+45:             self.over = True
+46:             self.result = 'party escaped'
+47:             return True, die
+48:         self.log.append(f'Escape attempt fails (die {die}).')

@@ -1,0 +1,6 @@
+﻿ruins bonus 0: 50.00 gold/search (e136 hit rate 0.000)
+ruins bonus 1: 50.00 gold/search (e136 hit rate 0.000)
+ruins bonus 2: 50.00 gold/search (e136 hit rate 0.000)
+news bonus 0: -0.84 gold/seek, omen chance 0.082
+news bonus 1: -2.93 gold/seek, omen chance 0.054
+news bonus 2: -3.47 gold/seek, omen chance 0.027

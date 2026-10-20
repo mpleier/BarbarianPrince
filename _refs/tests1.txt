@@ -1,0 +1,140 @@
+﻿1:         self.assertEqual(bot.path, before[2])
+2: 
+3:     def test_choose_records_memory(self):
+4:         g = Game(seed=3)
+5:         bot = Bot(g, 'balanced')
+6:         menu = ('Day 1 - action in hex 0101', "Choose today's action (r203).",
+7:                 ['Travel to a new hex (r204)', 'Rest and heal wounds (r222)',
+8:                  'Seek news & information (r209)'])
+9:         bot.choose(choice(*menu))
+10:         self.assertTrue(bot.done)
+11:         self.assertTrue(bot.used)
+12: 
+13: 
+14: class OfferingTests(unittest.TestCase):
+15:     def test_offering_prefers_ten_gold(self):
+16:         g = Game(seed=5)
+17:         g.gold = 60
+18:         bot = Bot(g, 'balanced')
+19:         opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold',
+20:                 'Offer 20 gold', 'Offer 50 gold', 'Withdraw']
+21:         idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+22:         self.assertEqual(opts[idx], 'Offer 10 gold')
+23: 
+24:     def test_offering_skips_unaffordable(self):
+25:         g = Game(seed=5)
+26:         g.gold = 7
+27:         bot = Bot(g, 'balanced')
+28:         opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold', 'Withdraw']
+29:         idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+30:         self.assertIn('Offer', opts[idx])
+31:         self.assertLess(int(opts[idx].split()[1]), 10)
+32: 
+33:     def test_offering_withdraws_when_broke(self):
+34:         g = Game(seed=5)
+35:         g.gold = 0
+36:         bot = Bot(g, 'balanced')
+37:         opts = ['Offer 1 gold', 'Withdraw']
+38:         idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+39:         self.assertEqual(opts[idx], 'Withdraw')
+40: 
+41: 
+42: 
+43: MENU = ('Day 4 - action in hex 1209', "Choose today's action (r203).",
+44:         ['Travel to a new hex (r204)', 'Rest and heal wounds (r222)',
+45:          'Seek news & information (r209)', 'Seek to hire followers (r210)',
+46:          'Seek an audience (r211)', 'Submit an offering (r212)'])
+47: 
+48: 
+49: class ActionTests(unittest.TestCase):
+50:     def test_temple_with_gold_offers(self):
+51:         g = Game(seed=11)
+52:         g.hex = '1209'                      # a temple
+53:         g.gold = 40
+54:         bot = Bot(g, 'balanced')
+55:         idx = bot.choose(choice(*MENU))
+56:         self.assertIn('offering', MENU[2][idx].lower())
+57: 
+58:     def test_omen_bonus_beats_travel(self):
+59:         g = Game(seed=11)
+60:         g.hex = '1209'
+61:         g.gold = 12
+62:         g.offering_bonus = 1
+63:         bot = Bot(g, 'balanced')
+64:         idx = bot.choose(choice(*MENU))
+65:         self.assertIn('offering', MENU[2][idx].lower())
+66: 
+67:     def test_no_gold_no_offering(self):
+68:         g = Game(seed=11)
+69:         g.hex = '1209'
+70:         g.gold = 3
+71:         bot = Bot(g, 'balanced')
+72:         idx = bot.choose(choice(*MENU))
+73:         self.assertNotIn('offering', MENU[2][idx].lower())
+74: 
+75:     def test_wounded_party_rests(self):
+76:         g = Game(seed=11)
+77:         g.hex = '0101'                      # a town
+78:         g.gold = 5
+79:         g.prince().wounds = 4
+80:         bot = Bot(g, 'balanced')
+81:         idx = bot.choose(choice(*MENU))
+82:         self.assertIn('rest', MENU[2][idx].lower())
+83: 
+84:     def test_cautious_fights_less_than_aggressive(self):
+85:         text = 'Stand and fight (combat skill 6, endurance 5) or evade.'
+86:         headers = ['Fight', 'Evade']
+87:         for strategy, expect in (('cautious', 'Evade'), ('aggressive', 'Fight')):
+88:             g = Game(seed=11)
+89:             bot = Bot(g, strategy)
+90:             g.pending_event = {'code': 'e050', 'headers': headers, 'rows': []}
+91:             prompt = {'kind': 'encounter', 'title': 'e050 - Trouble', 'text': text,
+92:                       'options': [{'label': h, 'handler': (lambda: 'ok')}
+93:                                   for h in headers]}
+94:             idx = bot.choose(prompt)
+95:             self.assertEqual(headers[idx], expect,
+96:                              f'{strategy} chose {headers[idx]}')
+97: 
+98: 
+99: class MoveTests(unittest.TestCase):
+100:     def test_prefers_road_over_swamp(self):
+101:         g = Game(seed=2)
+102:         g.moves_left = 2
+103:         bot = Bot(g, 'balanced')
+104:         # Same destination hex, so the only difference is the road bonus.
+105:         opts = ['N -> 0102 (Countryside)', 'S -> 0102 (Countryside) [road]',
+106:                 'Stop travelling for the day']
+107:         idx = bot.choose(choice('Move (2 hex(es) left)', 'In hex 0101.', opts))
+108:         self.assertIn('[road]', opts[idx])
+109: 
+110:     def test_backtracking_is_penalised(self):
+111:         g = Game(seed=2)
+112:         g.moves_left = 1
+113:         bot = Bot(g, 'balanced')
+114:         bot.goal_hex = lambda: None      # isolate the ping-pong penalty
+115:         # 0102 and 0104 are both Countryside neighbours of 0103, so the only
+116:         # difference is that 0104 is the hex we just came from.
+117:         bot.path = ['0104', '0103']
+118:         opts = ['N -> 0102 (Countryside)', 'S -> 0104 (Countryside)',
+119:                 'Stop travelling for the day']
+120:         idx = bot.choose(choice('Move (1 hex(es) left)', 'In hex 0103.', opts))
+121:         self.assertEqual(opts[idx], 'N -> 0102 (Countryside)')
+122: 
+123:     def test_backtracks_when_it_is_the_short_way_home(self):
+124:         g = Game(seed=2)
+125:         g.hex = '0102'
+126:         g.moves_left = 1
+127:         bot = Bot(g, 'balanced')
+128:         goal = bot.goal_hex()            # nearest temple
+129:         # Step back to 0101 only wins if 0101 is genuinely nearer the goal.
+130:         d = bot.distances(goal)
+131:         if d['0101'] < d['0103']:
+132:             bot.path = ['0101', '0102']
+133:             opts = ['N -> 0101 (Farmland)', 'S -> 0103 (Farmland)',
+134:                     'Stop travelling for the day']
+135:             idx = bot.choose(choice('Move (1 hex(es) left)', 'In hex 0102.', opts))
+136:             self.assertEqual(opts[idx], 'N -> 0101 (Farmland)')
+137: 
+138:     def test_does_not_backtrack(self):
+139:         g = Game(seed=2)
+140:         g.hex = '0102'

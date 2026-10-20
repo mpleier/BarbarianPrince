@@ -1,0 +1,28 @@
+﻿python : Traceback (most recent call last):
+At line:1 char:64
++ ... ianPrince"; python -c "import io,sys,json; sys.stdout=io.TextIOWrappe ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "<string>", line 1, in <module>
+    import io,sys,json; sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8'); 
+t=json.load(open('data/tables.json',encoding='utf-8')); print('NEWS'); [print(r['roll'], r['text'][:120]) for r in t['news']]; 
+print('AUDIENCE'); [print(r['roll'], r['text'][:120]) for r in t['audience']]; print('TREASURE'); [print(r['roll'], 
+r['text'][:120]) for r in t['treasure_table']]
+                                                                                                                               
+                                                                                                                   ~^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+NEWS
+2 No news of note, nothing seems to be happening.
+3 Discover thieves' den, pillage it while they're out, gain 50 gold.
+4 Rumours of secret rites at nearest temple, when making offerings (r212) there add one (+1) to your dice roll from now on
+5 Feel at home, learning nothing, but in the future always add one (+1) whenever resolving this action (r209) or Seeking t
+6 A large caravan is in town; if you visit them today, see e129.
+7 Discover cheaper lodgings and food, pay half normal price in this hex
+8 A cutpurse picks your pocket; you lose half your wealth.
+9 Attract attention of local constabulary; see e050.
+10 Discover residence of local magician. If you visit him today, see e016 with a friendly approach.
+11 Discover local thieves' guild, you are "invited" to join. If you do, participate in a theft of 200 gold tonight after di
+12 Secret informant offers valuable information for 10 gold. If you buy it, roll one die: 1-bogus secrets prove worthless; 
+AUDIENCE

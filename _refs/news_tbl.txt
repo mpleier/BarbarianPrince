@@ -1,0 +1,13 @@
+﻿KEYS: ['travel_table', 'raft_travel_events', 'travel_event_refs', 'special_travel_reference', 'combat_table', 'treasure_table', 'special_possession_lines', 'ruins_search', 'news', 'hiring', 'offerings', 'cache_recovery', 'trap_locks', 'battle_reference', 'conversation', 'general_inquiry', 'audience', 'constants', 'errata']
+
+{'roll': '2', 'rolls': [2], 'open_ended': False, 'text': 'No news of note, nothing seems to be happening.'}
+{'roll': '3', 'rolls': [3], 'open_ended': False, 'text': "Discover thieves' den, pillage it while they're out, gain 50 gold."}
+{'roll': '4', 'rolls': [4], 'open_ended': False, 'text': 'Rumours of secret rites at nearest temple, when making offerings (r212) there add one (+1) to your dice roll from now on.'}
+{'roll': '5', 'rolls': [5], 'open_ended': False, 'text': 'Feel at home, learning nothing, but in the future always add one (+1) whenever resolving this action (r209) or Seeking to Hire (r210) in this hex.'}
+{'roll': '6', 'rolls': [6], 'open_ended': False, 'text': 'A large caravan is in town; if you visit them today, see e129.'}
+{'roll': '7', 'rolls': [7], 'open_ended': False, 'text': 'Discover cheaper lodgings and food, pay half normal price in this hex'}
+{'roll': '8', 'rolls': [8], 'open_ended': False, 'text': 'A cutpurse picks your pocket; you lose half your wealth.'}
+{'roll': '9', 'rolls': [9], 'open_ended': False, 'text': 'Attract attention of local constabulary; see e050.'}
+{'roll': '10', 'rolls': [10], 'open_ended': False, 'text': 'Discover residence of local magician. If you visit him today, see e016 with a friendly approach.'}
+{'roll': '11', 'rolls': [11], 'open_ended': False, 'text': 'Discover local thieves\' guild, you are "invited" to join. If you do, participate in a theft of 200 gold tonight after dinner (r215). You must escape (r218) tonight after the job. If you pay the guild 10% (20 gold) after the theft you can return to the hex later in the game, otherwise the guild is angered and you can never return to this hex.'}
+{'roll': '12', 'rolls': [12], 'open_ended': False, 'text': 'Secret informant offers valuable information for 10 gold. If you buy it, roll one die: 1-bogus secrets prove worthless; 2-e147; 3-e143; 4-e144; 5-e145; 6-e146.'}

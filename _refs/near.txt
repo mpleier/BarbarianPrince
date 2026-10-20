@@ -1,0 +1,19 @@
+﻿python :   File "<string>", line 1
+At line:1 char:64
++ ... ianPrince"; python -c "import io,sys,json; sys.stdout=io.TextIOWrappe ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (  File "<string>", line 1:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    import io,sys,json; sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8'); 
+m=json.load(open('data/map.json',encoding='utf-8')); H={h['hex']:h for h in m['hexes']}; 
+dirs={'N':(0,-1),'NE':(1,0),'SE':(0,1),'SW':(-1,1),'NW':(-1,0),'S':(1,-1)}; def nbr(h,d): q,r=H[h]['q'],H[h]['r']; 
+a,b=dirs[d]; return H.get(f'{q+a}{r+b}') if f'{q+a}{r+b}' in H else None; def dist(a,b):  import collections; seen={a}; 
+dq=collections.deque([(a,0)]);  while dq: x,d=dq.popleft();  if x==b: return d; for dd in dirs: n=nbr(x,dd);  if n and 
+n['hex'] not in seen: seen.add(n['hex']); dq.append((n['hex'],d+1)) return 99; ruins=[h for h in H if 'Ruins' in 
+H[h]['terrain']]; temples=[h for h in H if 'Temple' in H[h]['terrain']]; pairs=[];  for ru in ruins:  for t in temples:  
+dd=dist(ru,t);  if dd<=3: pairs.append((dd,ru,t)) ; pairs.sort(); print(pairs[:25])
+                                                                                                                               
+                                                                                                                               
+^^^
+SyntaxError: invalid syntax

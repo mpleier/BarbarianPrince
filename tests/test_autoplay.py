@@ -10,7 +10,7 @@ import unittest
 SRC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src')
 sys.path.insert(0, SRC)
 
-from engine import Game
+from engine import Game, Character
 from autoplay import Bot, STRATEGIES
 
 
@@ -72,14 +72,26 @@ class SuggestTests(unittest.TestCase):
 
 
 class OfferingTests(unittest.TestCase):
-    def test_offering_prefers_ten_gold(self):
+    def test_offering_buys_the_ten_gold_sacrifice_when_days_are_short(self):
         g = Game(seed=5)
         g.gold = 60
+        g.offering_bonus = 1          # 12 + 1 (10+ gold) + 1 (omen) = 14
+        g.day = 66                    # only 5 camp days left: burn the pile
         bot = Bot(g, 'balanced')
         opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold',
                 'Offer 20 gold', 'Offer 50 gold', 'Withdraw']
         idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
         self.assertEqual(opts[idx], 'Offer 10 gold')
+
+    def test_offering_farms_the_men_when_broke_of_omens(self):
+        g = Game(seed=5)
+        g.gold = 60
+        g.offering_bonus = 0          # a 14 is impossible without the omen
+        bot = Bot(g, 'balanced')
+        opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold',
+                'Offer 20 gold', 'Offer 50 gold', 'Withdraw']
+        idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+        self.assertEqual(opts[idx], 'Offer 1 gold')
 
     def test_offering_skips_unaffordable(self):
         g = Game(seed=5)
@@ -205,9 +217,19 @@ class MoveTests(unittest.TestCase):
         idx = bot.choose(choice('Move (1 hex(es) left)', 'In hex 0102.', opts))
         self.assertNotEqual(opts[idx], 'N -> 0101 (Farmland)')
 
+    def test_goals_the_ruin_before_the_temple(self):
+        g = Game(seed=2)
+        g.hex = '0101'
+        bot = Bot(g, 'balanced')
+        # With no gold the camp DP is worthless, so the first leg of the plan
+        # is the ruin that sits closest to a temple, not the temple itself.
+        self.assertEqual(bot.goal_hex(), '0307')
+        self.assertTrue(bot.mining())
+
     def test_moves_towards_the_nearest_temple(self):
         g = Game(seed=2)
         g.hex = '0101'
+        g.gold = 400                      # pile already banked: stop digging
         g.moves_left = 1
         bot = Bot(g, 'balanced')
         goal = bot.goal_hex()
@@ -249,13 +271,24 @@ class ResourceTests(unittest.TestCase):
         idx = bot.choose(choice('Evening meal - need 1 food units', 'Party needs 1.', opts))
         self.assertIn('eat from stores', opts[idx].lower())
 
-    def test_lodging_paid_when_affordable(self):
+    def test_lodging_paid_when_followers_are_present(self):
+        g = Game(seed=4)
+        g.gold = 50
+        g.party.append(Character('Freeman', 2, 3))
+        bot = Bot(g, 'balanced')
+        opts = ['Pay 2 gold for lodging', 'Sleep rough (risk desertion)']
+        idx = bot.choose(choice('Lodging in town 0101 (r217)', '2 room(s) = 2 gold.', opts))
+        self.assertEqual(idx, 0)
+
+    def test_lodging_skipped_by_a_lone_prince(self):
+        # r217 only rolls for follower desertion, so an unaccompanied Prince
+        # sleeps rough for free and keeps the gold for the offerings.
         g = Game(seed=4)
         g.gold = 50
         bot = Bot(g, 'balanced')
         opts = ['Pay 2 gold for lodging', 'Sleep rough (risk desertion)']
         idx = bot.choose(choice('Lodging in town 0101 (r217)', '2 room(s) = 2 gold.', opts))
-        self.assertEqual(idx, 0)
+        self.assertEqual(idx, 1)
 
     def test_lodging_skipped_when_broke(self):
         g = Game(seed=4)

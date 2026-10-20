@@ -1,0 +1,29 @@
+﻿--- seed 1 gold 0
+--- seed 2 gold 0
+--- seed 3 gold 0
+    Not enough gold to buy meals.
+    Not enough gold to buy meals.
+    Not enough gold to buy meals.
+    Not enough gold to buy meals.
+    Not enough gold to buy meals.
+=== gold-related note frequency (30 seeds, aggressive) ===
+  40  Not enough gold to buy meals.
+  15  Paid 2 gold for lodging.
+  14  You have no gold to offer.
+  12  Bought meals for 1 gold.
+  11  Loot from Foe 1: 0 gold
+   3  News roll 8 -> A cutpurse picks your pocket; you lose half y
+   2  Gain 50 gold from Plague.
+   2  Offering of 1 gold: rolled 7 (r212).
+   2  Offering of 10 gold: rolled 11 (r212).
+   2  Offering of 1 gold: rolled 6 (r212).
+   1  News roll 11 -> Discover local thieves' guild, you are "invi
+   1  News roll 3 -> Discover thieves' den, pillage it while they'
+   1  Offering of 1 gold: rolled 11 (r212).
+   1  Offering of 10 gold: rolled 8 (r212).
+   1  Offering of 1 gold: rolled 5 (r212).
+   1  Offering of 1 gold: rolled 3 (r212).
+   1  Offering of 1 gold: rolled 8 (r212).
+   1  Offering of 10 gold: rolled 5 (r212).
+   1  Offering of 10 gold: rolled 9 (r212).
+   1  Offering of 10 gold: rolled 7 (r212).

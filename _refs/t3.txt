@@ -1,0 +1,75 @@
+﻿python : test_cautious_fights_less_than_aggressive (tests.test_autoplay.ActionTests.test_cautious_fights_less_than_aggressive) 
+... ok
+At line:1 char:64
++ ... barianPrince"; python -m unittest tests.test_autoplay -v 2>&1 | Out-F ...
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_cautious_f...ressive) ... ok:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+test_no_gold_no_offering (tests.test_autoplay.ActionTests.test_no_gold_no_offering) ... FAIL
+test_omen_bonus_beats_travel (tests.test_autoplay.ActionTests.test_omen_bonus_beats_travel) ... ok
+test_temple_with_gold_offers (tests.test_autoplay.ActionTests.test_temple_with_gold_offers) ... ok
+test_wounded_party_rests (tests.test_autoplay.ActionTests.test_wounded_party_rests) ... FAIL
+test_empty_prompt_returns_zero (tests.test_autoplay.BotBasicsTests.test_empty_prompt_returns_zero) ... ok
+test_index_is_always_in_range (tests.test_autoplay.BotBasicsTests.test_index_is_always_in_range) ... ok
+test_strategies (tests.test_autoplay.BotBasicsTests.test_strategies) ... ok
+test_unknown_strategy_falls_back_to_balanced (tests.test_autoplay.BotBasicsTests.test_unknown_strategy_falls_back_to_balanced) 
+... ok
+test_campaigns_complete (tests.test_autoplay.CampaignTests.test_campaigns_complete) ... ok
+test_goal_hex_is_a_real_hex (tests.test_autoplay.CampaignTests.test_goal_hex_is_a_real_hex) ... ok
+test_naive_chooser_also_survives (tests.test_autoplay.CampaignTests.test_naive_chooser_also_survives) ... ok
+test_backtracking_is_penalised (tests.test_autoplay.MoveTests.test_backtracking_is_penalised) ... ok
+test_backtracks_when_it_is_the_short_way_home (tests.test_autoplay.MoveTests.test_backtracks_when_it_is_the_short_way_home) 
+... ok
+test_does_not_backtrack (tests.test_autoplay.MoveTests.test_does_not_backtrack) ... ok
+test_moves_towards_the_nearest_temple (tests.test_autoplay.MoveTests.test_moves_towards_the_nearest_temple) ... FAIL
+test_prefers_road_over_swamp (tests.test_autoplay.MoveTests.test_prefers_road_over_swamp) ... ok
+test_stop_travelling_when_no_moves_left (tests.test_autoplay.MoveTests.test_stop_travelling_when_no_moves_left) ... ok
+test_stops_instead_of_wandering_away (tests.test_autoplay.MoveTests.test_stops_instead_of_wandering_away) ... ok
+test_offering_farms_the_men_when_broke_of_omens 
+(tests.test_autoplay.OfferingTests.test_offering_farms_the_men_when_broke_of_omens) ... ok
+test_offering_prefers_ten_gold_once_the_omen_is_held 
+(tests.test_autoplay.OfferingTests.test_offering_prefers_ten_gold_once_the_omen_is_held) ... ok
+test_offering_skips_unaffordable (tests.test_autoplay.OfferingTests.test_offering_skips_unaffordable) ... ok
+test_offering_withdraws_when_broke (tests.test_autoplay.OfferingTests.test_offering_withdraws_when_broke) ... ok
+test_food_prefers_stores (tests.test_autoplay.ResourceTests.test_food_prefers_stores) ... ok
+test_lodging_paid_when_affordable (tests.test_autoplay.ResourceTests.test_lodging_paid_when_affordable) ... ok
+test_lodging_skipped_when_broke (tests.test_autoplay.ResourceTests.test_lodging_skipped_when_broke) ... ok
+test_choose_records_memory (tests.test_autoplay.SuggestTests.test_choose_records_memory) ... ok
+test_suggest_does_not_touch_memory (tests.test_autoplay.SuggestTests.test_suggest_does_not_touch_memory) ... ok
+
+======================================================================
+FAIL: test_no_gold_no_offering (tests.test_autoplay.ActionTests.test_no_gold_no_offering)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\tests\test_autoplay.py", line 144, in test_no_gold_no_offering
+    self.assertNotIn('offering', MENU[2][idx].lower())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'offering' unexpectedly found in 'submit an offering (r212)'
+
+======================================================================
+FAIL: test_wounded_party_rests (tests.test_autoplay.ActionTests.test_wounded_party_rests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\tests\test_autoplay.py", line 153, in test_wounded_party_rests
+    self.assertIn('rest', MENU[2][idx].lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'rest' not found in 'submit an offering (r212)'
+
+======================================================================
+FAIL: test_moves_towards_the_nearest_temple (tests.test_autoplay.MoveTests.test_moves_towards_the_nearest_temple)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\tests\test_autoplay.py", line 225, in 
+test_moves_towards_the_nearest_temple
+    self.assertEqual(goal, '0611')          # nearest temple from 0101
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '0307' != '0611'
+- 0307
++ 0611
+
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.333s
+
+FAILED (failures=3)

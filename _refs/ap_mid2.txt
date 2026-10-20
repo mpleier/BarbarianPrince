@@ -1,0 +1,131 @@
+﻿ in h or 'battle' in h:
+                s = self.p['fight'] + 5 * (mine / max(1, theirs))
+                if theirs > mine * 1.5:
+                    s -= 6
+                else:
+                    s += min(8, loot // 10)         # r225 loot
+            elif 'evade' in h or 'escape' in h or 'flee' in h:
+                s = self.p['flee'] + (2 if theirs > mine else 0)
+            elif 'talk' in h or 'negotiate' in h or 'parley' in h or 'reason' in h:
+                s = self.p['talk'] + wit + (2 if theirs > mine else 0)
+            elif 'bribe' in h or 'pay' in h:
+                s = 1 + (4 if self.game.gold >= 30 else 0)
+            elif 'hide' in h:
+                s = 3
+            elif 'hire' in h:
+                m = PAY_RE.search(opts[i]['label'])
+                pay = int(m.group(1)) if m else 0
+                s = 8 if len(self.party()) < 6 and self.game.gold >= 20 + pay * 3 else -3
+            elif 'refuse' in h or 'decline' in h:
+                s = 1
+            else:
+                s = 1
+            if any(k in h for k in ('steal', 'theft', 'rob ')):
+                s -= 6
+            if 'surrender' in h:
+                s -= 4
+            if (ev.get('code'), h) in self.tried:
+                s -= 6                                # don't retry a failed approach
+            scores.append(s)
+        best = max(range(n), key=lambda i: scores[i])
+        if record:
+            self.tried.add((ev.get('code'),
+                            (headers[best] if best < len(headers) else '').lower()))
+        return best
+
+    # ---- travel (r204)
+    def _move(self, prompt, record=True):
+        g = self.game
+        opts = prompt['options']
+        goal = self.goal_hex()
+        # BFS *from the goal*, so dist[hid] is "hexes still to go" from hid.
+        dgoal = self.distances(goal) if goal else {}
+        here = dgoal.get(g.hex, 0)
+        back = self.path[-2] if len(self.path) >= 2 else None
+        best, best_score = 0, None
+        for i, o in enumerate(opts):
+            label = o['label']
+            if 'Stop travelling' in label:
+                if g.moves_left <= 0:
+                    s = 100                          # nothing left to move
+                elif self.camping():
+                    s = 12                           # stay and keep offering
+                else:
+                    s = -10                          # travelling is the point
+            else:
+                m = HEX_RE.search(label)
+                hid = m.group(1) if m else None
+                s = 0
+                if '[road]' in label:
+                    s += 8                           # roads: no "getting lost"
+                if '[river]' in label:
+                    s -= 3
+                if hid:
+                    s += TERRAIN_SCORE.get(g.model.travel_terrain(hid), 0)
+                    kind = g.place_kind(hid)
+                    s += PLACE_SCORE.get(kind, 0)
+                    if hid not in g.visited:
+                        s += 4                       # new ground = more events
+                    if hid == back:
+                        s -= 8                       # stop ping-ponging
+                    if goal and hid in dgoal:
+                        s += 12 * (here - dgoal[hid])  # progress towards goal
+                    s -= self.p['caution'] * TERRAIN_RISK.get(
+                        g.model.travel_terrain(hid), 0)
+            if best_score is None or s > best_score:
+                best, best_score = i, s
+        m = HEX_RE.search(opts[best]['label'])
+        if m and record:
+            self.path.append(m.group(1))
+        return best
+
+    # ---- daily action (r203)
+    def _action(self, prompt, record=True):
+        g = self.game
+        party = self.party()
+        wounded = any(c.wounds > 0 for c in party)
+        kind = g.place_kind(g.hex)
+        goal = self.goal_hex()
+        broke = self.gold_hungry()          # cannot yet pay the r212 offering
+        best, best_score = 0, None
+        for i, o in enumerate(prompt['options']):
+            label = o['label'].lower()
+            act = next((a for a, key in ACTION_KEYS if key in label), None)
+            if 'travel' in label:
+                s = self.p['travel']               # travel drives the whole game
+                if self.camping():
+                    s -= 20                        # do not leave the temple
+                elif goal and goal != g.hex:
+                    s += 6                         # the goal is elsewhere
+            elif 'rest' in label:
+                s = 13 if wounded and kind in ('town', 'castle', 'temple') else 3
+            elif 'news' in label:
+                # r209: a 3 pillages a thieves' den for 50 gold, a 4 grants the
+                # +1 offering omen without which a 14 is impossible, so news is
+                # worth far more before the omen lands.
+                s = self.p['news'] + (8 if not g.offering_bonus else 0)
+            elif 'hire' in label:
+                s = self.p['hire'] if len(party) < self.p['max_party'] \
+                    and g.gold >= 25 else 2
+            elif 'audience' in label:
+                s = self.p['audience']             # r211 - gold or trouble
+            elif 'offering' in label:
+                # r212 is the win condition: 14+ needs 10+ gold and an omen.
+                if g.gold >= 10 and g.offering_bonus:
+                    s = 30
+                elif g.gold >= 1:
+                    s = 22                         # cheap omen farming
+                else:
+                    s = 4                          # go and earn gold first
+            elif 'ruins' in label:
+                s = 20 + self.p['ruins'] // 2      # r208 - the best gold source
+            elif 'cache' in label:
+                s = 14
+            elif 'raft' in label:
+                s = 5
+            elif 'end the day' in label:
+                s = -6
+            else:
+                s = 0
+            if goal and g.hex == goal and 'travel' not in label:
+             

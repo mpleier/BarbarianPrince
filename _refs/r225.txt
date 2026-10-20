@@ -1,0 +1,15 @@
+﻿ Whenever you kill all characters encountered, your party may take their wealth. To determine the wealth of each defeated character, compare the character's wealth code with one die roll on the Treasure Table (r226). The result is the actual wealth, in gold pieces. (The wealth code, incidentally, is the average wealth result.) Some events may also provide you with treasures of various types. These may be a fixed number of gold pieces, or refer to a wealth code, in which case you again roll a die and consult the Treasure Table (r226). Special Possessions: sometimes the result of the Treasure Table (r226) will include not just gold, but a letter code as well. This means a special item has also been found, roll again on the Treasure Table and consult the appropriate letter code line for the specific event that describes the new possession. Distributing Acquisitions: you decide which characters receive what part of the treasure. You may decide to give your followers nothing, and retain all the wealth for yourself. If you do give any money or a possession to a follower, it becomes his personal property. You can never take it back unless the character dies, at which point you can recover his wealth unless you had to escape from the scene or have already left. Historical Note: this system for holding wealth is based on ancient Celtic and Germanic social customs, where the chief or leader owned all property, including all spoils from raids or wars. His band of followers was provided for, and was from time to time given individual items as gifts for especially valuable services.
+---r226---
+ wealth code die roll (use one die) 1 2 3 4 5 6 0 Character has no gold or possessions 1 0 0 1 1 2 2 2 0 1 2 2 3 4 4 2 3 4 4 5 6 5 2 3+A 4 6+A 7 8+A 7 3 4 6 8 10 11 10 6 8 9 11 12 14 12 5 9+C 11+A 12 15+A 20 15 10 12 14 16 18 20 21 15 18 20 22 24 27 25 20+A 22 24+A 26 28+A 30 30 23 27 29 31 33 37 50 40 45 48 52 55 60 60 45+A 50+C 55 60+B 70+A 80 70 55 60 65 70 80 90 100 85 90 95 100 110 120 110 80+B 90+C 100+B 110+A 130+C 150+A A e180 e181 e182 e183 e184 e185 B e180 e186 e187 e188 e190 e193 C e186 e188 e189 e191 e192 e194
+---ruins---
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12

@@ -1,0 +1,11 @@
+﻿cautious    wins 0/30  avg days 70.3 avg gold 0.0 peak gold 0.0
+    reached a temple: 3/30  temple hex-visits: 3
+    Ten weeks have passed; the campaign is over.: 29
+    The whole party deserted or died.: 1
+balanced    wins 0/30  avg days 70.3 avg gold 0.3 peak gold 0.3
+    reached a temple: 1/30  temple hex-visits: 1
+    Ten weeks have passed; the campaign is over.: 29
+    The whole party deserted or died.: 1
+aggressive  wins 0/30  avg days 71.0 avg gold 1.3 peak gold 1.3
+    reached a temple: 8/30  temple hex-visits: 9
+    Ten weeks have passed; the campaign is over.: 30

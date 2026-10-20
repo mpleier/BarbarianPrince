@@ -1,0 +1,33 @@
+﻿1:         opts = prompt['options']
+2:         n = len(opts)
+3:         if n <= 1:
+4:             return 0
+5:         theirs = _power(parse_foes(prompt['text']))
+6:         mine = self.my_power()
+7:         wit = self.game.wit
+8:         scores = []
+9:         for i in range(n):
+10:             h = (headers[i] if i < len(headers) else opts[i]['label']).lower()
+11:             if 'fight' in h or 'attack' in h or 'battle' in h:
+12:                 s = self.p['fight'] + 5 * (mine / max(1, theirs))
+13:                 if theirs > mine * 1.5:
+14:                     s -= 6
+15:             elif 'evade' in h or 'escape' in h or 'flee' in h:
+16:                 s = self.p['flee'] + (2 if theirs > mine else 0)
+17:             elif 'talk' in h or 'negotiate' in h or 'parley' in h or 'reason' in h:
+18:                 s = self.p['talk'] + wit + (2 if theirs > mine else 0)
+19:             elif 'bribe' in h or 'pay' in h:
+20:                 s = 1 + (4 if self.game.gold >= 30 else 0)
+21:             elif 'hide' in h:
+22:                 s = 3
+23:             elif 'hire' in h:
+24:                 m = PAY_RE.search(opts[i]['label'])
+25:                 pay = int(m.group(1)) if m else 0
+26:                 s = 8 if len(self.party()) < 6 and self.game.gold >= 20 + pay * 3 else -3
+27:             elif 'refuse' in h or 'decline' in h:
+28:                 s = 1
+29:             else:
+30:                 s = 1
+31:             if any(k in h for k in ('steal', 'theft', 'rob ')):
+32:                 s -= 6
+33:             if 'surrender' in h:

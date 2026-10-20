@@ -1,0 +1,21 @@
+﻿day   1 hex 0101 action travel     gold before 0
+day   2 hex 0102 action travel     gold before 0
+day   3 hex 0202 action travel     gold before 0
+day   4 hex 0203 action travel     gold before 0
+day   5 hex 0203 action travel     gold before 0
+day   6 hex 0304 action travel     gold before 0
+day   7 hex 0305 action travel     gold before 0
+day   8 hex 0305 action travel     gold before 0
+day   9 hex 0305 action travel     gold before 0
+day  10 hex 0306 action travel     gold before 0
+day  11 hex 0306 action travel     gold before 0
+day  12 hex 0306 action travel     gold before 0
+day  13 hex 0306 action raft       gold before 0
+day  14 hex 0306 action rest       gold before 0
+day  15 hex 0306 action travel     gold before 0
+day  16 hex 0306 action raft       gold before 0
+day  17 hex 0306 action rest       gold before 0
+day  18 hex 0306 action travel     gold before 0
+day  19 hex 0306 action raft       gold before 0
+final: day 71 gold 0 staff False reason Ten weeks have passed; the campaign is over.
+visited places: [('0101', 'town')]

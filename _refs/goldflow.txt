@@ -1,0 +1,5 @@
+﻿total gold gained: 9040
+  Hidden Treasures                         7000
+  Minor Treasures                          2040
+total gold spent: 0
+avg final gold 188.9, avg peak 226.0

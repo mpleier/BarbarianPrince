@@ -1,0 +1,12 @@
+﻿cautious    wins 5/60  avg days 69.0 avg gold 194.9 peak gold 228.3
+    reached a temple: 23/60  temple hex-visits: 23
+    Ten weeks have passed; the campaign is over.: 55
+    The Staff of Command has been recovered - the Northlands are yours again.: 5
+balanced    wins 8/60  avg days 69.1 avg gold 188.6 peak gold 225.3
+    reached a temple: 26/60  temple hex-visits: 26
+    Ten weeks have passed; the campaign is over.: 52
+    The Staff of Command has been recovered - the Northlands are yours again.: 8
+aggressive  wins 9/60  avg days 69.2 avg gold 189.6 peak gold 226.3
+    reached a temple: 24/60  temple hex-visits: 24
+    Ten weeks have passed; the campaign is over.: 51
+    The Staff of Command has been recovered - the Northlands are yours again.: 9

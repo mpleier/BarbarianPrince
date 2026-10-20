@@ -1,0 +1,52 @@
+﻿1:     def daily_menu(self):
+2:         kind = self.place_kind(self.hex)
+3:         opts = []
+4:         for label, act in self.ACTIONS:
+5:             if act in ('news', 'audience') and kind not in ('town', 'castle', 'temple'):
+6:                 continue
+7:             if act == 'offerings' and kind != 'temple':
+8:                 continue
+9:             if act == 'ruins' and kind != 'ruins':
+10:                 continue
+11:             if act == 'hire' and kind not in ('town', 'castle'):
+12:                 continue
+13:             if act == 'cache' and self.hex not in self.caches:
+14:                 continue
+15:             opts.append({'label': label,
+16:                          'handler': (lambda a=act: self.begin_action(a))})
+17:         opts.append({'label': 'End the day (food & lodging)',
+18:                      'handler': (lambda: self.skip_day())})
+19:         self.push('choice', f'Day {self.day} - action in hex {self.hex}',
+20:                   f'You are in {self.model.travel_terrain(self.hex)} '
+21:                   f'({self.model.terrain(self.hex)})'
+22:                   + (f', at {self.place_name(self.hex)}' if self.place_name(self.hex) else '')
+23:                   + '. Choose today\'s action (r203).', opts)
+24: 
+25:     # ------------------------------------------------------------ status
+26:     def status(self):
+27:         return {
+28:             'day': self.day,
+29:             'hex': self.hex,
+30:             'terrain': self.model.terrain(self.hex),
+31:             'travel_terrain': self.model.travel_terrain(self.hex),
+32:             'place': self.place_name(self.hex),
+33:             'gold': self.gold,
+34:             'food': self.food,
+35:             'wit': self.wit,
+36:             'party': [c.name for c in self.living()],
+37:             'party_detail': [(c.name, c.skill, c.endurance, c.wounds, c.mount)
+38:                              for c in self.living()],
+39:             'caches': dict(self.caches),
+40:             'items': list(self.items),
+41:             'staff': self.staff,
+42:             'game_over': self.game_over,
+43:             'won': self.won,
+44:             'reason': self.reason,
+45:         }
+46: 
+47:     def run_until_idle(self, max_steps=200, chooser=None):
+48:         """Resolve prompts automatically (used for testing / auto-play).
+49: 
+50:         ``chooser`` is any callable that takes the current prompt dict and
+51:         returns an option index; without it the first option is always taken.
+52:         """

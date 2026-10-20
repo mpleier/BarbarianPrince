@@ -1,0 +1,174 @@
+﻿ering', 'offering'), ('ruins', 'ruins'),
+               ('cache', 'cache'), ('raft', 'raft'))
+
+
+
+def _alive(chars):
+    return [c for c in chars if getattr(c, 'alive', True) and not c.dead]
+
+
+def _power(chars):
+    """Rough combat rating: skill drives hits, endurance drives survival."""
+    return sum(c.effective_skill * 2 + max(0, c.endurance - c.wounds)
+               for c in _alive(chars))
+
+
+class Bot:
+    """Pick the best option of the engine's current prompt."""
+
+    def __init__(self, game, strategy='balanced'):
+        self.game = game
+        self.strategy = strategy if strategy in STRATEGIES else 'balanced'
+        # risk: negative = risk-averse, positive = risk-hungry
+        self.p = PROFILE[self.strategy]
+        self.path = [game.hex]
+        self.tried = set()
+        self.done = set()          # (hex, action) already attempted
+        self.used = {}             # (hex, action) -> times attempted
+        self._dist = {}
+
+    # ------------------------------------------------------------ helpers
+    def party(self):
+        return self.game.living()
+
+    def my_power(self):
+        return _power(self.party())
+
+    def distances(self, start):
+        """BFS over the hex graph, cached per starting hex."""
+        d = self._dist.get(start)
+        if d is not None:
+            return d
+        d = {start: 0}
+        q = deque([start])
+        while q:
+            h = q.popleft()
+            for nb in self.game.model.neighbors(h).values():
+                if nb not in d:
+                    d[nb] = d[h] + 1
+                    q.append(nb)
+        self._dist[start] = d
+        return d
+
+    def camping(self):
+        """True when the bot has parked itself at a temple to farm r212.
+
+        Staying is only worth it once the 10-gold offering is affordable;
+        otherwise the temple is a dead end that burns days on "no gold to
+        offer" (r212).
+        """
+        g = self.game
+        return g.place_kind(g.hex) == 'temple' and g.gold >= 10
+
+    def gold_hungry(self):
+        """How badly the bot needs gold right now (r212 needs 10)."""
+        return self.game.gold < 10
+
+    def goal_hex(self):
+        """Where the bot wants to head.
+
+        The Staff of Command (r212) is the only way to win: at a temple the
+        offering roll is 2 dice + 1 (for 10+ gold) + 1 (favourable omens), and
+        14+ is required.  Since 12+1+1 = 14, the bot must reach a temple with
+        at least 10 gold and keep trying there.
+
+        While it is broke, though, a temple is a dead end - so it heads for
+        the places that actually produce gold: unsearched ruins (r208 can pay
+        out hundreds of gold), then towns and castles (r209 news, r210 hiring,
+        r211 audiences).
+        """
+        g = self.game
+        if g.staff:
+            return min(g.model.grid, key=lambda h: int(h[2:]))
+        if self.camping():
+            return g.hex                      # hold position and keep offering
+        d = self.distances(g.hex)
+        places = g.features['places']
+        temples = [h for h, p in places.items() if p['kind'] == 'temple']
+        if g.gold >= 10:
+            pool = temples
+        else:
+            ruins = [h for h, p in places.items()
+                     if p['kind'] == 'ruins' and (h, 'ruins') not in self.done]
+            pool = ruins or [h for h, p in places.items()
+                             if p['kind'] in ('town', 'castle')] or temples
+        if not pool:
+            return None
+        return min(pool, key=lambda h: (d.get(h, 999), h))
+
+    # ------------------------------------------------------------ decisions
+    def choose(self, prompt, record=True):
+        """Pick the best option of `prompt`.
+
+        `record=False` leaves the bot's memory untouched, so the front-end can
+        preview the bot's choice without burning a "tried" or "used" entry.
+        """
+        opts = prompt.get('options') or []
+        if not opts:
+            return 0
+        title = prompt.get('title', '')
+        low = title.lower()
+
+        if prompt.get('kind') == 'combat':
+            return self._combat(len(opts))
+        if prompt.get('kind') == 'encounter' or 'try again' in low:
+            return self._encounter(prompt, record)
+
+        if title.startswith('Move'):
+            return self._move(prompt, record)
+        if 'action in hex' in low:
+            return self._action(prompt, record)
+        if 'meal' in low:
+            return self._food(prompt)
+        if 'lodging' in low:
+            return self._lodging(prompt)
+        if 'hiring' in low:
+            return self._hire(prompt)
+        if 'horse' in low:
+            return self._horses(prompt)
+        if 'porter' in low or 'guide' in low:
+            return self._porter(prompt)
+        if 'offering' in low:
+            return self._offering(prompt)
+        if 'escape' in low:
+            return self._escape(prompt)
+        return 0
+
+    def suggest(self, prompt):
+        """Same as choose(), but without updating the bot's memory."""
+        return self.choose(prompt, record=False)
+
+
+    # ---- combat (r220)
+    def _combat(self, n):
+        c = self.game.combat
+        if c is None or n < 2:
+            return 0
+        mine, theirs = _power(c.party), _power(c.foes)
+        prince = next((p for p in c.party if p.prince), None)
+        if prince and prince.wounds >= prince.endurance - 1:
+            return 1                                  # the Prince must survive
+        ratio = mine / max(1, theirs)
+        if c.round >= 8 and ratio < 1.5:
+            return 1                                  # a grinding fight is lost
+        return 0 if ratio >= 1.0 - self.p['fight'] * 0.05 else 1
+
+    # ---- encounters (r207, r311-r340)
+    def _encounter(self, prompt, record=True):
+        ev = self.game.pending_event or {}
+        headers = ev.get('headers') or []
+        opts = prompt['options']
+        n = len(opts)
+        if n <= 1:
+            return 0
+        theirs = _power(parse_foes(prompt['text']))
+        # r225: defeating the band pays out its wealth, so a fight is worth
+        # more when the opposition is rich.  Read the numbers straight from
+        # the text so the bot never disturbs the game's dice.
+        loot = sum(int(m) for m in WEALTH_RE.findall(prompt['text']))
+        mine = self.my_power()
+        wit = self.game.wit
+        scores = []
+        for i in range(n):
+            h = (headers[i] if i < len(headers) else opts[i]['label']).lower()
+            if 'fight' in h or 'attack'

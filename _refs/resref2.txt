@@ -1,0 +1,33 @@
+﻿1: 
+2:     # ------------------------------------------------------------ reference resolver
+3:     def resolve_ref(self, ref, ev=None):
+4:         if not ref:
+5:             return 'Nothing happens.'
+6:         if ref in ('r300', 'r301', 'r302', 'r303', 'r304', 'r305', 'r306',
+7:                    'r307', 'r308', 'r309', 'r310'):
+8:             return self.start_combat(ev)
+9:         if ref in ('r311', 'r312', 'r313', 'r314', 'r315'):
+10:             return self.escape_ref(ref, ev)
+11:         if ref in ('r316', 'r317', 'r318', 'r319', 'r320'):
+12:             return self.hide_ref(ref, ev)
+13:         if ref in ('r321', 'r322', 'r323', 'r324'):
+14:             return self.bribe_ref(ref, ev)
+15:         if ref in ('r325', 'r326', 'r327', 'r328', 'r329'):
+16:             return self.pass_ref(ref, ev)
+17:         if ref == 'r330':
+18:             return self.forced_battle(ev)
+19:         if ref in ('r331', 'r332', 'r333', 'r334', 'r335', 'r336', 'r337'):
+20:             return self.hire_ref(ref, ev)
+21:         if ref in ('r338', 'r339', 'r340'):
+22:             return self.hire_ref2(ref, ev)
+23:         if ref == 'r341':
+24:             return self.conversation(ev)
+25:         if ref == 'r342':
+26:             return self.general_inquiry(ev)
+27:         if ref == 'r343':
+28:             self.victim_selection(ev)
+29:             return self.forced_battle(ev)
+30:         self.note(f'(reference {ref} is not implemented - nothing happens)')
+31:         return 'Nothing happens.'
+32: 
+33: 

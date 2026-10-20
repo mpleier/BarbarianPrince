@@ -1,0 +1,297 @@
+﻿The Barbarian Prince begins his quest in hex 0101. Wit & wiles = 2.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0101 -> 0102: Farmland -> Countryside
+Getting lost check [Farmland]: rolled 6 vs 10+ -> ok
+No travel event [Countryside]: rolled 4 (needs 9+).
+Hunting by Cal Arath (the Prince): 12 - 8 = 4 units.
+Hunt yields 4 food units.
+Day 2 begins in hex 0102.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0102 -> 0202: Countryside -> Forest
+Getting lost check [Countryside]: rolled 10 vs 9+ -> LOST
+Lost - the day is spent wandering in 0102, checking the hex that was entered (r205b).
+No travel event [Forest]: rolled 6 (needs 9+).
+Ate 1 food units from stores.
+Day 3 begins in hex 0102.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0102 -> 0202: Countryside -> Forest
+Getting lost check [Countryside]: rolled 5 vs 9+ -> ok
+No travel event [Forest]: rolled 5 (needs 9+).
+Ate 1 food units from stores.
+Day 4 begins in hex 0202.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0202 -> 0203: Forest -> Forest
+Getting lost check [Forest]: rolled 9 vs 8+ -> LOST
+Lost - the day is spent wandering in 0202, checking the hex that was entered (r205b).
+No travel event [Forest]: rolled 7 (needs 9+).
+Ate 1 food units from stores.
+Day 5 begins in hex 0202.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0202 -> 0203: Forest -> Forest
+Getting lost check [Forest]: rolled 7 vs 8+ -> ok
+No travel event [Forest]: rolled 8 (needs 9+).
+Ate 1 food units from stores.
+Day 6 begins in hex 0203.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0203 -> 0304: Forest -> Farmland
+Getting lost check [Forest]: rolled 6 vs 8+ -> ok
+No travel event [Farmland]: rolled 4 (needs 8+).
+Hunting by Cal Arath (the Prince): 12 - 2 = 10 units.
+Pursued by constabulary (e050).
+Hunt yields 10 food units.
+Day 7 begins in hex 0304.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0304 -> 0305: Farmland -> Countryside
+Getting lost check [Farmland]: rolled 6 vs 10+ -> ok
+Travel event [Countryside]: rolled 10 (needs 9+), die 2 -> r236 -> e009
+Ate 1 food units from stores.
+Day 8 begins in hex 0305.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0305 -> 0306: Countryside -> Desert
+Getting lost check [Countryside]: rolled 10 vs 9+ -> LOST
+Lost - the day is spent wandering in 0305, checking the hex that was entered (r205b).
+No travel event [Desert]: rolled 6 (needs 10+).
+Ate 1 food units from stores.
+Day 9 begins in hex 0305.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0305 -> 0306: Countryside -> Desert
+Getting lost check [Countryside]: rolled 6 vs 9+ -> ok
+No travel event [Desert]: rolled 9 (needs 10+).
+Ate 2 food units from stores.
+Day 10 begins in hex 0306.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0306 -> 0307: Desert -> Hills
+Getting lost check [Desert]: rolled 5 vs 6+ -> ok
+No travel event [Hills]: rolled 8 (needs 10+).
+Ate 1 food units from stores.
+Day 11 begins in hex 0307.
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 7 -> e131
+Ate 1 food units from stores.
+Day 12 begins in hex 0307.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0307 -> 0406: Hills -> Farmland
+Getting lost check [Hills]: rolled 4 vs 8+ -> ok
+Travel event [Farmland]: rolled 9 (needs 8+), die 6 -> r235 -> e009
+Ate 1 food units from stores.
+Day 13 begins in hex 0406.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0406 -> 0506: Farmland -> Forest
+Getting lost check [Farmland]: rolled 3 vs 10+ -> ok
+Travel event [Forest]: rolled 12 (needs 9+), die 3 -> r242 -> e052
+Ate 1 food units from stores.
+Day 14 begins in hex 0506.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0506 -> 0605: Forest -> Farmland
+Getting lost check [Forest]: rolled 7 vs 8+ -> ok
+Travel event [Farmland]: rolled 9 (needs 8+), die 6 -> r235 -> e009
+Ate 1 food units from stores.
+Day 15 begins in hex 0605.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0605 -> 0705: Farmland -> Forest
+Getting lost check [Farmland]: rolled 9 vs 10+ -> ok
+Travel event [Forest]: rolled 11 (needs 9+), die 2 -> r241 -> e074
+Ate 1 food units from stores.
+Day 16 begins in hex 0705.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0705 -> 0704: Forest -> Swamp
+Getting lost check [Forest]: rolled 6 vs 8+ -> ok
+No travel event [Swamp]: rolled 9 (needs 10+).
+Hunting by Cal Arath (the Prince): 12 - 9 = 3 units.
+Hunt yields 3 food units.
+Day 17 begins in hex 0704.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0704 -> 0803: Swamp -> Forest
+Getting lost check [Swamp]: rolled 6 vs 5+ -> LOST
+Lost - the day is spent wandering in 0704, checking the hex that was entered (r205b).
+No travel event [Forest]: rolled 6 (needs 9+).
+Ate 1 food units from stores.
+Day 18 begins in hex 0704.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0704 -> 0803: Swamp -> Forest
+Getting lost check [Swamp]: rolled 10 vs 5+ -> LOST
+Lost - the day is spent wandering in 0704, checking the hex that was entered (r205b).
+Travel event [Forest]: rolled 10 (needs 9+), die 2 -> r241 -> e074
+Ate 1 food units from stores.
+Day 19 begins in hex 0704.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0704 -> 0703: Swamp -> Mountains
+Getting lost check [Swamp]: rolled 8 vs 5+ -> LOST
+Lost - the day is spent wandering in 0704, checking the hex that was entered (r205b).
+Travel event [Mountains]: rolled 12 (needs 9+), die 6 -> r248 -> e064
+Ate 1 food units from stores.
+Day 20 begins in hex 0704.
+Rafting: rolled 5 (bonus 1).
+The raft is lost and the day is wasted.
+Hunting by Cal Arath (the Prince): 12 - 10 = 2 units.
+Hunt yields 2 food units.
+Day 21 begins in hex 0704.
+Resting in hex 0704 (r222).
+No travel event [Swamp]: rolled 6 (needs 10+).
+Ate 1 food units from stores.
+Day 22 begins in hex 0704.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0704 -> 0703: Swamp -> Mountains
+Getting lost check [Swamp]: rolled 7 vs 5+ -> LOST
+Lost - the day is spent wandering in 0704, checking the hex that was entered (r205b).
+No travel event [Mountains]: rolled 7 (needs 9+).
+Ate 1 food units from stores.
+Day 23 begins in hex 0704.
+Rafting: rolled 11 (bonus 1).
+Rafting roll 11 -> e091
+Hunting by Cal Arath (the Prince): 12 - 5 = 7 units.
+Hunt yields 7 food units.
+Day 24 begins in hex 0704.
+Resting in hex 0704 (r222).
+No travel event [Swamp]: rolled 4 (needs 10+).
+Ate 1 food units from stores.
+Day 25 begins in hex 0704.
+Travel action: the party moves 1 hex/day (on foot)
+Travel 0704 -> 0803: Swamp -> Forest
+Getting lost check [Swamp]: rolled 11 vs 5+ -> LOST
+Lost - the day is spent wandering in 0704, checking the hex that was entered (r205b).
+Travel event [Forest]: rolled 10 (needs 9+), die 4 -> r243 -> e084
+Ate 1 food units from stores.
+Day 26 begins in hex 0704.
+Rafting: rolled 9 (bonus 1).
+The raft is lost and the day is wasted.
+Ate 1 food units from stores.
+Day 27 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 28 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 29 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 30 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 31 begins in hex 0704.
+The party does nothing today.
+Hunting by Cal Arath (the Prince): 12 - 7 = 5 units.
+Hunt yields 5 food units.
+Day 32 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 33 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 34 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 35 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 36 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 37 begins in hex 0704.
+The party does nothing today.
+Hunting by Cal Arath (the Prince): 12 - 3 = 9 units.
+Hunt yields 9 food units.
+Day 38 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 39 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 40 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 41 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 42 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 43 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 44 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 45 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 46 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 47 begins in hex 0704.
+The party does nothing today.
+Hunting by Cal Arath (the Prince): 12 - 7 = 5 units.
+Hunt yields 5 food units.
+Day 48 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 49 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 50 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 51 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 52 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 53 begins in hex 0704.
+The party does nothing today.
+Hunting by Cal Arath (the Prince): 12 - 7 = 5 units.
+Hunt yields 5 food units.
+Day 54 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 55 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 56 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 57 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 58 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 59 begins in hex 0704.
+The party does nothing today.
+Hunting by Cal Arath (the Prince): 12 - 9 = 3 units.
+Hunt yields 3 food units.
+Day 60 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 61 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 62 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 63 begins in hex 0704.
+The party does nothing today.
+Hunting by Cal Arath (the Prince): 12 - 8 = 4 units.
+Hunt yields 4 food units.
+Day 64 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 65 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 66 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 67 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 68 begins in hex 0704.
+The party does nothing today.
+Hunting by Cal Arath (the Prince): 12 - 7 = 5 units.
+Hunt yields 5 food units.
+Day 69 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.
+Day 70 begins in hex 0704.
+The party does nothing today.
+Ate 1 food units from stores.

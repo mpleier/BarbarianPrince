@@ -1,0 +1,149 @@
+﻿   s += 4
+            if act in ('ruins', 'cache') and (g.hex, act) in self.done:
+                s -= 12                              # one-off per hex
+            if act != 'offering':
+                s -= 5 * self.used.get((g.hex, act), 0)   # diminishing returns
+
+            if best_score is None or s > best_score:
+                best, best_score = i, s
+        chosen = prompt['options'][best]['label'].lower()
+        act = next((a for a, key in ACTION_KEYS if key in chosen), None)
+        if act and record:
+            self.done.add((g.hex, act))
+            self.used[(g.hex, act)] = self.used.get((g.hex, act), 0) + 1
+        return best
+
+    # ---- food (r215, r216)
+    def _food(self, prompt):
+        g = self.game
+        m = NEED_RE.search(prompt['title'])
+        need = int(m.group(1)) if m else len(g.living())
+        opts = prompt['options']
+        for i, o in enumerate(opts):
+            if 'eat from stores' in o['label'].lower():
+                return i
+        for i, o in enumerate(opts):
+            if 'buy meals' in o['label'].lower() and g.gold >= need + self.p['buffer'] // 2:
+                return i
+        for i, o in enumerate(opts):
+            if 'hunting' in o['label'].lower():
+                return i
+        return 0
+
+    # ---- lodging (r217)
+    def _lodging(self, prompt):
+        opts = prompt['options']
+        if len(opts) < 2:
+            return 0
+        m = GOLD_RE.search(opts[0]['label'])
+        cost = int(m.group(1)) if m else 0
+        return 0 if self.game.gold >= cost + self.p['buffer'] // 2 else 1
+
+    # ---- hiring (r210, r331-r340)
+    def _hire(self, prompt):
+        opts = prompt['options']
+        if len(opts) < 2:
+            return 0
+        label = opts[0]['label']
+        m = PAY_RE.search(label)
+        pay = int(m.group(1)) if m else 0
+        c = COUNT_RE.search(label)
+        n = int(c.group(1)) if c else 1
+        party = len(self.game.living())
+        if pay == 0:
+            return 0 if party < 8 else 1
+        if party < 4 and self.game.gold >= 25 + pay * n * 3:
+            return 0
+        return 1
+
+    # ---- horse dealer (r210)
+    def _horses(self, prompt):
+        opts = prompt['options']
+        decline = next((i for i, o in enumerate(opts)
+                        if 'decline' in o['label'].lower()), len(opts) - 1)
+        unmounted = sum(1 for c in self.game.living() if c.mount == 'none')
+        if unmounted == 0:
+            return decline
+        best = None
+        for i, o in enumerate(opts):
+            m = BUY_RE.search(o['label'])
+            if not m:
+                continue
+            n = int(m.group(1))
+            price = int(GOLD_RE.search(o['label']).group(1)) // n
+            if n <= unmounted and self.game.gold >= n * price + 20:
+                best = i
+        return best if best is not None else decline
+
+    # ---- porters & guides (r210)
+    def _porter(self, prompt):
+        opts = prompt['options']
+        for i, o in enumerate(opts):
+            if 'guide' in o['label'].lower() and self.game.gold >= 12:
+                return i
+        for i, o in enumerate(opts):
+            if 'porter' in o['label'].lower() and self.game.gold >= 6:
+                return i
+        return next((i for i, o in enumerate(opts)
+                     if 'decline' in o['label'].lower()), len(opts) - 1)
+
+    # ---- offerings (r212): the road to the Staff of Command
+    def _offering(self, prompt):
+        """r212 - the offering roll is 2 dice + 1 for 10+ gold + the omen bonus.
+
+        14+ is needed for the Staff of Command and 12+1+1 = 14, so once the
+        omen is in hand 10 gold is exactly the right amount: it is the minimum
+        that buys the +1, it also lifts the lowest possible roll to 3 (a total
+        of 2 closes the temple and arrests the party), and anything above 10 is
+        simply wasted.
+
+        Without the omen a 14 is mathematically impossible, so the bot offers
+        the smallest amount instead.  A total of 7 grants "favourable omens for
+        further worship ... add one (+1) to your dice roll", and 7 is reachable
+        on 1 gold with the same 6/36 chance that 10 gold needs for a 6 - at one
+        tenth the price.
+        """
+        opts = prompt['options']
+        gold = self.game.gold
+        reserve = 2 * max(1, len(self.party()))   # food & lodging for tomorrow
+        target = 10 if self.game.offering_bonus else 1
+        best, best_gap = None, None
+        for i, o in enumerate(opts):
+            m = re.search(r'Offer (\d+) gold', o['label'])
+            if not m:
+                continue
+            amount = int(m.group(1))
+            if amount > gold:
+                continue
+            if gold - amount < reserve:
+                continue
+            gap = abs(amount - target)
+            if best_gap is None or gap < best_gap:
+                best, best_gap = i, gap
+        if best is not None:
+            return best
+        return next((i for i, o in enumerate(opts)
+                     if 'withdraw' in o['label'].lower()), 0)
+
+    # ---- escape choices (r312, r313)
+    def _escape(self, prompt):
+        opts = prompt['options']
+        fight = next((i for i, o in enumerate(opts)
+                      if 'stand and fight' in o['label'].lower()), None)
+        if fight is None:
+            return 0
+        if self.my_power() >= 2 * max(1, _power(parse_foes(prompt['text']))) \
+                and self.strategy != 'cautious':
+            return fight
+        return 0
+
+
+def run(game, strategy='balanced', max_steps=6000):
+    """Play a whole campaign with the given personality. Returns steps taken."""
+    bot = Bot(game, strategy)
+    return game.run_until_idle(max_steps=max_steps, chooser=bot.choose)
+
+
+
+
+

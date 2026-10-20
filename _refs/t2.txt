@@ -1,0 +1,35 @@
+﻿python : ....F..........F...........
+At line:1 char:146
++ ... f8 _refs/wr3.txt; python -m unittest tests.test_autoplay 2>&1 | Out-F ...
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (....F..........F...........:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+======================================================================
+FAIL: test_wounded_party_rests (tests.test_autoplay.ActionTests.test_wounded_party_rests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\tests\test_autoplay.py", line 142, in test_wounded_party_rests
+    self.assertIn('rest', MENU[2][idx].lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'rest' not found in 'seek news & information (r209)'
+
+======================================================================
+FAIL: test_moves_towards_the_nearest_temple (tests.test_autoplay.MoveTests.test_moves_towards_the_nearest_temple)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\tests\test_autoplay.py", line 214, in 
+test_moves_towards_the_nearest_temple
+    self.assertEqual(goal, '0611')          # nearest temple from 0101
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '0101' != '0611'
+- 0101
+?   -
++ 0611
+?  +
+
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.304s
+
+FAILED (failures=2)

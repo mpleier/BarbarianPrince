@@ -1,0 +1,10 @@
+﻿=== seed 1: day 71 gold 0 staff False reason Ten weeks have passed; the campaign is over.
+=== seed 2: day 71 gold 0 staff False reason Ten weeks have passed; the campaign is over.
+=== seed 3: day 71 gold 0 staff False reason Ten weeks have passed; the campaign is over.
+  day 1 0101: Not enough gold to buy meals.
+  day 2 0101: Not enough gold to buy meals.
+  day 3 0101: Not enough gold to buy meals.
+  day 4 0101: Not enough gold to buy meals.
+=== seed 4: day 71 gold 0 staff False reason Ten weeks have passed; the campaign is over.
+=== seed 5: day 71 gold 0 staff False reason Ten weeks have passed; the campaign is over.
+  day 41 1204: Loot from Foe 1: 0 gold

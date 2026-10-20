@@ -1,0 +1,6 @@
+﻿temples: []
+ruins: []
+
+ruin -> temple distances
+
+ruins with a town within 2 hexes:

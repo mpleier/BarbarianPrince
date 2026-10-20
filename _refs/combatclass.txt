@@ -1,0 +1,70 @@
+﻿1: class Combat:
+2:     """r220 - round-by-round combat."""
+3: 
+4:     def __init__(self, party, foes, rng, party_first=True, name='Battle',
+5:                  surprise=None, note=None):
+6:         self.party = [c for c in party if not c.dead]
+7:         self.foes = [c for c in foes if not c.dead]
+8:         self.rng = rng
+9:         self.party_first = party_first
+10:         self.surprise = surprise            # 'party' | 'foes' | None
+11:         self.name = name
+12:         self.round = 0
+13:         self.over = False
+14:         self.result = None
+15:         self.log = []
+16:         self.note = note or (lambda t: None)
+17: 
+18:     def modifiers(self, striker, target):
+19:         total = 0
+20:         if target.wounds * 2 >= target.endurance:
+21:             total += 2
+22:         if striker.wounds >= 1:
+23:             total -= 1
+24:         if striker.wounds * 2 >= striker.endurance:
+25:             total -= 1
+26:         return total
+27: 
+28:     def strike(self, striker, target):
+29:         base = striker.effective_skill - target.effective_skill
+30:         dice = self.rng.randint(1, 6) + self.rng.randint(1, 6)
+31:         total = base + dice + self.modifiers(striker, target)
+32:         wounds = COMBAT_TABLE.get(total, 0)
+33:         if wounds:
+34:             target.wounds += wounds
+35:             self.log.append(f'{striker.name} ({total}) strikes {target.name}: '
+36:                             f'{wounds} wound(s) [{target.wounds}/{target.endurance}]'
+37:                             + (' -> dead' if target.dead else ''))
+38:         else:
+39:             self.log.append(f'{striker.name} ({total}) strikes {target.name}: missed')
+40:         return wounds
+41: 
+42:     def pairing_of(self, attackers, defenders):
+43:         """r220b - strongest vs strongest; extras pile onto one opponent."""
+44:         attackers = sorted([c for c in attackers if not c.dead],
+45:                            key=lambda c: -c.effective_skill)
+46:         defenders = sorted([c for c in defenders if not c.dead],
+47:                            key=lambda c: -c.effective_skill)
+48:         return [(a, defenders[i % len(defenders)]) for i, a in enumerate(attackers)]
+49: 
+50:     def round_side(self, attackers, defenders):
+51:         for striker, target in self.pairing_of(attackers, defenders):
+52:             if not target.dead and not striker.dead:
+53:                 self.strike(striker, target)
+54:         for c in attackers + defenders:
+55:             if c.dead:
+56:                 c.alive = False
+57: 
+58:     def rout_possible(self):
+59:         return any(f.skill < 9 and f.endurance < 9 for f in self.foes)
+60: 
+61:     def step(self):
+62:         """Resolve one combat round (r220a)."""
+63:         if self.over:
+64:             return self.result
+65:         self.round += 1
+66:         self.log.append(f'--- round {self.round} ---')
+67:         if self.surprise and self.round == 1:
+68:             strikers = self.party if self.surprise == 'party' else self.foes
+69:             targets = self.foes if self.surprise == 'party' else self.party
+70:             for s in list(strikers):

@@ -1,0 +1,98 @@
+﻿1:     def seek_news(self):
+2:         """r209 - seek news: 2 dice, +1 for 5+ gold spent, +1 if wit is 5+."""
+3:         spend = 5 if self.gold >= 5 else 0
+4:         bonus = spend + (1 if self.wit >= 5 else 0)
+5:         total = self.d2() + bonus
+6:         self.note(f'Seeking news: rolled {total} (bonus {bonus}).')
+7:         row = self.model.news(total)
+8:         text = row['text'] if row else 'No news of note, nothing seems to be happening.'
+9:         self.note(f'News roll {total} -> {text}')
+10:         low = text.lower()
+11:         if 'gain 50 gold' in low:
+12:             self.gold += 50
+13:         elif 'lose half your wealth' in low:
+14:             self.gold //= 2
+15:         if 'add one (+1)' in low and 'offerings' in low:
+16:             self.offering_bonus = 1
+17:         if 'always add one (+1)' in low:
+18:             self.news_bonus[self.hex] = 1
+19:         if 'half normal price' in low:
+20:             self.news_bonus[self.hex] = 2
+21:         m = REF_RE.search(text)
+22:         if m and m.group(1) in self.model.events:
+23:             self.encounter(m.group(1))
+24:         else:
+25:             self.push('info', f'News in {self.hex}', text,
+26:                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+27:         return 'News gathered.'
+28: 
+29:     def search_ruins(self):
+30:         """r208 - search the ruins: 2 dice, +1 per follower with skill 6+."""
+31:         bonus = sum(1 for c in self.living() if c.skill >= 6)
+32:         total = self.d2() + bonus
+33:         self.note(f'Searching the ruins: rolled {total} (bonus {bonus}).')
+34:         code = RUINS.get(total, 'e133')
+35:         self.note(f'Ruins roll {total} -> {code}')
+36:         self.encounter(code)
+37:         return 'Ruins searched.'
+38: 
+39:     def recover_cache(self):
+40:         """r214 - recover a hidden cache buried in this hex."""
+41:         if self.hex not in self.caches:
+42:             self.note('There is no cache hidden in this hex.')
+43:             return 'No cache here.'
+44:         code, amount = self.caches.pop(self.hex)
+45:         gold, item = self.treasure_roll(code)
+46:         self.gold += gold
+47:         if item:
+48:             self.items.append(item)
+49:         self.note(f'Recovered the cache: {gold} gold' + (f' + {item}' if item else ''))
+50:         return 'Cache recovered.'
+51: 
+52:     def raft_action(self):
+53:         """r213 - raft down the river: 2 dice, +1 per follower with skill 6+."""
+54:         bonus = sum(1 for c in self.living() if c.skill >= 6)
+55:         total = self.d2() + bonus
+56:         self.note(f'Rafting: rolled {total} (bonus {bonus}).')
+57:         if total <= 10:
+58:             self.note('The raft is lost and the day is wasted.')
+59:             self.raft = False
+60:             return 'Raft lost.'
+61:         code = RAFTING.get(total, 'r232')
+62:         if code.startswith('r'):
+63:             code = self.model.resolve_event_ref(code, self.d1())
+64:         self.note(f'Rafting roll {total} -> {code}')
+65:         self.raft_days += 1
+66:         self.encounter(code)
+67:         return 'Rafting continues.'
+68: 
+69:     def audience_rows(self):
+70:         """The r211 audience table that applies to the hex we are standing in."""
+71:         table = self.model.tables['audience']
+72:         for entry in table.values():
+73:             if entry.get('hex') == self.hex:
+74:                 return entry['rows']
+75:         kind = self.place_kind(self.hex)
+76:         return table.get('any Town' if kind in ('town', 'castle')
+77:                          else 'any Temple', {}).get('rows', [])
+78: 
+79:     def seek_audience(self):
+80:         """r211 - seek an audience: 2 dice, +1 per follower with skill 6+."""
+81:         kind = self.place_kind(self.hex)
+82:         if kind not in ('town', 'castle', 'temple'):
+83:             self.note('There is nobody here to grant an audience.')
+84:             return 'No audience available.'
+85:         bonus = sum(1 for c in self.living() if c.skill >= 6)
+86:         total = self.d2() + bonus
+87:         self.note(f'Seeking an audience in {kind} {self.hex}: rolled {total}.')
+88:         row = self.model.roll_row(self.audience_rows(), total)
+89:         text = (row['text'] if row else 'The audience is refused - try again tomorrow.')
+90:         self.note(f'Audience roll {total} -> {text}')
+91:         m = REF_RE.search(text)
+92:         if m and m.group(1) in self.model.events:
+93:             self.encounter(m.group(1))
+94:         else:
+95:             self.push('info', f'Audience in {kind} {self.hex}', text,
+96:                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+97:         return 'Audience sought.'
+98: 

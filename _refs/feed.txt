@@ -1,0 +1,70 @@
+﻿1:         return 'Nothing available.'
+2: 
+3:     def buy_horses(self, n, price):
+4:         if self.gold < n * price:
+5:             self.note('Not enough gold for horses.')
+6:             return 'No horses bought.'
+7:         self.gold -= n * price
+8:         for c in self.living():
+9:             if c.mount == 'none':
+10:                 c.mount = 'horse'
+11:                 n -= 1
+12:                 if n == 0:
+13:                     break
+14:         self.note(f'Bought horses; party now mounted.')
+15:         return 'Horses bought.'
+16: 
+17:     # ------------------------------------------------------------ lodging (r217)
+18:     def lodging(self):
+19:         kind = self.place_kind(self.hex)
+20:         if kind not in ('town', 'castle', 'temple'):
+21:             return 'Camp for the night in the open.'
+22:         special = sum(1 for c in self.living()
+23:                       if any(w in c.name.lower() for w in
+24:                              ('priest', 'monk', 'magician', 'wizard', 'witch')))
+25:         others = len(self.living()) - special
+26:         rooms = 1 + special + (others + 1) // 2
+27:         mounts = sum(1 for c in self.living() if c.mount != 'none')
+28:         cost = rooms + mounts
+29:         if self.free_lodging:
+30:             self.free_lodging = False
+31:             self.note('Lodging is provided free of charge.')
+32:             return 'Free lodging.'
+33:         opts = [{'label': f'Pay {cost} gold for lodging',
+34:                  'handler': (lambda: self.pay_lodging(cost))},
+35:                 {'label': 'Sleep rough (risk desertion)',
+36:                  'handler': (lambda: self.sleep_rough())}]
+37:         self.push('choice', f'Lodging in {kind} {self.hex} (r217)',
+38:                   f'{rooms} room(s) + {mounts} stable(s) = {cost} gold.', opts)
+39:         return 'Lodging decision pending.'
+40: 
+41:     def pay_lodging(self, cost):
+42:         if self.gold >= cost:
+43:             self.gold -= cost
+44:             self.note(f'Paid {cost} gold for lodging.')
+45:             return 'Lodged.'
+46:         self.note('Cannot afford lodging.')
+47:         return self.sleep_rough()
+48: 
+49:     def sleep_rough(self):
+50:         self.note('No lodging purchased - rolling for desertion (r217).')
+51:         for c in list(self.living()):
+52:             if c.prince:
+53:                 continue
+54:             die = self.d2() - self.wit
+55:             if die >= 4:
+56:                 self.note(f'{c.name} deserts - no lodging provided.')
+57:                 c.alive = False
+58:             else:
+59:                 self.note(f'{c.name} stays ({die}).')
+60:             if c.mount != 'none':
+61:                 if self.d1() >= 4:
+62:                     self.note(f'{c.name}\'s mount is stolen during the night.')
+63:                     c.mount = 'none'
+64:         self.party = [c for c in self.party if c.alive]
+65:         if not self.living():
+66:             self.game_over = True
+67:             self.reason = 'The party deserted.'
+68:         return 'Slept rough.'
+69: 
+70: 

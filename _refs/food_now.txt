@@ -1,0 +1,56 @@
+﻿1:             if act != 'offering':
+2:                 s -= 5 * self.used.get((g.hex, act), 0)   # diminishing returns
+3: 
+4:             if best_score is None or s > best_score:
+5:                 best, best_score = i, s
+6:         chosen = prompt['options'][best]['label'].lower()
+7:         act = next((a for a, key in ACTION_KEYS if key in chosen), None)
+8:         if act and record:
+9:             self.done.add((g.hex, act))
+10:             self.used[(g.hex, act)] = self.used.get((g.hex, act), 0) + 1
+11:         return best
+12: 
+13:     # ---- food (r215, r216)
+14:     def _food(self, prompt):
+15:         g = self.game
+16:         m = NEED_RE.search(prompt['title'])
+17:         need = int(m.group(1)) if m else len(g.living())
+18:         opts = prompt['options']
+19:         for i, o in enumerate(opts):
+20:             if 'eat from stores' in o['label'].lower():
+21:                 return i
+22:         for i, o in enumerate(opts):
+23:             if 'buy meals' in o['label'].lower() and g.gold >= need + self.p['buffer'] // 2:
+24:                 return i
+25:         for i, o in enumerate(opts):
+26:             if 'hunting' in o['label'].lower():
+27:                 return i
+28:         return 0
+29: 
+30:     # ---- lodging (r217)
+31:     def _lodging(self, prompt):
+32:         opts = prompt['options']
+33:         if len(opts) < 2:
+34:             return 0
+35:         m = GOLD_RE.search(opts[0]['label'])
+36:         cost = int(m.group(1)) if m else 0
+37:         return 0 if self.game.gold >= cost + self.p['buffer'] // 2 else 1
+38: 
+39:     # ---- hiring (r210, r331-r340)
+40:     def _hire(self, prompt):
+41:         opts = prompt['options']
+42:         if len(opts) < 2:
+43:             return 0
+44:         label = opts[0]['label']
+45:         m = PAY_RE.search(label)
+46:         pay = int(m.group(1)) if m else 0
+47:         c = COUNT_RE.search(label)
+48:         n = int(c.group(1)) if c else 1
+49:         party = len(self.game.living())
+50:         if pay == 0:
+51:             return 0 if party < 8 else 1
+52:         if party < 4 and self.game.gold >= 25 + pay * n * 3:
+53:             return 0
+54:         return 1
+55: 
+56:     # ---- horse dealer (r210)

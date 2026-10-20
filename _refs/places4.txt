@@ -1,0 +1,91 @@
+﻿{
+ "0101": {
+  "name": "Ogon",
+  "kind": "town"
+ },
+ "0109": {
+  "name": "Angleae",
+  "kind": "town"
+ },
+ "0801": {
+  "name": "Jakor's Keep",
+  "kind": "ruins"
+ },
+ "1005": {
+  "name": "Sumry",
+  "kind": "town"
+ },
+ "1109": {
+  "name": "Cawther",
+  "kind": "town"
+ },
+ "1209": {
+  "name": "Donay's Temple",
+  "kind": "temple"
+ },
+ "1212": {
+  "name": "Huldra Castle",
+  "kind": "castle"
+ },
+ "1501": {
+  "name": "Weshor",
+  "kind": "town"
+ },
+ "1611": {
+  "name": "Hill Tribe camp",
+  "kind": "camp"
+ },
+ "1706": {
+  "name": "Temple of Zhor",
+  "kind": "temple"
+ },
+ "2018": {
+  "name": "Duffyd Temple",
+  "kind": "temple"
+ },
+ "2008": {
+  "name": "Ruins of Pelgar",
+  "kind": "ruins"
+ },
+ "0307": {
+  "name": "Dead Plains Ruins",
+  "kind": "ruins"
+ },
+ "0611": {
+  "name": "Branwyn's Temple",
+  "kind": "temple"
+ },
+ "0921": {
+  "name": "Sulwyth Temple",
+  "kind": "temple"
+ },
+ "0420": {
+  "name": "Halowich",
+  "kind": "town"
+ },
+ "0423": {
+  "name": "Lower Drogat",
+  "kind": "town"
+ },
+ "0323": {
+  "name": "Drogat Castle",
+  "kind": "castle"
+ },
+ "1923": {
+  "name": "Aeravir Castle",
+  "kind": "castle"
+ },
+ "2004": {
+  "name": "North Pass",
+  "kind": "pass"
+ },
+ "1812": {
+  "name": "South Pass",
+  "kind": "pass"
+ },
+ "1423": {
+  "name": "Samain Marshes",
+  "kind": "marsh"
+ }
+}
+['terrain_colors', 'places', 'regions', 'road_hexes', 'river_sides', 'road_sides']

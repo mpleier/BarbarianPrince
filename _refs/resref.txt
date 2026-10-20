@@ -1,0 +1,54 @@
+﻿1:                               'checking the hex that was entered (r205b).')
+2:                 self.travel_event(dest, road=road, flying=self.flying)
+3:                 return False
+4: 
+5:         self.hex = dest
+6:         self.moves_left -= 1
+7:         self.visited.add(dest)
+8:         self.travel_event(dest, road=road, flying=self.flying)
+9:         return True
+10: 
+11: 
+12:     # ------------------------------------------------------------ prompt plumbing
+13:     def push(self, kind, title, text, options):
+14:         self.prompts.append({'kind': kind, 'title': title, 'text': text,
+15:                              'options': options})
+16: 
+17:     def current(self):
+18:         return self.prompts[0] if self.prompts else None
+19: 
+20:     def answer(self, index=0):
+21:         p = self.prompts.pop(0)
+22:         opt = p['options'][index]
+23:         return opt['handler']()
+24: 
+25:     def is_busy(self):
+26:         return bool(self.prompts)
+27: 
+28:     def advance(self):
+29:         """Move the day state machine forward until a prompt is available."""
+30:         while not self.prompts:
+31:             if self.game_over:
+32:                 return None
+33:             if self.combat:
+34:                 self.push_combat()
+35:                 continue
+36:             if self.phase == 'action':
+37:                 if self.action is None:
+38:                     self.daily_menu()
+39:                 elif self.action == 'travel' and self.moves_left > 0:
+40:                     self.choose_move()
+41:                 else:
+42:                     self.phase = 'endday'
+43:                     self.food_done = False
+44:                     self.end_day()
+45:             elif self.phase == 'endday':
+46:                 if not self.food_done:
+47:                     self.food_done = True
+48:                     self.lodging()
+49:                 else:
+50:                     self.finish_day()
+51:                     self.phase = 'action'
+52:         return self.current()
+53: 
+54: 

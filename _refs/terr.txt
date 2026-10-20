@@ -1,0 +1,2 @@
+﻿Counter({'forest': 113, 'countryside': 94, 'mountains': 67, 'desert': 60, 'badlands': 58, 'swamp': 37, 'farmland': 31})
+Counter({'': 460})

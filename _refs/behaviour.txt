@@ -1,0 +1,9 @@
+﻿balanced    wins 4/40  reached temple 17/40  offerings 9  news 0  omen 0  influence 0  ruin searches 1604
+    offering totals: {2: 3, 3: 12, 4: 23, 5: 23, 6: 26, 7: 39, 8: 33, 9: 21, 10: 26, 11: 17, 12: 16, 13: 4, 14: 3, 15: 1}
+    avg days to first offering: 0.0
+aggressive  wins 4/40  reached temple 16/40  offerings 0  news 0  omen 0  influence 0  ruin searches 1642
+    offering totals: {2: 9, 3: 19, 4: 29, 5: 25, 6: 38, 7: 39, 8: 33, 9: 34, 10: 24, 11: 22, 12: 16, 13: 2, 14: 3, 15: 1}
+    avg days to first offering: 0.0
+cautious    wins 3/40  reached temple 16/40  offerings 2  news 0  omen 0  influence 0  ruin searches 1638
+    offering totals: {2: 6, 3: 16, 4: 20, 5: 25, 6: 29, 7: 43, 8: 33, 9: 24, 10: 23, 11: 17, 12: 15, 13: 2, 14: 3}
+    avg days to first offering: 0.0

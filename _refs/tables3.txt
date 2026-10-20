@@ -1,0 +1,278 @@
+﻿[
+ {
+  "code": 0,
+  "results": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "note": "Character has no gold or possessions"
+ },
+ {
+  "code": 1,
+  "results": [
+   "0",
+   "0",
+   "1",
+   "1",
+   "2",
+   "2"
+  ]
+ },
+ {
+  "code": 2,
+  "results": [
+   "0",
+   "1",
+   "2",
+   "2",
+   "3",
+   "4"
+  ]
+ },
+ {
+  "code": 4,
+  "results": [
+   "2",
+   "3",
+   "4",
+   "4",
+   "5",
+   "6"
+  ]
+ },
+ {
+  "code": 5,
+  "results": [
+   "2",
+   "3+A",
+   "4",
+   "6+A",
+   "7",
+   "8+A"
+  ]
+ },
+ {
+  "code": 7,
+  "results": [
+   "3",
+   "4",
+   "6",
+   "8",
+   "10",
+   "11"
+  ]
+ },
+ {
+  "code": 10,
+  "results": [
+   "6",
+   "8",
+   "9",
+   "11",
+   "12",
+   "14"
+  ]
+ },
+ {
+  "code": 12,
+  "results": [
+   "5",
+   "9+C",
+   "11+A",
+   "12",
+   "15+A",
+   "20"
+  ]
+ },
+ {
+  "code": 15,
+  "results": [
+   "10",
+   "12",
+   "14",
+   "16",
+   "18",
+   "20"
+  ]
+ },
+ {
+  "code": 21,
+  "results": [
+   "15",
+   "18",
+   "20",
+   "22",
+   "24",
+   "27"
+  ]
+ },
+ {
+  "code": 25,
+  "results": [
+   "20+A",
+   "22",
+   "24+A",
+   "26",
+   "28+A",
+   "30"
+  ]
+ },
+ {
+  "code": 30,
+  "results": [
+   "23",
+   "27",
+   "29",
+   "31",
+   "33",
+   "37"
+  ]
+ },
+ {
+  "code": 50,
+  "results": [
+   "40",
+   "45",
+   "48",
+   "52",
+   "55",
+   "60"
+  ]
+ },
+ {
+  "code": 60,
+  "results": [
+   "45+A",
+   "50+C",
+   "55",
+   "60+B",
+   "70+A",
+   "80"
+  ]
+ },
+ {
+  "code": 70,
+  "results": [
+   "55",
+   "60",
+   "65",
+   "70",
+   "80",
+   "90"
+  ]
+ },
+ {
+  "code": 100,
+  "results": [
+   "85",
+   "90",
+   "95",
+   "100",
+   "110",
+   "
+{
+ "A": [
+  "e180",
+  "e181",
+  "e182",
+  "e183",
+  "e184",
+  "e185"
+ ],
+ "B": [
+  "e180",
+  "e186",
+  "e187",
+  "e188",
+  "e190",
+  "e193"
+ ],
+ "C": [
+  "e186",
+  "e188",
+  "e189",
+  "e191",
+  "e192",
+  "e194"
+ ]
+}
+{
+ "any Town": {
+  "hex": "",
+  "note": "",
+  "rows": [
+   {
+    "roll": "2",
+    "rolls": [
+     2
+    ],
+    "open_ended": false,
+    "text": "Grievously insult the town council, e062."
+   },
+   {
+    "roll": "3",
+    "rolls": [
+     3
+    ],
+    "open_ended": false,
+    "text": "A slanderous aside about the mayor's wife is blamed on you, e060."
+   },
+   {
+    "roll": "4",
+    "rolls": [
+     4
+    ],
+    "open_ended": false,
+    "text": "Meet hostile guards, e158."
+   },
+   {
+    "roll": "5",
+    "rolls": [
+     5
+    ],
+    "open_ended": false,
+    "text": "Encounter the Master of the Household, e153."
+   },
+   {
+    "roll": "6,7,8",
+    "rolls": [
+     6,
+     7,
+     8
+    ],
+    "open_ended": false,
+    "text": "Audience refused today, you may try again."
+   },
+   {
+    "roll": "9,10",
+    "rolls": [
+     9,
+     10
+    ],
+    "open_ended": false,
+    "text": "Audience permitted, el56."
+   },
+   {
+    "roll": "11",
+    "rolls": [
+     11
+    ],
+    "open_ended": false,
+    "text": "Meet daughter of the mayor, e154."
+   },
+   {
+    "roll": "12",
+    "rolls": [
+     12
+    ],
+    "open_ended": false,
+    "text": "Audience permitted, e156."
+   }
+  ]
+ },
+ "any Temple": {
+  "hex"

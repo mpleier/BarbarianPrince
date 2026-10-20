@@ -1,0 +1,34 @@
+﻿1:     return headers, rows, note
+2: 
+3: 
+4: def parse_foes(text):
+5:     """Parse the stat block(s) of the characters an event describes."""
+6:     stats = [(int(s), int(e) if e else 5, int(w) if w else 0)
+7:              for s, e, w in STAT_RE.findall(text)]
+8:     if not stats:
+9:         return []
+10:     count = 1
+11:     low = text.lower()
+12:     if 'roll one die for the number of' in low:
+13:         count = random.randint(1, 6)
+14:     elif 'roll two dice for the number of' in low:
+15:         count = random.randint(1, 6) + random.randint(1, 6)
+16:     elif 'number in the group is one die roll plus one' in low:
+17:         count = random.randint(1, 6) + 1
+18:     else:
+19:         m = re.search(r'(\d+)\s+(?:men|warriors|guards|tribesmen|bandits|horsemen|'
+20:                       r'assassins|constables|priests|monks|witches|magicians|wizards|'
+21:                       r'dwarves|elves|orcs|giants|trolls|centaurs|amazons|mercenaries|'
+22:                       r'henchmen|retainers|riders|thugs|soldiers|pirates|nomads|'
+23:                       r'bodyguards|guardsmen|peasants|villagers|outlaws|robbers)\b', low)
+24:         if m:
+25:             count = int(m.group(1))
+26:     return [Character(f'Foe {i + 1}', *(stats[i % len(stats)])) for i in range(count)]
+27: 
+28: 
+29: 
+30: class Character:
+31:     """Any character: the Prince, followers, or encountered foes."""
+32: 
+33:     def __init__(self, name, skill, endurance, wealth=0, mount='none',
+34:                  guide=False, pay=0, prince=False):

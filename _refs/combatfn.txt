@@ -1,0 +1,87 @@
+﻿1:     def start_combat(self, ev=None, modifier=0):
+2:         total = self.d2() + modifier
+3:         ref = BATTLE_REFERENCE.get(min(12, max(2, total)), 'r306')
+4:         self.note(f'Battle reference: rolled {total} -> {ref}')
+5:         first, surprise = self.battle_situation(ref)
+6:         foes = parse_foes(ev['text'] if ev else '')
+7:         if not foes:
+8:             foes = [Character('Foe 1', 4, 5, 0)]
+9:         self.combat = Combat(self.living(), foes, self.rng, first,
+10:                              (ev['title'] if ev else 'Battle'), surprise, self.note)
+11:         self.note(f'Combat: party ({len(self.combat.party)}) vs '
+12:                   f'foes ({len(self.combat.foes)})')
+13:         self.push_combat()
+14:         return 'Combat begins.'
+15: 
+16:     def push_combat(self):
+17:         c = self.combat
+18:         body = '\n'.join(c.log[-12:])
+19:         body += '\nParty: ' + ', '.join(repr(x) for x in c.party)
+20:         body += '\nFoes:  ' + ', '.join(repr(x) for x in c.foes)
+21:         self.push('combat', f'Combat - {c.name} (round {c.round})', body,
+22:                   [{'label': 'Fight this round', 'handler': (lambda: self.fight_round())},
+23:                    {'label': 'Attempt to escape (r220e)',
+24:                     'handler': (lambda: self.flee_combat())}])
+25: 
+26:     def fight_round(self):
+27:         result = self.combat.step()
+28:         if self.combat.over:
+29:             return self.finish_combat()
+30:         self.push_combat()
+31:         return 'Combat continues.'
+32: 
+33:     def flee_combat(self):
+34:         ok, die = self.combat.attempt_escape()
+35:         if ok:
+36:             self.note('The party breaks off and escapes the battle.')
+37:             self.combat = None
+38:             self.escape_move()
+39:             return 'Escaped from combat.'
+40:         self.push_combat()
+41:         return 'Escape fails.'
+42: 
+43:     def finish_combat(self):
+44:         c = self.combat
+45:         self.note(f'Combat ends: {c.result}.')
+46:         if c.result in ('party wins', 'foes routed'):
+47:             for foe in c.foes:
+48:                 if foe.alive:
+49:                     gold, item = self.treasure_roll(foe.wealth)
+50:                     self.gold += gold
+51:                     if item:
+52:                         self.items.append(item)
+53:                     self.note(f'Loot from {foe.name}: {gold} gold'
+54:                               + (f' + {item}' if item else ''))
+55:         self.combat = None
+56:         self.party = [x for x in self.party if x.alive]
+57:         if not self.living():
+58:             self.game_over = True
+59:             self.reason = 'The whole party has been wiped out.'
+60:         return f'Combat over ({c.result}).'
+61: 
+62: 
+63:     # ------------------------------------------------------------ escape & hide (r218)
+64:     def escape_move(self):
+65:         """Move randomly to an adjacent hex; rivers and off-map are re-rolled."""
+66:         for _ in range(12):
+67:             d = self.rng.choice(DIRECTIONS)
+68:             hid = self.model.neighbors(self.hex).get(d)
+69:             if hid is None:
+70:                 self.note('Escape direction leads off the map - roll again.')
+71:                 continue
+72:             if self.is_river_move(self.hex, hid) and not self.flying:
+73:                 self.note('Escape across a river is prohibited - roll again.')
+74:                 continue
+75:             self.hex = hid
+76:             self.visited.add(hid)
+77:             self.note(f'Escaped to hex {hid} ({self.model.travel_terrain(hid)}).')
+78:             return hid
+79:         self.note('No escape route available - the party stays put.')
+80:         return self.hex
+81: 
+82:     def hide_here(self):
+83:         self.note('The party hides in this hex for the rest of the day.')
+84:         self.moves_left = 0
+85:         self.action = 'hide'
+86:         return 'Hiding.'
+87: 

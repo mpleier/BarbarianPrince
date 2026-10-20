@@ -1,0 +1,216 @@
+﻿=== seed 1: gold 0 won False ===
+  day   1 hex 0101 Travel to a new hex (r204)     gold 0
+  day   2 hex 0102 Travel to a new hex (r204)     gold 0
+  day   3 hex 0102 Travel to a new hex (r204)     gold 0
+  day   4 hex 0202 Travel to a new hex (r204)     gold 0
+  day   5 hex 0202 Travel to a new hex (r204)     gold 0
+  day   6 hex 0203 Travel to a new hex (r204)     gold 0
+  day   7 hex 0304 Travel to a new hex (r204)     gold 0
+  day   8 hex 0305 Travel to a new hex (r204)     gold 0
+  day   9 hex 0305 Travel to a new hex (r204)     gold 0
+  day  10 hex 0306 Travel to a new hex (r204)     gold 0
+  day  11 hex 0307 Search the ruins (r208)        gold 0
+  day  12 hex 0307 Search the ruins (r208)        gold 0
+  day  13 hex 0307 Search the ruins (r208)        gold 0
+  day  14 hex 0307 Search the ruins (r208)        gold 0
+  day  15 hex 0307 Search the ruins (r208)        gold 0
+  day  16 hex 0307 Search the ruins (r208)        gold 0
+  day  17 hex 0307 Search the ruins (r208)        gold 0
+  day  18 hex 0307 Search the ruins (r208)        gold 0
+  day  19 hex 0307 Search the ruins (r208)        gold 0
+  day  20 hex 0307 Search the ruins (r208)        gold 0
+  day  21 hex 0307 Search the ruins (r208)        gold 0
+  day  22 hex 0307 Search the ruins (r208)        gold 0
+  day  23 hex 0307 Search the ruins (r208)        gold 0
+  day  24 hex 0307 Search the ruins (r208)        gold 0
+  day  25 hex 0307 Search the ruins (r208)        gold 0
+  day  26 hex 0307 Search the ruins (r208)        gold 0
+  day  27 hex 0307 Search the ruins (r208)        gold 0
+  day  28 hex 0307 Search the ruins (r208)        gold 0
+  day  29 hex 0307 Search the ruins (r208)        gold 0
+  day  30 hex 0307 Search the ruins (r208)        gold 0
+  day  31 hex 0307 Search the ruins (r208)        gold 0
+  day  32 hex 0307 Search the ruins (r208)        gold 0
+  day  33 hex 0307 Search the ruins (r208)        gold 0
+  day  34 hex 0307 Search the ruins (r208)        gold 0
+  day  35 hex 0307 Search the ruins (r208)        gold 0
+  day  36 hex 0307 Search the ruins (r208)        gold 0
+  day  37 hex 0307 Search the ruins (r208)        gold 0
+  day  38 hex 0307 Search the ruins (r208)        gold 0
+  day  39 hex 0307 Search the ruins (r208)        gold 0
+  day  40 hex 0307 Search the ruins (r208)        gold 0
+  day  41 hex 0307 Search the ruins (r208)        gold 0
+  day  42 hex 0307 Search the ruins (r208)        gold 0
+  day  43 hex 0307 Search the ruins (r208)        gold 0
+  day  44 hex 0307 Search the ruins (r208)        gold 0
+  day  45 hex 0307 Search the ruins (r208)        gold 0
+  day  46 hex 0307 Search the ruins (r208)        gold 0
+  day  47 hex 0307 Search the ruins (r208)        gold 0
+  day  48 hex 0307 Search the ruins (r208)        gold 0
+  day  49 hex 0307 Search the ruins (r208)        gold 0
+  day  50 hex 0307 Search the ruins (r208)        gold 0
+  day  51 hex 0307 Search the ruins (r208)        gold 0
+  day  52 hex 0307 Search the ruins (r208)        gold 0
+  day  53 hex 0307 Search the ruins (r208)        gold 0
+  day  54 hex 0307 Search the ruins (r208)        gold 0
+  day  55 hex 0307 Search the ruins (r208)        gold 0
+  day  56 hex 0307 Search the ruins (r208)        gold 0
+  day  57 hex 0307 Search the ruins (r208)        gold 0
+  day  58 hex 0307 Search the ruins (r208)        gold 0
+  day  59 hex 0307 Search the ruins (r208)        gold 0
+  day  60 hex 0307 Search the ruins (r208)        gold 0
+  day  61 hex 0307 Search the ruins (r208)        gold 0
+  day  62 hex 0307 Search the ruins (r208)        gold 0
+  day  63 hex 0307 Search the ruins (r208)        gold 0
+  day  64 hex 0307 Search the ruins (r208)        gold 0
+  day  65 hex 0307 Search the ruins (r208)        gold 0
+  day  66 hex 0307 Search the ruins (r208)        gold 0
+  day  67 hex 0307 Search the ruins (r208)        gold 0
+  day  68 hex 0307 Search the ruins (r208)        gold 0
+  day  69 hex 0307 Search the ruins (r208)        gold 0
+  day  70 hex 0307 Search the ruins (r208)        gold 0
+
+=== seed 4: gold 0 won False ===
+  day   1 hex 0101 Travel to a new hex (r204)     gold 0
+  day   2 hex 0102 Travel to a new hex (r204)     gold 0
+  day   3 hex 0202 Travel to a new hex (r204)     gold 0
+  day   4 hex 0203 Travel to a new hex (r204)     gold 0
+  day   5 hex 0304 Travel to a new hex (r204)     gold 0
+  day   6 hex 0305 Travel to a new hex (r204)     gold 0
+  day   7 hex 0306 Travel to a new hex (r204)     gold 0
+  day   8 hex 0306 Travel to a new hex (r204)     gold 0
+  day   9 hex 0306 Travel to a new hex (r204)     gold 0
+  day  10 hex 0306 Travel to a new hex (r204)     gold 0
+  day  11 hex 0306 Travel to a new hex (r204)     gold 0
+  day  12 hex 0306 Travel to a new hex (r204)     gold 0
+  day  13 hex 0306 Travel to a new hex (r204)     gold 0
+  day  14 hex 0306 Travel to a new hex (r204)     gold 0
+  day  15 hex 0307 Search the ruins (r208)        gold 0
+  day  16 hex 0307 Search the ruins (r208)        gold 0
+  day  17 hex 0307 Search the ruins (r208)        gold 0
+  day  18 hex 0307 Search the ruins (r208)        gold 0
+  day  19 hex 0307 Search the ruins (r208)        gold 0
+  day  20 hex 0307 Search the ruins (r208)        gold 0
+  day  21 hex 0307 Search the ruins (r208)        gold 0
+  day  22 hex 0307 Search the ruins (r208)        gold 0
+  day  23 hex 0307 Search the ruins (r208)        gold 0
+  day  24 hex 0307 Search the ruins (r208)        gold 0
+  day  25 hex 0307 Search the ruins (r208)        gold 0
+  day  26 hex 0307 Search the ruins (r208)        gold 0
+  day  27 hex 0307 Search the ruins (r208)        gold 0
+  day  28 hex 0307 Search the ruins (r208)        gold 0
+  day  29 hex 0307 Search the ruins (r208)        gold 0
+  day  30 hex 0307 Search the ruins (r208)        gold 0
+  day  31 hex 0307 Search the ruins (r208)        gold 0
+  day  32 hex 0307 Search the ruins (r208)        gold 0
+  day  33 hex 0307 Search the ruins (r208)        gold 0
+  day  34 hex 0307 Search the ruins (r208)        gold 0
+  day  35 hex 0307 Search the ruins (r208)        gold 0
+  day  36 hex 0307 Search the ruins (r208)        gold 0
+  day  37 hex 0307 Search the ruins (r208)        gold 0
+  day  38 hex 0307 Search the ruins (r208)        gold 0
+  day  39 hex 0307 Search the ruins (r208)        gold 0
+  day  40 hex 0307 Search the ruins (r208)        gold 0
+  day  41 hex 0307 Search the ruins (r208)        gold 0
+  day  42 hex 0307 Search the ruins (r208)        gold 0
+  day  43 hex 0307 Search the ruins (r208)        gold 0
+  day  44 hex 0307 Search the ruins (r208)        gold 0
+  day  45 hex 0307 Search the ruins (r208)        gold 0
+  day  46 hex 0307 Search the ruins (r208)        gold 0
+  day  47 hex 0307 Search the ruins (r208)        gold 0
+  day  48 hex 0307 Search the ruins (r208)        gold 0
+  day  49 hex 0307 Search the ruins (r208)        gold 0
+  day  50 hex 0307 Search the ruins (r208)        gold 0
+  day  51 hex 0307 Search the ruins (r208)        gold 0
+  day  52 hex 0307 Search the ruins (r208)        gold 0
+  day  53 hex 0307 Search the ruins (r208)        gold 0
+  day  54 hex 0307 Search the ruins (r208)        gold 0
+  day  55 hex 0307 Search the ruins (r208)        gold 0
+  day  56 hex 0307 Search the ruins (r208)        gold 0
+  day  57 hex 0307 Search the ruins (r208)        gold 0
+  day  58 hex 0307 Search the ruins (r208)        gold 0
+  day  59 hex 0307 Search the ruins (r208)        gold 0
+  day  60 hex 0307 Search the ruins (r208)        gold 0
+  day  61 hex 0307 Search the ruins (r208)        gold 0
+  day  62 hex 0307 Search the ruins (r208)        gold 0
+  day  63 hex 0307 Search the ruins (r208)        gold 0
+  day  64 hex 0307 Search the ruins (r208)        gold 0
+  day  65 hex 0307 Search the ruins (r208)        gold 0
+  day  66 hex 0307 Search the ruins (r208)        gold 0
+  day  67 hex 0307 Search the ruins (r208)        gold 0
+  day  68 hex 0307 Search the ruins (r208)        gold 0
+  day  69 hex 0307 Search the ruins (r208)        gold 0
+  day  70 hex 0307 Search the ruins (r208)        gold 0
+
+=== seed 13: gold 60 won False ===
+  day   1 hex 0101 Travel to a new hex (r204)     gold 0
+  day   2 hex 0102 Travel to a new hex (r204)     gold 0
+  day   3 hex 0202 Travel to a new hex (r204)     gold 0
+  day   4 hex 0202 Travel to a new hex (r204)     gold 0
+  day   5 hex 0203 Travel to a new hex (r204)     gold 0
+  day   6 hex 0203 Travel to a new hex (r204)     gold 0
+  day   7 hex 0203 Travel to a new hex (r204)     gold 0
+  day   8 hex 0204 Travel to a new hex (r204)     gold 0
+  day   9 hex 0305 Travel to a new hex (r204)     gold 0
+  day  10 hex 0306 Travel to a new hex (r204)     gold 0
+  day  11 hex 0306 Travel to a new hex (r204)     gold 0
+  day  12 hex 0306 Travel to a new hex (r204)     gold 0
+  day  13 hex 0306 Travel to a new hex (r204)     gold 0
+  day  14 hex 0306 Travel to a new hex (r204)     gold 0
+  day  15 hex 0307 Search the ruins (r208)        gold 0
+  day  16 hex 0307 Search the ruins (r208)        gold 0
+  day  17 hex 0307 Search the ruins (r208)        gold 0
+  day  18 hex 0307 Search the ruins (r208)        gold 0
+  day  19 hex 0307 Search the ruins (r208)        gold 0
+  day  20 hex 0307 Search the ruins (r208)        gold 0
+  day  21 hex 0307 Search the ruins (r208)        gold 0
+  day  22 hex 0307 Search the ruins (r208)        gold 0
+  day  23 hex 0307 Search the ruins (r208)        gold 0
+  day  24 hex 0307 Search the ruins (r208)        gold 0
+  day  25 hex 0307 Search the ruins (r208)        gold 0
+  day  26 hex 0307 Search the ruins (r208)        gold 0
+  day  27 hex 0307 Search the ruins (r208)        gold 60
+  day  28 hex 0307 Search the ruins (r208)        gold 60
+  day  29 hex 0307 Search the ruins (r208)        gold 60
+  day  30 hex 0307 Search the ruins (r208)        gold 60
+  day  31 hex 0307 Search the ruins (r208)        gold 60
+  day  32 hex 0307 Search the ruins (r208)        gold 60
+  day  33 hex 0307 Search the ruins (r208)        gold 60
+  day  34 hex 0307 Search the ruins (r208)        gold 60
+  day  35 hex 0307 Search the ruins (r208)        gold 60
+  day  36 hex 0307 Search the ruins (r208)        gold 60
+  day  37 hex 0307 Search the ruins (r208)        gold 60
+  day  38 hex 0307 Search the ruins (r208)        gold 60
+  day  39 hex 0307 Search the ruins (r208)        gold 60
+  day  40 hex 0307 Search the ruins (r208)        gold 60
+  day  41 hex 0307 Search the ruins (r208)        gold 60
+  day  42 hex 0307 Search the ruins (r208)        gold 60
+  day  43 hex 0307 Search the ruins (r208)        gold 60
+  day  44 hex 0307 Search the ruins (r208)        gold 60
+  day  45 hex 0307 Search the ruins (r208)        gold 60
+  day  46 hex 0307 Search the ruins (r208)        gold 60
+  day  47 hex 0307 Search the ruins (r208)        gold 60
+  day  48 hex 0307 Search the ruins (r208)        gold 60
+  day  49 hex 0307 Search the ruins (r208)        gold 60
+  day  50 hex 0307 Search the ruins (r208)        gold 60
+  day  51 hex 0307 Search the ruins (r208)        gold 60
+  day  52 hex 0307 Search the ruins (r208)        gold 60
+  day  53 hex 0307 Search the ruins (r208)        gold 60
+  day  54 hex 0307 Search the ruins (r208)        gold 60
+  day  55 hex 0307 Search the ruins (r208)        gold 60
+  day  56 hex 0307 Search the ruins (r208)        gold 60
+  day  57 hex 0307 Search the ruins (r208)        gold 60
+  day  58 hex 0307 Search the ruins (r208)        gold 60
+  day  59 hex 0307 Search the ruins (r208)        gold 60
+  day  60 hex 0307 Search the ruins (r208)        gold 60
+  day  61 hex 0307 Search the ruins (r208)        gold 60
+  day  62 hex 0307 Search the ruins (r208)        gold 60
+  day  63 hex 0307 Search the ruins (r208)        gold 60
+  day  64 hex 0307 Travel to a new hex (r204)     gold 60
+  day  65 hex 0307 Travel to a new hex (r204)     gold 60
+  day  66 hex 0406 Travel to a new hex (r204)     gold 60
+  day  67 hex 0406 Travel to a new hex (r204)     gold 60
+  day  68 hex 0407 Travel to a new hex (r204)     gold 60
+  day  69 hex 0407 Travel to a new hex (r204)     gold 60
+  day  70 hex 0408 Travel to a new hex (r204)     gold 60
+

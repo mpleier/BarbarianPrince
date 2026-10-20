@@ -1,0 +1,65 @@
+﻿1:         mod = 1 if ref in ('r326',) else (-1 if ref == 'r329' else 0)
+2:         self.note(f'Talking fails (die {die}, wit {self.wit}) - forced to fight.')
+3:         return self.forced_battle(ev, mod)
+4: 
+5: 
+6:     # ------------------------------------------------------------ hiring (r331-r340)
+7:     def offer_hire(self, ev, pay, bonus=0, unreliable=False, town_leaver=False,
+8:                     on_refuse=None):
+9:         foes = parse_foes(ev['text'] if ev else '')
+10:         if not foes:
+11:             return 'Nobody to hire.'
+12:         opts = [{'label': f'Hire all {len(foes)} for {pay} gold/day'
+13:                           + (f' (+{bonus} bonus now)' if bonus else ''),
+14:                  'handler': (lambda: self.accept_hire(foes, pay, unreliable,
+15:                                                       town_leaver))}]
+16:         opts.append({'label': 'Refuse',
+17:                      'handler': on_refuse or (lambda: 'They pass by.')})
+18:         self.push('choice', 'Hiring (r331-r340)',
+19:                   f'{len(foes)} character(s) offer to join: '
+20:                   + ', '.join(repr(f) for f in foes), opts)
+21:         return 'Decide whether to hire.'
+22: 
+23:     def accept_hire(self, foes, pay, unreliable=False, town_leaver=False):
+24:         bonus = pay * len(foes)
+25:         if bonus and self.gold < bonus:
+26:             self.note('You cannot pay today\'s wages - they refuse.')
+27:             return 'Hiring fails.'
+28:         self.gold -= bonus
+29:         for f in foes:
+30:             f.pay = pay
+31:             f.unreliable = unreliable
+32:             f.town_leaver = town_leaver
+33:             f.name = f.name.replace('Foe', 'Hired')
+34:         self.party.extend(foes)
+35:         self.note(f'{len(foes)} character(s) join the party at {pay} gold/day each.')
+36:         return 'Followers acquired.'
+37: 
+38:     def refuse_roll(self, ev, mapping):
+39:         die = self.d1()
+40:         ref = mapping.get(die, 'r325')
+41:         self.note(f'Refusal roll {die} -> {ref}')
+42:         return self.resolve_ref(ref, ev)
+43: 
+44:     def hire_ref(self, ref, ev):
+45:         amount = self.bribe_amount(ev)
+46:         if ref == 'r331':
+47:             if self.gold >= amount:
+48:                 self.gold -= amount
+49:                 return self.accept_hire(parse_foes(ev['text']), 0, unreliable=True)
+50:             die = self.d1()
+51:             if die <= 3:
+52:                 self.note('They ignore you - the encounter ends.')
+53:                 return 'They ignore you.'
+54:             return self.bribe_ref({4: 'r321', 5: 'r322', 6: 'r323'}[die], ev)
+55:         if ref == 'r332':
+56:             return self.offer_hire(ev, 2, bonus=amount,
+57:                                   on_refuse=lambda: self.refuse_roll(
+58:                                       ev, {3: 'r321', 4: 'r322', 5: 'r323', 6: 'r324'}))
+59:         if ref == 'r333':
+60:             return self.offer_hire(ev, 2)
+61:         if ref == 'r334':
+62:             return self.accept_hire(parse_foes(ev['text']), 0)
+63:         if ref == 'r335':
+64:             return self.accept_hire(parse_foes(ev['text']), 0, town_leaver=True)
+65:         if ref == 'r336':

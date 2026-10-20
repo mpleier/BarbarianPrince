@@ -1,0 +1,101 @@
+﻿day 71 gold 0 hex 0307
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 10 -> e138
+Ate 1 food units from stores.
+Day 20 begins in hex 0307.
+Searching the ruins: rolled 9 (bonus 1).
+Ruins roll 9 -> e134
+Ate 1 food units from stores.
+Day 21 begins in hex 0307.
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 7 -> e131
+Ate 1 food units from stores.
+Day 22 begins in hex 0307.
+Searching the ruins: rolled 10 (bonus 1).
+Ruins roll 10 -> e138
+Hunting by Cal Arath (the Prince): 12 - 9 = 3 units.
+Hunt yields 3 food units.
+Day 23 begins in hex 0307.
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 7 -> e131
+Ate 1 food units from stores.
+Day 24 begins in hex 0307.
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 7 -> e131
+Ate 1 food units from stores.
+Day 25 begins in hex 0307.
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 11 -> e135
+Ate 1 food units from stores.
+Day 26 begins in hex 0307.
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 11 -> e135
+Hunting by Cal Arath (the Prince): 12 - 5 = 7 units.
+Hunt yields 7 food units.
+Day 27 begins in hex 0307.
+Searching the ruins: rolled 12 (bonus 1).
+Ruins roll 12 -> e035
+Ate 1 food units from stores.
+Day 28 begins in hex 0307.
+Searching the ruins: rolled 13 (bonus 1).
+Ruins roll 13 -> e035
+Ate 1 food units from stores.
+Day 29 begins in hex 0307.
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 5 -> e137
+Ate 1 food units from stores.
+Day 30 begins in hex 0307.
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 11 -> e135
+Ate 1 food units from stores.
+Day 31 begins in hex 0307.
+Searching the ruins: rolled 7 (bonus 1).
+Ruins roll 7 -> e131
+Ate 1 food units from stores.
+Day 32 begins in hex 0307.
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 8 -> e132
+Ate 1 food units from stores.
+Day 33 begins in hex 0307.
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 8 -> e132
+Ate 1 food units from stores.
+Day 34 begins in hex 0307.
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 11 -> e135
+Hunting by Cal Arath (the Prince): 12 - 5 = 7 units.
+Hunt yields 7 food units.
+Day 35 begins in hex 0307.
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 5 -> e137
+Ate 1 food units from stores.
+Day 36 begins in hex 0307.
+Searching the ruins: rolled 12 (bonus 1).
+Ruins roll 12 -> e035
+Ate 1 food units from stores.
+Day 37 begins in hex 0307.
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 11 -> e135
+Ate 1 food units from stores.
+Day 38 begins in hex 0307.
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 11 -> e135
+Ate 1 food units from stores.
+Day 39 begins in hex 0307.
+Searching the ruins: rolled 5 (bonus 1).
+Ruins roll 5 -> e137
+Ate 1 food units from stores.
+Day 40 begins in hex 0307.
+Searching the ruins: rolled 8 (bonus 1).
+Ruins roll 8 -> e132
+Ate 1 food units from stores.
+Day 41 begins in hex 0307.
+Searching the ruins: rolled 4 (bonus 1).
+Ruins roll 4 -> e136
+Ate 1 food units from stores.
+Day 42 begins in hex 0307.
+Searching the ruins: rolled 11 (bonus 1).
+Ruins roll 11 -> e135
+Hunting by Cal Arath (the Prince): 12 - 6 = 6 units.
+Hunt yields 6 food units.
+Day 43 begins in hex 0307.

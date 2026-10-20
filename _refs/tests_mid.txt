@@ -1,0 +1,102 @@
+﻿n) = 14
+        bot = Bot(g, 'balanced')
+        opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold',
+                'Offer 20 gold', 'Offer 50 gold', 'Withdraw']
+        idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+        self.assertEqual(opts[idx], 'Offer 10 gold')
+
+    def test_offering_farms_the_men_when_broke_of_omens(self):
+        g = Game(seed=5)
+        g.gold = 60
+        g.offering_bonus = 0          # a 14 is impossible without the omen
+        bot = Bot(g, 'balanced')
+        opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold',
+                'Offer 20 gold', 'Offer 50 gold', 'Withdraw']
+        idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+        self.assertEqual(opts[idx], 'Offer 1 gold')
+
+    def test_offering_skips_unaffordable(self):
+        g = Game(seed=5)
+        g.gold = 7
+        bot = Bot(g, 'balanced')
+        opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold', 'Withdraw']
+        idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+        self.assertIn('Offer', opts[idx])
+        self.assertLess(int(opts[idx].split()[1]), 10)
+
+    def test_offering_withdraws_when_broke(self):
+        g = Game(seed=5)
+        g.gold = 0
+        bot = Bot(g, 'balanced')
+        opts = ['Offer 1 gold', 'Withdraw']
+        idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
+        self.assertEqual(opts[idx], 'Withdraw')
+
+
+
+MENU = ('Day 4 - action in hex 1209', "Choose today's action (r203).",
+        ['Travel to a new hex (r204)', 'Rest and heal wounds (r222)',
+         'Seek news & information (r209)', 'Seek to hire followers (r210)',
+         'Seek an audience (r211)', 'Submit an offering (r212)'])
+
+
+class ActionTests(unittest.TestCase):
+    def test_temple_with_gold_offers(self):
+        g = Game(seed=11)
+        g.hex = '1209'                      # a temple
+        g.gold = 40
+        bot = Bot(g, 'balanced')
+        idx = bot.choose(choice(*MENU))
+        self.assertIn('offering', MENU[2][idx].lower())
+
+    def test_omen_bonus_beats_travel(self):
+        g = Game(seed=11)
+        g.hex = '1209'
+        g.gold = 12
+        g.offering_bonus = 1
+        bot = Bot(g, 'balanced')
+        idx = bot.choose(choice(*MENU))
+        self.assertIn('offering', MENU[2][idx].lower())
+
+    def test_no_gold_no_offering(self):
+        g = Game(seed=11)
+        g.hex = '1209'
+        g.gold = 3
+        bot = Bot(g, 'balanced')
+        idx = bot.choose(choice(*MENU))
+        self.assertNotIn('offering', MENU[2][idx].lower())
+
+    def test_wounded_party_rests(self):
+        g = Game(seed=11)
+        g.hex = '0101'                      # a town
+        g.gold = 5
+        g.prince().wounds = 4
+        bot = Bot(g, 'balanced')
+        idx = bot.choose(choice(*MENU))
+        self.assertIn('rest', MENU[2][idx].lower())
+
+    def test_cautious_fights_less_than_aggressive(self):
+        text = 'Stand and fight (combat skill 6, endurance 5) or evade.'
+        headers = ['Fight', 'Evade']
+        for strategy, expect in (('cautious', 'Evade'), ('aggressive', 'Fight')):
+            g = Game(seed=11)
+            bot = Bot(g, strategy)
+            g.pending_event = {'code': 'e050', 'headers': headers, 'rows': []}
+            prompt = {'kind': 'encounter', 'title': 'e050 - Trouble', 'text': text,
+                      'options': [{'label': h, 'handler': (lambda: 'ok')}
+                                  for h in headers]}
+            idx = bot.choose(prompt)
+            self.assertEqual(headers[idx], expect,
+                             f'{strategy} chose {headers[idx]}')
+
+
+class MoveTests(unittest.TestCase):
+    def test_prefers_road_over_swamp(self):
+        g = Game(seed=2)
+        g.moves_left = 2
+        bot = Bot(g, 'balanced')
+        # Same destination hex, so the only difference is the road bonus.
+        opts = ['N -> 0102 (Countryside)', 'S -> 0102 (Countryside) [road]',
+                'Stop travelling for the day']
+        idx = bot.choose(choice('Move (2 hex(es) left)', 'In hex 0101.', opts))
+        self.asser

@@ -1,0 +1,65 @@
+﻿1:             self.assertEqual(opts[idx], 'N -> 0101 (Farmland)')
+2: 
+3:     def test_does_not_backtrack(self):
+4:         g = Game(seed=2)
+5:         g.hex = '0102'
+6:         bot = Bot(g, 'balanced')
+7:         bot.path = ['0101', '0102']
+8:         opts = ['N -> 0101 (Farmland)', 'S -> 0103 (Farmland)',
+9:                 'Stop travelling for the day']
+10:         idx = bot.choose(choice('Move (1 hex(es) left)', 'In hex 0102.', opts))
+11:         self.assertNotEqual(opts[idx], 'N -> 0101 (Farmland)')
+12: 
+13:     def test_moves_towards_the_nearest_temple(self):
+14:         g = Game(seed=2)
+15:         g.hex = '0101'
+16:         g.moves_left = 1
+17:         bot = Bot(g, 'balanced')
+18:         goal = bot.goal_hex()
+19:         self.assertEqual(goal, '0611')          # nearest temple from 0101
+20:         # 0102 is one hex nearer the temple than 0201, so it should win even
+21:         # though 0201 is unvisited and 0102 is not.
+22:         opts = ['SE -> 0201 (Mountains)', 'S -> 0102 (Countryside)',
+23:                 'Stop travelling for the day']
+24:         idx = bot.choose(choice('Move (1 hex(es) left)', 'In hex 0101.', opts))
+25:         self.assertEqual(opts[idx], 'S -> 0102 (Countryside)')
+26: 
+27:     def test_stops_instead_of_wandering_away(self):
+28:         g = Game(seed=2)
+29:         g.hex = '0611'                          # already at the temple
+30:         g.gold = 30
+31:         g.moves_left = 2
+32:         bot = Bot(g, 'balanced')
+33:         self.assertTrue(bot.camping())
+34:         opts = ['N -> 0610 (Wasteland)', 'S -> 0612 (Wasteland)',
+35:                 'Stop travelling for the day']
+36:         idx = bot.choose(choice('Move (2 hex(es) left)', 'In hex 0611.', opts))
+37:         self.assertEqual(opts[idx], 'Stop travelling for the day')
+38: 
+39:     def test_stop_travelling_when_no_moves_left(self):
+40:         g = Game(seed=2)
+41:         g.moves_left = 0
+42:         bot = Bot(g, 'balanced')
+43:         opts = ['N -> 0102 (Farmland)', 'Stop travelling for the day']
+44:         idx = bot.choose(choice('Move (0 hex(es) left)', 'In hex 0101.', opts))
+45:         self.assertEqual(opts[idx], 'Stop travelling for the day')
+46: 
+47: 
+48: class ResourceTests(unittest.TestCase):
+49:     def test_food_prefers_stores(self):
+50:         g = Game(seed=4)
+51:         g.food = 5
+52:         bot = Bot(g, 'balanced')
+53:         opts = ['Buy meals (1 gold)', 'Eat from stores (1 units)', 'Go hungry (r216)']
+54:         idx = bot.choose(choice('Evening meal - need 1 food units', 'Party needs 1.', opts))
+55:         self.assertIn('eat from stores', opts[idx].lower())
+56: 
+57:     def test_lodging_paid_when_affordable(self):
+58:         g = Game(seed=4)
+59:         g.gold = 50
+60:         bot = Bot(g, 'balanced')
+61:         opts = ['Pay 2 gold for lodging', 'Sleep rough (risk desertion)']
+62:         idx = bot.choose(choice('Lodging in town 0101 (r217)', '2 room(s) = 2 gold.', opts))
+63:         self.assertEqual(idx, 0)
+64: 
+65:     def test_lodging_skipped_when_broke(self):

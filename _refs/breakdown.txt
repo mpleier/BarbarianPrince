@@ -1,0 +1,9 @@
+﻿balanced    wins 4/40  offerings 247  ruin searches 1604  news 0
+    omen earned in 0/40 games, influence used in 0/40
+    temple visits 17, first temple on step 2
+aggressive  wins 4/40  offerings 294  ruin searches 1642  news 0
+    omen earned in 0/40 games, influence used in 0/40
+    temple visits 16, first temple on step 1
+cautious    wins 3/40  offerings 256  ruin searches 1638  news 0
+    omen earned in 0/40 games, influence used in 0/40
+    temple visits 16, first temple on step 2

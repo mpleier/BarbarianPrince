@@ -1,0 +1,9 @@
+﻿cautious    wins 5/60  offerings 354  temple days 354  reached temple 22/60
+    avg gold 194.9  peak 228.3  avg first temple day 65.5
+    stuck games: final gold 101, final hex [('0307', 15), ('0610', 5), ('0410', 3), ('0309', 3), ('0310', 3)]
+balanced    wins 8/60  offerings 366  temple days 366  reached temple 25/60
+    avg gold 188.6  peak 225.3  avg first temple day 66.5
+    stuck games: final gold 53, final hex [('0307', 15), ('0407', 4), ('0408', 4), ('0410', 3), ('0511', 3)]
+aggressive  wins 9/60  offerings 396  temple days 396  reached temple 23/60
+    avg gold 189.6  peak 226.3  avg first temple day 66.4
+    stuck games: final gold 80, final hex [('0307', 14), ('0511', 10), ('0407', 2), ('0309', 2), ('0308', 2)]

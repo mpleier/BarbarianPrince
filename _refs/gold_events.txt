@@ -1,0 +1,28 @@
+﻿e136 | Hidden Treasures | You uncover the remains of a palace treasure room, roll one die for the contents: 1-e037; 2-e038; 3-e039; 4-e044; 5-500 gold; 6-nothing. 
+
+e139 | Minor Treasures | You uncover a minor treasure, roll one die: 1-wealth 25; 2-wealth 60; 3-e038; 4-e039; 5-e040; 6-e140. 
+
+e156 | Audience with Town Mayor | You have private discussions with the mayor. Roll one die: 1 he is insulted, see e060 immediately. 2 he hears your story, but remains stone-faced, unwilling or unable to help. However, you are free to seek audiences with him again any day. 3 he hears your story and gives you free food and lodging for tonight, as a distinguished (if dispossessed) visitor from the north. You are free to seek audienc 
+
+e161 | Audience with Count Drogat | You are allowed a semi-private interview with the ruler of Drogat Castle. Roll one die for the result, and add one (+1) if you have a Trollskin and give it to the Count. 1 Count's eyes glow like red coals - you are his next victim, see e061! 2 Count listens with half an ear, audience ends with no result, but you can seek another audience some other day. 3 Count is in a humorous mood, gives you fli 
+
+e133 | Plague | After considerable searching during the day, you and your party find a variety of items worth 50 gold pieces in all, among many skeletons. Tonight, just before you start to eat (r215), a plague of mind-madness begins to affect your party, due to an ancient curse on this place. Roll one die for each character in your party, a 3 or higher means madness has destroyed the mind and the character crumpl 
+
+e131 | Empty Ruins | You spend the entire day fruitlessly searching the ruins, and find nothing. 
+
+e132 | Organized Search | If alone, you spend the day fruitlessly searching the ruins, find nothing. If there are other characters in your party, roll one die. If the roll is less than the number of characters in your party (including yourself) the organ ized search helps, roll again immediate in rules section r208. 
+
+e135 | Broken Columns | Along a palisade of broken columns, you find an altar with an ancient inscription. If your party includes a magician, wizard, witch, priest, and/or monk, the inscription can be deciphered and one die rolled for its meaning: 1-e042; 2-e043; 3-e044; 4-e045; 5-e046; 6-e047. If none can decipher the inscription, this result is no event. 
+
+e137 | Inhabitants | You encounter things living in the ruins, roll one die: 1-e032; 2-e051; 3-e052; 4-e055; 5-e057; 6-e082. 
+
+e035 | Spell of Chaos | A guardian spell of chaos is activated as your party passes within. You and your entire party become mindless idiots. All wander away, so you lose all followers and possessions except for your own mount, and any wealth and possessions you personally carry. You do not eat an evening meal, and begin to suffer the effects of starvation (r216). At the start of tomorrow, roll one die and subtract one ( 
+
+e140 | Magic Box | You find a magic box. You can only open it if you have a magician, wizard or witch in your party. Until then, you can carry it with you, since it is relatively light. Once such a person is in your party, you can open it and examine the contents. Roll one die: 1-e141; 2-e142; 3-wealth 60; 4-wealth 110; 5-e195; 6-nothing but rubbish. 
+
+e038 | Cache under Stone | By chance you overturn a stone slab, jumping back as it crashes to the ground. You see that it uncovers an old cache of rotting food and other items. Roll one die: 1-e180; 2-e181; 3-e182; 4-e185; 5-e187; 6-e190. 
+
+e039 | Treasure Chest | You find a locked chest. You know the lock may be trapped. If you decide to open it, roll one die, if the result is 3 or higher it does have a trap lock, see r227. If you survive the trap (if any), and open the chest, roll one die. If the result is 6 the chest is empty. Otherwise it has a treasure with a wealth of 60. This may include a special possession, but if that possession is a pegasus winge 
+
+e040 | Treasure Chest | You find a locked treasure chest protected by a trap. You can either ignore it, or attempt to open it anyway. If you try to open it, roll one die, if the die roll exceeds your wit & wiles you have bungled and sprung the trap, see r227. If you survive the sprung trap (if any), you can now open it, roll one die to determine the wealth code of the contents: 1-5; 2-25; 3-50; 4-60; 5-70; 6-100. See r22 
+

@@ -1,0 +1,12 @@
+﻿python :   File "<string>", line 1
+At line:1 char:64
++ ... ianPrince"; python -c "import io,sys,json; sys.stdout=io.TextIOWrappe ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (  File "<string>", line 1:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    import io,sys,json; sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8'); 
+t=json.load(open('data/tables.json',encoding='utf-8'); 
+                                                                                                                               
+               ^
+SyntaxError: invalid syntax

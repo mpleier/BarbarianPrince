@@ -1,0 +1,47 @@
+﻿1:     def make_offerings(self):
+2:         """r212 - submit offerings at a temple."""
+3:         kind = self.place_kind(self.hex)
+4:         if kind != 'temple':
+5:             self.note('There is nowhere here to make offerings.')
+6:             return 'No offerings possible.'
+7:         opts = [{'label': f'Offer {g} gold',
+8:                  'handler': (lambda g=g: self.offering(g))}
+9:                 for g in (1, 5, 10, 20, 50) if g <= self.gold]
+10:         if not opts:
+11:             self.note('You have no gold to offer.')
+12:             return 'No offerings.'
+13:         opts.append({'label': 'Withdraw', 'handler': (lambda: 'Offerings abandoned.')})
+14:         self.push('choice', 'Submit offerings (r212)',
+15:                   f'How much gold do you offer at the temple in {self.hex}? '
+16:                   f'Spending 10 or more adds one (+1) to the roll.', opts)
+17:         return 'Choose an offering.'
+18: 
+19:     def offering(self, amount):
+20:         """r212 - 2 dice, +1 for 10+ gold; 14+ wins the Staff of Command."""
+21:         self.gold -= amount
+22:         total = self.d2() + (1 if amount >= 10 else 0) + self.offering_bonus
+23:         self.note(f'Offering of {amount} gold: rolled {total} (r212).')
+24:         row = self.model.offerings(total)
+25:         text = row['text'] if row else 'Nothing happens.'
+26:         low = text.lower()
+27:         if 'staff of command' in low:
+28:             self.staff = True
+29:             self.note('The Staff of Command is in your hands.')
+30:         if 'free food' in low or 'free lodging' in low:
+31:             self.free_lodging = True
+32:         if 'add one (+1)' in low:
+33:             self.offering_bonus = 1
+34:         m = REF_RE.search(text)
+35:         if m and m.group(1) in self.model.events:
+36:             self.encounter(m.group(1))
+37:         else:
+38:             self.push('info', f'Offerings at {self.hex}', text,
+39:                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+40:         return 'Offerings made.'
+41: 
+42: 
+43:     # ------------------------------------------------------------ rest (r222)
+44:     def rest(self):
+45:         self.note('Resting in hex ' + self.hex + ' (r222).')
+46:         self.moves_left = 0
+47:         self.action = 'rest'

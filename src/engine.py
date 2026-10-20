@@ -42,6 +42,7 @@ INQUIRY = {2: 'r309', 3: 'r330', 4: 'r340', 5: 'r306', 6: 'r325', 7: 'r341',
 
 REF_RE = re.compile(r'\b([re]\d{3})\b')
 GOLD_TEXT_RE = re.compile(r'(?:gain|find|worth|receive)\s+(\d+)\s+gold', re.I)
+DIE_TABLE_RE = re.compile(r'roll one die|one die rolled|die roll for')
 STAT_RE = re.compile(r'combat skill (\d+)(?:,\s*(?:and\s*)?endurance (\d+))?'
                      r'(?:,\s*wealth (\d+))?')
 DIRECTIONS = ['N', 'NE', 'SE', 'S', 'SW', 'NW']
@@ -66,15 +67,18 @@ def threshold(spec):
 
 
 def parse_options(text):
-    """Extract the 'die roll / talk / evade / fight' option matrix of an event."""
+    """Extract the 'die roll / talk / evade / fight' option matrix of an event.
+
+    The booklet writes the matrix as a header row ('die roll talk *evade fight')
+    followed by one row per die roll, each row holding one label + reference per
+    header.  A '*' is only a footnote marker, so it must not be treated as the
+    end of the matrix - doing so silently dropped the evade/fight columns and
+    left the player (or the bot) with a single 'talk' option.
+    """
     idx = text.find('Your options are:')
     if idx < 0:
         return None
     body = text[idx + len('Your options are:'):]
-    star = body.find('*')
-    note = body[star:].strip() if star >= 0 else ''
-    if star >= 0:
-        body = body[:star]
     tokens = body.split()
     i = 0
     headers = []
@@ -86,31 +90,49 @@ def parse_options(text):
     if not headers:
         return None
     rows = []
-    while i < len(tokens):
-        if not tokens[i].isdigit():
-            i += 1
-            continue
+    while i < len(tokens) and tokens[i].isdigit():
         roll = int(tokens[i])
         i += 1
         cells = []
-        while i < len(tokens) and not tokens[i].isdigit():
+        for _ in range(len(headers)):
             label = []
             while (i < len(tokens) and not tokens[i].isdigit()
                    and not re.fullmatch(r'[re]\d{3}', tokens[i])):
                 label.append(tokens[i])
                 i += 1
             if i < len(tokens) and re.fullmatch(r'[re]\d{3}', tokens[i]):
-                cells.append((' '.join(label) or 'option', tokens[i]))
+                cells.append((' '.join(label).strip('*').strip() or 'option',
+                              tokens[i]))
                 i += 1
             else:
                 break
-        if cells:
-            rows.append((roll, cells))
+        if len(cells) != len(headers):
+            break
+        rows.append((roll, cells))
+    note = ' '.join(tokens[i:]).strip()
     return headers, rows, note
 
 
-def parse_foes(text):
-    """Parse the stat block(s) of the characters an event describes."""
+def die_entries(text):
+    """Return the '1-x; 2-y; ...' entries of a 'roll one die' table, if any."""
+    m = DIE_TABLE_RE.search(text)
+    if not m:
+        return None
+    entries = []
+    for chunk in text[m.end():].split(';'):
+        d = re.match(r'\s*(\d)\s*-\s*(.+)', chunk)
+        if d:
+            entries.append((int(d.group(1)), d.group(2).strip()))
+    return entries if len(entries) >= 3 else None
+
+
+def parse_foes(text, rng=None):
+    """Parse the stat block(s) of the characters an event describes.
+
+    `rng` is the game's own generator; passing it keeps a seeded campaign
+    reproducible instead of borrowing the global `random` state.
+    """
+    rng = rng or random
     stats = [(int(s), int(e) if e else 5, int(w) if w else 0)
              for s, e, w in STAT_RE.findall(text)]
     if not stats:
@@ -118,11 +140,11 @@ def parse_foes(text):
     count = 1
     low = text.lower()
     if 'roll one die for the number of' in low:
-        count = random.randint(1, 6)
+        count = rng.randint(1, 6)
     elif 'roll two dice for the number of' in low:
-        count = random.randint(1, 6) + random.randint(1, 6)
+        count = rng.randint(1, 6) + rng.randint(1, 6)
     elif 'number in the group is one die roll plus one' in low:
-        count = random.randint(1, 6) + 1
+        count = rng.randint(1, 6) + 1
     else:
         m = re.search(r'(\d+)\s+(?:men|warriors|guards|tribesmen|bandits|horsemen|'
                       r'assassins|constables|priests|monks|witches|magicians|wizards|'
@@ -194,7 +216,8 @@ class Combat:
                  surprise=None, note=None):
         self.party = [c for c in party if not c.dead]
         self.foes = [c for c in foes if not c.dead]
-        self.rng = rng
+        self.original_foes = list(self.foes)   # r225: loot is taken from the
+        self.rng = rng                         # whole encountered band
         self.party_first = party_first
         self.surprise = surprise            # 'party' | 'foes' | None
         self.name = name
@@ -333,7 +356,11 @@ class Game:
         self.raft = False
         self.raft_days = 0
         self.news_bonus = {}
-        self.offering_bonus = 0
+        self.offering_bonus = 0     # r209 result 4: permanent +1 at the temple
+        self.omen_bonus = 0         # r212 result 7: +1 on the next offering
+        self.influence_bonus = 0    # r212 result 12/13: +3 on the next offering
+        self.peak_gold = 0          # highest gold ever held, for the win report
+        self._ruins_retry = 0       # r208/e132 organised-search re-rolls
         self.free_lodging = False
         self.staff = False
         self.party = []
@@ -606,12 +633,36 @@ class Game:
                       ev['text'] + ('\n' + note if note else ''),
                       self.option_choices(headers))
         else:
+            entries = die_entries(ev['text'])
+            if entries:
+                return self.roll_die_table(entries, ev)
             m = GOLD_TEXT_RE.search(ev['text'])
             if m:
                 self.gold += int(m.group(1))
                 self.note(f'Gain {m.group(1)} gold from {ev["title"]}.')
             self.push('info', f'{code} - {ev["title"]}', ev['text'],
                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+
+    def roll_die_table(self, entries, ev):
+        """Resolve a "roll one die: 1-x; 2-y; ..." table inside an event."""
+        die = self.d1()
+        entry = next((text for num, text in entries if num == die), None)
+        if entry is None:
+            self.note(f'{ev["title"]}: die {die} has no entry - nothing happens.')
+            return 'Nothing happens.'
+        m = REF_RE.search(entry)
+        if m and m.group(1) in self.model.events:
+            self.note(f'{ev["title"]}: die {die} -> {m.group(1)}')
+            return self.encounter(m.group(1))
+        gm = re.search(r'wealth\s+(\d+)', entry, re.I) or \
+            re.search(r'(\d+)\s*gold', entry, re.I)
+        if gm:
+            amount = int(gm.group(1))
+            self.gold += amount
+            self.note(f'{ev["title"]}: die {die} - {entry} (gain {amount} gold).')
+            return f'Gain {amount} gold.'
+        self.note(f'{ev["title"]}: die {die} - {entry}')
+        return 'Nothing happens.'
 
 
     def option_choices(self, headers):
@@ -703,7 +754,7 @@ class Game:
         ref = BATTLE_REFERENCE.get(min(12, max(2, total)), 'r306')
         self.note(f'Battle reference: rolled {total} -> {ref}')
         first, surprise = self.battle_situation(ref)
-        foes = parse_foes(ev['text'] if ev else '')
+        foes = parse_foes(ev['text'] if ev else '', self.rng)
         if not foes:
             foes = [Character('Foe 1', 4, 5, 0)]
         self.combat = Combat(self.living(), foes, self.rng, first,
@@ -744,14 +795,16 @@ class Game:
         c = self.combat
         self.note(f'Combat ends: {c.result}.')
         if c.result in ('party wins', 'foes routed'):
-            for foe in c.foes:
-                if foe.alive:
-                    gold, item = self.treasure_roll(foe.wealth)
-                    self.gold += gold
-                    if item:
-                        self.items.append(item)
-                    self.note(f'Loot from {foe.name}: {gold} gold'
-                              + (f' + {item}' if item else ''))
+            # r225: "Whenever you kill all characters encountered, your party
+            # may take their wealth" - the defeated band, not whoever is still
+            # standing, is what gets looted.
+            for foe in c.original_foes:
+                gold, item = self.treasure_roll(foe.wealth)
+                self.gold += gold
+                if item:
+                    self.items.append(item)
+                self.note(f'Loot from {foe.name}: {gold} gold'
+                          + (f' + {item}' if item else ''))
         self.combat = None
         self.party = [x for x in self.party if x.alive]
         if not self.living():
@@ -1103,9 +1156,11 @@ class Game:
         return 'Unknown action.'
 
     def seek_news(self):
-        """r209 - seek news: 2 dice, +1 for 5+ gold spent, +1 if wit is 5+."""
+        """r209 - seek news: 2 dice, +1 for spending 5+ gold, +1 if wit is 5+."""
         spend = 5 if self.gold >= 5 else 0
-        bonus = spend + (1 if self.wit >= 5 else 0)
+        if spend:
+            self.gold -= spend
+        bonus = (1 if spend else 0) + (1 if self.wit >= 5 else 0)
         total = self.d2() + bonus
         self.note(f'Seeking news: rolled {total} (bonus {bonus}).')
         row = self.model.news(total)
@@ -1133,10 +1188,18 @@ class Game:
     def search_ruins(self):
         """r208 - search the ruins: 2 dice, +1 per follower with skill 6+."""
         bonus = sum(1 for c in self.living() if c.skill >= 6)
-        total = self.d2() + bonus
-        self.note(f'Searching the ruins: rolled {total} (bonus {bonus}).')
-        code = RUINS.get(total, 'e133')
+        dice = self.d2()
+        total = dice + bonus
+        self.note(f'Searching the ruins: rolled {dice} (bonus {bonus}).')
+        # The table stops at 12; a higher total is read as the 12 entry.
+        code = RUINS.get(min(12, max(2, total)), 'e133')
         self.note(f'Ruins roll {total} -> {code}')
+        # e132: with a party, an organised search lets you try again the same day.
+        if code == 'e132' and len(self.living()) > 1 and self._ruins_retry < 3:
+            self._ruins_retry += 1
+            self.note('The organised search lets you keep looking today.')
+            return self.search_ruins()
+        self._ruins_retry = 0
         self.encounter(code)
         return 'Ruins searched.'
 
@@ -1219,10 +1282,23 @@ class Game:
         return 'Choose an offering.'
 
     def offering(self, amount):
-        """r212 - 2 dice, +1 for 10+ gold; 14+ wins the Staff of Command."""
+        """r212 - 2 dice, +1 for 10+ gold; 14+ wins the Staff of Command.
+
+        Modifiers: +1 for the 10-gold sacrifice, +1 for the permanent omen
+        won by seeking news (r209 result 4), +1 for favourable omens from the
+        previous offering (r212 result 7, "again tomorrow" only) and +3 for
+        the High Priest's influence (r212 result 12/13, tomorrow only).
+        """
         self.gold -= amount
-        total = self.d2() + (1 if amount >= 10 else 0) + self.offering_bonus
-        self.note(f'Offering of {amount} gold: rolled {total} (r212).')
+        bonus = ((1 if amount >= 10 else 0) + self.offering_bonus
+                 + self.omen_bonus + self.influence_bonus)
+        dice = self.d2()
+        total = dice + bonus
+        self.note(f'Offering of {amount} gold: dice {dice} + {bonus} = {total} '
+                  f'(r212).')
+        # Both one-day modifiers are spent by this attempt.
+        self.omen_bonus = 0
+        self.influence_bonus = 0
         row = self.model.offerings(total)
         text = row['text'] if row else 'Nothing happens.'
         low = text.lower()
@@ -1231,8 +1307,11 @@ class Game:
             self.note('The Staff of Command is in your hands.')
         if 'free food' in low or 'free lodging' in low:
             self.free_lodging = True
-        if 'add one (+1)' in low:
-            self.offering_bonus = 1
+        if total == 7:
+            self.omen_bonus = 1
+            self.note('Favourable omens: +1 to the offering roll tomorrow.')
+        if total in (12, 13) and not self.staff:
+            return self.high_priest_offer(text)
         m = REF_RE.search(text)
         if m and m.group(1) in self.model.events:
             self.encounter(m.group(1))
@@ -1240,6 +1319,33 @@ class Game:
             self.push('info', f'Offerings at {self.hex}', text,
                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
         return 'Offerings made.'
+
+    def high_priest_offer(self, text):
+        """r212 result 12/13 - secret information or the Priest's influence."""
+        self.note('The High Priest offers either his clues or his influence.')
+        self.push('choice', 'The High Priest\'s offer (r212)',
+                  'The High Priest can either give you the final clues to his '
+                  'secret information, or use his influence so that you add '
+                  'three (+3) to your dice roll if you make Offerings here '
+                  'again tomorrow.',
+                  [{'label': 'Take the secret information',
+                    'handler': (lambda: self.priest_clues())},
+                   {'label': 'Use his influence (+3 tomorrow)',
+                    'handler': (lambda: self.priest_influence())}])
+        return 'The High Priest makes an offer.'
+
+    def priest_clues(self):
+        die = self.d1()
+        ref = ('e144', 'e144', 'e145', 'e145', 'e146', 'e146')[die - 1]
+        self.note(f'High Priest\'s clues (die {die}) -> {ref}')
+        self.encounter(ref)
+        return 'Secret information received.'
+
+    def priest_influence(self):
+        self.influence_bonus = 3
+        self.note('The High Priest will back your offering: add three (+3) '
+                'to the roll tomorrow (r212).')
+        return 'Influence accepted.'
 
 
     # ------------------------------------------------------------ rest (r222)
@@ -1492,6 +1598,7 @@ class Game:
 
     def finish_day(self):
         """Called after food/lodging prompts are answered."""
+        self.peak_gold = max(self.peak_gold, self.gold)
         self.day += 1
         self.action = None
         self.pending_event = None

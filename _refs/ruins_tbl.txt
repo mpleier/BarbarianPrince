@@ -1,0 +1,8 @@
+﻿{'2': 'e133', '3': 'e135', '4': 'e136', '5': 'e137', '6': 'e139', '7': 'e131', '8': 'e132', '9': 'e134', '10': 'e138', '11': 'e135', '12': 'e035'}
+e037 You find a chest with a broken and cracked lid. Sorting through old mouldering cloths, you find (roll one die): 1-e180; 2-e181; 3-e182; 4-e184; 5-e186; 6-e189.
+e038 By chance you overturn a stone slab, jumping back as it crashes to the ground. You see that it uncovers an old cache of rotting food and other items. Roll one die: 1-e180; 2-e181; 3-e182; 4-e185; 5-e1
+e039 You find a locked chest. You know the lock may be trapped. If you decide to open it, roll one die, if the result is 3 or higher it does have a trap lock, see r227. If you survive the trap (if any), an
+e044 You find a high altar of godly power. If any character in your party is a priest or monk, he will know the invocations to use at this altar. You may ask him to make the invocation, and roll one die to
+e140 You find a magic box. You can only open it if you have a magician, wizard or witch in your party. Until then, you can carry it with you, since it is relatively light. Once such a person is in your par
+e141 Roll two dice for the number of Hydra's teeth inside. The magician/ wizard/witch explains that whenever you scatter these teeth on the ground, that number of undead warriors will rise and fight in you
+e142 The box contains a horde of gems worth wealth 200 (consult for wealth 100 twice). If you have a magician, wizard or witch in your party they also recognize one as a vision gem, see e041.
