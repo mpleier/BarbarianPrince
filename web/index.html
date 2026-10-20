@@ -14,8 +14,20 @@
     </div>
     <div class="controls">
       <input id="seed" type="number" min="0" placeholder="seed (optional)" title="Random seed">
+      <select id="strategy" title="Bot personality">
+        <option value="cautious">cautious</option>
+        <option value="balanced" selected>balanced</option>
+        <option value="aggressive">aggressive</option>
+      </select>
+      <select id="speed" title="Auto-play speed">
+        <option value="1">1 step/s</option>
+        <option value="4" selected>4 steps/s</option>
+        <option value="12">12 steps/s</option>
+        <option value="60">max</option>
+      </select>
+      <button id="btn-step" title="Let the bot answer the current prompt">Bot move</button>
+      <button id="btn-auto" title="Let the bot play the game for you">Auto-play</button>
       <button id="btn-new" class="primary">New game</button>
-      <button id="btn-auto" title="Let the engine answer with the first option">Auto-play</button>
       <button id="btn-quit" title="Abandon this game">Quit</button>
     </div>
   </header>
@@ -48,7 +60,10 @@
       <p class="help">
         Pick an action from the prompt panel, or click a highlighted hex to move
         there. Press <kbd>1</kbd>&ndash;<kbd>9</kbd> to choose an option, and click any
-        <b>rNNN</b> / <b>eNNN</b> reference to read the rule.
+        <b>rNNN</b> / <b>eNNN</b> reference to read the rule.  The option tagged
+        <b>bot</b> is the move the auto-play bot would make &mdash; click it to
+        hand over control, or use <b>Bot move</b> / <b>Auto-play</b> to let the
+        bot play the whole campaign.
       </p>
     </section>
 

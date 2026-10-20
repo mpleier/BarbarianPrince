@@ -7,6 +7,8 @@ let zoom = 0.24;
 let showIds = true;
 let showScan = false;
 let hexById = {};
+let botOn = false;
+let botTimer = null;
 
 const PLACE_SYMBOL = {
   town: 'o', village: 'o', city: 'O', castle: '*', fort: '*', tower: '*',
@@ -179,9 +181,19 @@ function renderPrompt(p) {
   p.options.forEach((o, i) => {
     const b = document.createElement('button');
     b.textContent = `${i + 1}. ${o.label}`;
+    if (p.bot_choice === i) {
+      b.classList.add('bot-pick');
+      b.title = 'The bot would choose this';
+    }
     b.onclick = () => answer(i);
     opts.appendChild(b);
   });
+  if (p.bot_choice != null) {
+    const tag = document.createElement('span');
+    tag.className = 'bot-tag';
+    tag.textContent = `bot picks option ${p.bot_choice + 1}`;
+    opts.appendChild(tag);
+  }
 }
 
 function appendLog(lines) {
@@ -199,6 +211,7 @@ function appendLog(lines) {
 
 async function answer(index) {
   if (!sid) return;
+  stopBot();                              // a human is taking over
   try {
     state = await api(`/api/game/${sid}/answer`, {
       method: 'POST',
@@ -218,12 +231,13 @@ async function answer(index) {
 async function newGame() {
   const raw = document.getElementById('seed').value.trim();
   const seed = raw === '' ? null : parseInt(raw, 10);
+  stopBot();
   document.getElementById('log').innerHTML = '';
   try {
     state = await api('/api/game', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ seed })
+      body: JSON.stringify({ seed, strategy: strategy() })
     });
   } catch (err) {
     appendLog('(could not start a game: ' + err.message + ')');
@@ -236,17 +250,57 @@ async function newGame() {
   renderOverlay();
 }
 
-async function autoPlay() {
+
+/* ---------------------------------------------------------------- auto-play */
+function strategy() {
+  return document.getElementById('strategy').value || 'balanced';
+}
+
+async function botStep() {
   if (!sid) return;
-  state = await api(`/api/game/${sid}/auto`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ steps: 400 })
-  });
+  try {
+    state = await api(`/api/game/${sid}/step`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ strategy: strategy() })
+    });
+  } catch (err) {
+    appendLog('(bot error: ' + err.message + ')');
+    stopBot();
+    return;
+  }
   appendLog(state.log);
   renderStatus(state.status);
   renderPrompt(state.prompt);
   renderOverlay();
+  if (state.status.game_over) stopBot();
+}
+
+function startBot() {
+  if (!sid || botOn) return;
+  botOn = true;
+  const btn = document.getElementById('btn-auto');
+  btn.textContent = 'Stop bot';
+  btn.classList.add('active');
+  const stepsPerSec = parseInt(document.getElementById('speed').value, 10) || 4;
+  botTimer = setInterval(botStep, Math.max(120, 1000 / stepsPerSec));
+  botStep();
+}
+
+function stopBot() {
+  botOn = false;
+  if (botTimer) {
+    clearInterval(botTimer);
+    botTimer = null;
+  }
+  const btn = document.getElementById('btn-auto');
+  btn.textContent = 'Auto-play';
+  btn.classList.remove('active');
+}
+
+function toggleBot() {
+  if (botOn) stopBot();
+  else startBot();
 }
 
 
@@ -257,8 +311,10 @@ async function init() {
   renderBoard();
 
   document.getElementById('btn-new').onclick = newGame;
-  document.getElementById('btn-auto').onclick = autoPlay;
+  document.getElementById('btn-step').onclick = botStep;
+  document.getElementById('btn-auto').onclick = toggleBot;
   document.getElementById('btn-quit').onclick = () => {
+    stopBot();
     sid = null;
     state = null;
     document.getElementById('log').innerHTML = '';
@@ -267,6 +323,20 @@ async function init() {
     document.getElementById('prompt-text').textContent = '';
     document.getElementById('prompt-options').innerHTML = '';
     renderOverlay();
+  };
+
+  document.getElementById('strategy').onchange = async () => {
+    if (!sid) return;
+    try {
+      state = await api(`/api/game/${sid}/strategy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ strategy: strategy() })
+      });
+      renderPrompt(state.prompt);
+    } catch (err) {
+      appendLog('(could not change strategy: ' + err.message + ')');
+    }
   };
 
   document.querySelectorAll('.zoom button').forEach(b => {

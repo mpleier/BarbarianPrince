@@ -24,6 +24,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from engine import Game
+from autoplay import Bot, STRATEGIES
 from features import load_features
 from game_model import GameModel
 from geometry import (NC, NR, R, DX, DY, BOARD_Y_OFF, board_bounds, board_corners,
@@ -99,6 +100,7 @@ def build_board():
 class NewGame(BaseModel):
     seed: int | None = None
     start: str = "0101"
+    strategy: str = "balanced"
 
 
 class Answer(BaseModel):
@@ -107,6 +109,15 @@ class Answer(BaseModel):
 
 class Auto(BaseModel):
     steps: int = 40
+    strategy: str | None = None
+
+
+class Step(BaseModel):
+    strategy: str | None = None
+
+
+class Strategy(BaseModel):
+    strategy: str
 
 
 def ensure_prompt(g):
@@ -146,6 +157,14 @@ def snapshot(sess, full_log=False):
     log = g.log if full_log else g.log[sess["log_index"]:]
     sess["log_index"] = len(g.log)
 
+    bot_choice = None
+    if prompt and prompt["options"]:
+        try:
+            bot_choice = sess["bot"].suggest(prompt)
+            bot_choice = max(0, min(int(bot_choice), len(prompt["options"]) - 1))
+        except Exception:
+            bot_choice = None
+
     st = g.status()
     st["moves_left"] = g.moves_left
     st["speed"] = g.speed()
@@ -163,8 +182,10 @@ def snapshot(sess, full_log=False):
             "title": prompt["title"],
             "text": prompt["text"],
             "options": options,
+            "bot_choice": bot_choice,
         },
         "moves": moves,
+        "strategy": sess["strategy"],
         "log": log,
         "log_count": len(g.log),
     }
@@ -175,7 +196,8 @@ BOARD = build_board()
 # --------------------------------------------------------------------- routes
 @app.get("/api/health")
 def health():
-    return {"ok": True, "hexes": len(BOARD["hexes"]), "sessions": len(SESSIONS)}
+    return {"ok": True, "hexes": len(BOARD["hexes"]), "sessions": len(SESSIONS),
+            "strategies": list(STRATEGIES)}
 
 
 @app.get("/api/board")
@@ -186,8 +208,10 @@ def api_board():
 @app.post("/api/game")
 def api_new_game(req: NewGame):
     with LOCK:
+        strategy = req.strategy if req.strategy in STRATEGIES else "balanced"
         g = Game(seed=req.seed, start_hex=req.start)
-        sess = {"id": uuid.uuid4().hex[:12], "game": g, "log_index": 0}
+        sess = {"id": uuid.uuid4().hex[:12], "game": g, "log_index": 0,
+                "strategy": strategy, "bot": Bot(g, strategy)}
         SESSIONS[sess["id"]] = sess
         return snapshot(sess)
 
@@ -217,12 +241,56 @@ def api_answer(sid: str, req: Answer):
         return snapshot(sess)
 
 
-@app.post("/api/game/{sid}/auto")
-def api_auto(sid: str, req: Auto):
-    """Answer prompts with the first option - handy for demos and testing."""
+@app.post("/api/game/{sid}/step")
+def api_step(sid: str, req: Step):
+    """Answer the current prompt with the bot's best move - one step only."""
     with LOCK:
         sess = get_session(sid)
-        sess["game"].run_until_idle(max_steps=req.steps)
+        g = sess["game"]
+        if req.strategy and req.strategy in STRATEGIES:
+            sess["strategy"] = req.strategy
+            sess["bot"] = Bot(g, req.strategy)
+        prompt = ensure_prompt(g)
+        if prompt is None:
+            return snapshot(sess)
+        try:
+            idx = sess["bot"].choose(prompt)
+            idx = max(0, min(int(idx), len(prompt["options"]) - 1))
+            g.answer(idx)
+        except Exception as exc:                      # keep the UI alive
+            g.note(f"(engine error while resolving the bot's choice: {exc})")
+        return snapshot(sess)
+
+
+@app.post("/api/game/{sid}/strategy")
+def api_strategy(sid: str, req: Strategy):
+    """Switch the bot's personality mid-game (its memory starts fresh)."""
+    with LOCK:
+        sess = get_session(sid)
+        if req.strategy not in STRATEGIES:
+            raise HTTPException(status_code=400,
+                                detail="strategy must be one of " +
+                                       ", ".join(STRATEGIES))
+        sess["strategy"] = req.strategy
+        sess["bot"] = Bot(sess["game"], req.strategy)
+        return snapshot(sess)
+
+
+@app.post("/api/game/{sid}/auto")
+def api_auto(sid: str, req: Auto):
+    """Run the bot for a number of prompts.
+
+    strategy="naive" answers every prompt with the first option, which is useful
+    for engine smoke tests; otherwise the personality bot plays the game.
+    """
+    with LOCK:
+        sess = get_session(sid)
+        g = sess["game"]
+        if req.strategy and req.strategy in STRATEGIES:
+            sess["strategy"] = req.strategy
+            sess["bot"] = Bot(g, req.strategy)
+        chooser = None if req.strategy == "naive" else sess["bot"].choose
+        g.run_until_idle(max_steps=req.steps, chooser=chooser)
         return snapshot(sess)
 
 
@@ -280,7 +348,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="ui")
 

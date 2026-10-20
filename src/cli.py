@@ -1,10 +1,12 @@
 """Terminal interface for the Barbarian Prince engine.
 
 Useful for quick play-throughs and for testing the engine without Tk.
+Pass a strategy to let the auto-play bot answer every prompt instead of you.
 """
 import sys
 
 from engine import Game
+from autoplay import Bot
 
 
 def render(prompt):
@@ -24,8 +26,9 @@ def render(prompt):
         print('Invalid choice.')
 
 
-def play_cli(seed=None):
-    game = Game(seed=seed)
+def play_cli(seed=None, strategy=None, start='0101'):
+    game = Game(seed=seed, start_hex=start)
+    bot = Bot(game, strategy) if strategy else None
     index = 0
     while not game.game_over:
         game.advance()
@@ -34,11 +37,17 @@ def play_cli(seed=None):
                 print('  ' + line)
             index = len(game.log)
             p = game.current()
+            if p is None:
+                continue
             if p['kind'] == 'info' or not p['options']:
                 print('>> ' + p['title'] + ': ' + p['text'])
                 game.answer(0)
                 continue
-            choice = render(p)
+            if bot:
+                choice = bot.choose(p)
+                print(f'  bot chooses {choice + 1}. {p["options"][choice]["label"]}')
+            else:
+                choice = render(p)
             game.answer(choice)
         for line in game.log[index:]:
             print('  ' + line)
@@ -51,4 +60,5 @@ def play_cli(seed=None):
 
 if __name__ == '__main__':
     seed = int(sys.argv[1]) if len(sys.argv) > 1 else None
-    play_cli(seed)
+    strategy = sys.argv[2] if len(sys.argv) > 2 else None
+    play_cli(seed, strategy)

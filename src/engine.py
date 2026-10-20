@@ -41,11 +41,20 @@ INQUIRY = {2: 'r309', 3: 'r330', 4: 'r340', 5: 'r306', 6: 'r325', 7: 'r341',
            8: 'r333', 9: 'r339', 10: 'r337', 11: 'r338', 12: 'r336'}
 
 REF_RE = re.compile(r'\b([re]\d{3})\b')
+GOLD_TEXT_RE = re.compile(r'(?:gain|find|worth|receive)\s+(\d+)\s+gold', re.I)
 STAT_RE = re.compile(r'combat skill (\d+)(?:,\s*(?:and\s*)?endurance (\d+))?'
                      r'(?:,\s*wealth (\d+))?')
 DIRECTIONS = ['N', 'NE', 'SE', 'S', 'SW', 'NW']
 HUNT_TERRAIN = ('Farmland', 'Countryside', 'Forest', 'Hills')
 POPULATED = ('town', 'castle', 'temple')
+# r208 ruins search and r213 rafting tables are keyed by the dice total.
+with open(os.path.join(DATA, 'tables.json'), encoding='utf-8') as _f:
+    _TABLES = json.load(_f)
+
+RUINS = {int(k): v for k, v in _TABLES['ruins_search'].items()}
+RAFTING = {int(k): v for k, v in _TABLES['raft_travel_events'].items()}
+
+
 
 
 def threshold(spec):
@@ -597,8 +606,13 @@ class Game:
                       ev['text'] + ('\n' + note if note else ''),
                       self.option_choices(headers))
         else:
+            m = GOLD_TEXT_RE.search(ev['text'])
+            if m:
+                self.gold += int(m.group(1))
+                self.note(f'Gain {m.group(1)} gold from {ev["title"]}.')
             self.push('info', f'{code} - {ev["title"]}', ev['text'],
                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
+
 
     def option_choices(self, headers):
         return [{'label': f'{h} (roll 2 dice)',
@@ -1089,32 +1103,39 @@ class Game:
         return 'Unknown action.'
 
     def seek_news(self):
-        """r209 - seek news & information: 2 dice, +1 per follower with skill 6+."""
-        bonus = sum(1 for c in self.living() if c.skill >= 6)
+        """r209 - seek news: 2 dice, +1 for 5+ gold spent, +1 if wit is 5+."""
+        spend = 5 if self.gold >= 5 else 0
+        bonus = spend + (1 if self.wit >= 5 else 0)
         total = self.d2() + bonus
         self.note(f'Seeking news: rolled {total} (bonus {bonus}).')
-        if total <= 10:
-            self.note('Nothing learned - the day is wasted.')
-            return 'Nothing learned.'
-        kind = self.place_kind(self.hex)
-        if kind in ('Town', 'Castle', 'Temple'):
-            self.note(f'You learn about the {kind} in hex {self.hex}.')
-            self.push('info', f'News about {kind} in {self.hex}',
-                      'You gather useful information about this place.',
+        row = self.model.news(total)
+        text = row['text'] if row else 'No news of note, nothing seems to be happening.'
+        self.note(f'News roll {total} -> {text}')
+        low = text.lower()
+        if 'gain 50 gold' in low:
+            self.gold += 50
+        elif 'lose half your wealth' in low:
+            self.gold //= 2
+        if 'add one (+1)' in low and 'offerings' in low:
+            self.offering_bonus = 1
+        if 'always add one (+1)' in low:
+            self.news_bonus[self.hex] = 1
+        if 'half normal price' in low:
+            self.news_bonus[self.hex] = 2
+        m = REF_RE.search(text)
+        if m and m.group(1) in self.model.events:
+            self.encounter(m.group(1))
+        else:
+            self.push('info', f'News in {self.hex}', text,
                       [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
-            return 'News gathered.'
-        self.note('You learn nothing specific about this hex.')
-        return 'Nothing learned.'
+        return 'News gathered.'
 
     def search_ruins(self):
         """r208 - search the ruins: 2 dice, +1 per follower with skill 6+."""
         bonus = sum(1 for c in self.living() if c.skill >= 6)
         total = self.d2() + bonus
         self.note(f'Searching the ruins: rolled {total} (bonus {bonus}).')
-        if total <= 10:
-            self.note('Nothing found - the day is wasted.')
-            return 'Nothing found.'
-        code = RUINS.get(total, 'r325')
+        code = RUINS.get(total, 'e133')
         self.note(f'Ruins roll {total} -> {code}')
         self.encounter(code)
         return 'Ruins searched.'
@@ -1141,33 +1162,48 @@ class Game:
             self.note('The raft is lost and the day is wasted.')
             self.raft = False
             return 'Raft lost.'
-        code = RAFTING.get(total, 'r325')
+        code = RAFTING.get(total, 'r232')
+        if code.startswith('r'):
+            code = self.model.resolve_event_ref(code, self.d1())
         self.note(f'Rafting roll {total} -> {code}')
         self.raft_days += 1
         self.encounter(code)
         return 'Rafting continues.'
 
+    def audience_rows(self):
+        """The r211 audience table that applies to the hex we are standing in."""
+        table = self.model.tables['audience']
+        for entry in table.values():
+            if entry.get('hex') == self.hex:
+                return entry['rows']
+        kind = self.place_kind(self.hex)
+        return table.get('any Town' if kind in ('town', 'castle')
+                         else 'any Temple', {}).get('rows', [])
+
     def seek_audience(self):
         """r211 - seek an audience: 2 dice, +1 per follower with skill 6+."""
         kind = self.place_kind(self.hex)
-        if kind not in ('Town', 'Castle', 'Temple'):
+        if kind not in ('town', 'castle', 'temple'):
             self.note('There is nobody here to grant an audience.')
             return 'No audience available.'
         bonus = sum(1 for c in self.living() if c.skill >= 6)
         total = self.d2() + bonus
         self.note(f'Seeking an audience in {kind} {self.hex}: rolled {total}.')
-        if total <= 10:
-            self.note('The audience is refused - the day is wasted.')
-            return 'Audience refused.'
-        code = AUDIENCE.get(total, 'r325')
-        self.note(f'Audience roll {total} -> {code}')
-        self.encounter(code)
+        row = self.model.roll_row(self.audience_rows(), total)
+        text = (row['text'] if row else 'The audience is refused - try again tomorrow.')
+        self.note(f'Audience roll {total} -> {text}')
+        m = REF_RE.search(text)
+        if m and m.group(1) in self.model.events:
+            self.encounter(m.group(1))
+        else:
+            self.push('info', f'Audience in {kind} {self.hex}', text,
+                      [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
         return 'Audience sought.'
 
     def make_offerings(self):
-        """r212 - submit offerings at a temple or town."""
+        """r212 - submit offerings at a temple."""
         kind = self.place_kind(self.hex)
-        if kind not in ('Town', 'Temple', 'Castle'):
+        if kind != 'temple':
             self.note('There is nowhere here to make offerings.')
             return 'No offerings possible.'
         opts = [{'label': f'Offer {g} gold',
@@ -1178,14 +1214,31 @@ class Game:
             return 'No offerings.'
         opts.append({'label': 'Withdraw', 'handler': (lambda: 'Offerings abandoned.')})
         self.push('choice', 'Submit offerings (r212)',
-                  f'How much gold do you offer in {kind} {self.hex}?', opts)
+                  f'How much gold do you offer at the temple in {self.hex}? '
+                  f'Spending 10 or more adds one (+1) to the roll.', opts)
         return 'Choose an offering.'
 
     def offering(self, amount):
+        """r212 - 2 dice, +1 for 10+ gold; 14+ wins the Staff of Command."""
         self.gold -= amount
-        code = OFFERINGS.get(min(100, amount), 'r325')
-        self.note(f'Offering of {amount} gold -> {code}')
-        self.encounter(code)
+        total = self.d2() + (1 if amount >= 10 else 0) + self.offering_bonus
+        self.note(f'Offering of {amount} gold: rolled {total} (r212).')
+        row = self.model.offerings(total)
+        text = row['text'] if row else 'Nothing happens.'
+        low = text.lower()
+        if 'staff of command' in low:
+            self.staff = True
+            self.note('The Staff of Command is in your hands.')
+        if 'free food' in low or 'free lodging' in low:
+            self.free_lodging = True
+        if 'add one (+1)' in low:
+            self.offering_bonus = 1
+        m = REF_RE.search(text)
+        if m and m.group(1) in self.model.events:
+            self.encounter(m.group(1))
+        else:
+            self.push('info', f'Offerings at {self.hex}', text,
+                      [{'label': 'Continue', 'handler': (lambda: 'Continuing.')}])
         return 'Offerings made.'
 
 
@@ -1503,14 +1556,22 @@ class Game:
             'reason': self.reason,
         }
 
-    def run_until_idle(self, max_steps=200):
-        """Resolve prompts automatically (used for testing / auto-play)."""
+    def run_until_idle(self, max_steps=200, chooser=None):
+        """Resolve prompts automatically (used for testing / auto-play).
+
+        ``chooser`` is any callable that takes the current prompt dict and
+        returns an option index; without it the first option is always taken.
+        """
         steps = 0
         while steps < max_steps:
             self.advance()
             if not self.prompts or self.game_over:
                 break
-            self.answer(0)
+            prompt = self.current()
+            index = 0
+            if chooser is not None:
+                index = max(0, min(int(chooser(prompt)), len(prompt['options']) - 1))
+            self.answer(index)
             steps += 1
         return steps
 
