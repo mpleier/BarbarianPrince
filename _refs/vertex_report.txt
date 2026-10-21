@@ -1,0 +1,122 @@
+vertex (2073, 3403)  disc=0.703  sides=1119-1218 1119-1219 1218-1219
+   1119-1218  1119-1219  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+   1119-1218  1218-1219  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+   1119-1219  1218-1219  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (483, 282)  disc=0.469  sides=0102-0201 0201-0202
+   0102-0201  0201-0202  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (430, 2577)  disc=0.601  sides=0114-0115 0114-0214
+   0114-0115  0114-0214  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (748, 2026)  disc=0.361  sides=0311-0411 0312-0411
+   0311-0411  0312-0411  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (801, 1934)  disc=0.635  sides=0311-0411 0410-0411
+   0311-0411  0410-0411  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (748, 2210)  disc=0.512  sides=0312-0313 0312-0412
+   0312-0313  0312-0412  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (801, 2118)  disc=0.444  sides=0312-0411 0312-0412
+   0312-0411  0312-0412  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (907, 1934)  disc=0.410  sides=0410-0411 0410-0511
+   0410-0411  0410-0511  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (960, 1842)  disc=0.565  sides=0410-0511 0510-0511
+   0410-0511  0510-0511  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1066, 1842)  disc=0.367  sides=0510-0511 0510-0610
+   0510-0511  0510-0610  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1119, 1751)  disc=0.705  sides=0510-0610 0609-0610
+   0510-0610  0609-0610  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1437, 1200)  disc=0.723  sides=0707-0807 0806-0807
+   0707-0807  0806-0807  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1384, 1659)  disc=0.404  sides=0709-0710 0710-0809
+   0709-0710  0710-0809  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1437, 1751)  disc=0.317  sides=0710-0809 0710-0810
+   0710-0809  0710-0810  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1384, 1842)  disc=0.685  sides=0710-0810 0711-0810
+   0710-0810  0711-0810  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1437, 1934)  disc=0.308  sides=0711-0810 0711-0811
+   0711-0810  0711-0811  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1384, 2026)  disc=0.639  sides=0711-0811 0712-0811
+   0711-0811  0712-0811  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1543, 1200)  disc=0.111  sides=0806-0807 0806-0907
+   0806-0807  0806-0907  -> CONNECTED   labels [np.int64(1), np.int64(2)] vs [np.int64(2)]
+vertex (1755, 282)  disc=0.088  sides=0902-1001 1001-1002
+   0902-1001  1001-1002  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1755, 1016)  disc=0.692  sides=0906-1006 1005-1006
+   0906-1006  1005-1006  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1702, 2210)  disc=0.732  sides=0912-0913 0913-1012
+   0912-0913  0913-1012  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1755, 2301)  disc=0.655  sides=0913-1012 0913-1013
+   0913-1012  0913-1013  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1702, 2393)  disc=0.633  sides=0913-1013 0914-1013
+   0913-1013  0914-1013  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1755, 2485)  disc=0.438  sides=0914-1013 0914-1014
+   0914-1013  0914-1014  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1702, 2577)  disc=0.429  sides=0914-1014 0915-1014
+   0914-1014  0915-1014  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1755, 2669)  disc=0.290  sides=0915-1014 0915-1015
+   0915-1014  0915-1015  -> CONNECTED   labels [np.int64(1), np.int64(2)] vs [np.int64(1), np.int64(3)]
+vertex (1702, 2760)  disc=0.345  sides=0915-1015 0916-1015
+   0915-1015  0916-1015  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1755, 2852)  disc=0.408  sides=0916-1015 0916-1016
+   0916-1015  0916-1016  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1), np.int64(3)]
+vertex (1702, 2944)  disc=0.329  sides=0916-1016 0917-1016
+   0916-1016  0917-1016  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1755, 3036)  disc=0.084  sides=0917-1016 1016-1017
+   0917-1016  1016-1017  -> no   labels [np.int64(2)] vs [np.int64(3)]
+vertex (1861, 282)  disc=0.150  sides=1001-1002 1001-1102
+   1001-1002  1001-1102  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1861, 649)  disc=0.746  sides=1003-1104 1004-1104
+   1003-1104  1004-1104  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1914, 557)  disc=0.370  sides=1003-1104 1103-1104
+   1003-1104  1103-1104  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1914, 741)  disc=0.483  sides=1004-1104 1004-1105
+   1004-1104  1004-1105  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1861, 833)  disc=0.333  sides=1004-1105 1005-1105
+   1004-1105  1005-1105  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1861, 1016)  disc=0.263  sides=1005-1006 1005-1106
+   1005-1006  1005-1106  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1914, 924)  disc=0.522  sides=1005-1105 1005-1106
+   1005-1105  1005-1106  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1861, 3036)  disc=0.415  sides=1016-1017 1017-1117
+   1016-1017  1017-1117  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1914, 3311)  disc=0.592  sides=1018-1118 1118-1119
+   1018-1118  1118-1119  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (1861, 3954)  disc=0.376  sides=1021-1122 1022-1122
+   1021-1122  1022-1122  -> no   labels [np.int64(1)] vs [np.int64(3)]
+vertex (1914, 4046)  disc=0.615  sides=1022-1122 1022-1123
+   1022-1122  1022-1123  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2073, 282)  disc=0.197  sides=1102-1201 1201-1202
+   1102-1201  1201-1202  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2020, 3311)  disc=0.463  sides=1118-1119 1119-1218
+   1118-1119  1119-1218  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2020, 3495)  disc=0.667  sides=1119-1219 1120-1219
+   1119-1219  1120-1219  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2232, 374)  disc=0.680  sides=1202-1303 1302-1303
+   1202-1303  1302-1303  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2179, 3403)  disc=0.277  sides=1218-1219 1218-1319
+   1218-1219  1218-1319  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2232, 3678)  disc=0.048  sides=1220-1320 1320-1321
+   1220-1320  1320-1321  -> no   labels [] vs []
+vertex (2338, 374)  disc=0.501  sides=1302-1303 1302-1402
+   1302-1303  1302-1402  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2391, 3219)  disc=0.705  sides=1318-1418 1417-1418
+   1318-1418  1417-1418  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2550, 3862)  disc=0.322  sides=1421-1521 1421-1522
+   1421-1521  1421-1522  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2497, 3954)  disc=0.494  sides=1421-1522 1422-1522
+   1421-1522  1422-1522  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2550, 4046)  disc=0.331  sides=1422-1522 1422-1523
+   1422-1522  1422-1523  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (2497, 4137)  disc=0.372  sides=1422-1523 1423-1523
+   1422-1523  1423-1523  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (3027, 833)  disc=0.689  sides=1705-1805 1804-1805
+   1705-1805  1804-1805  -> CONNECTED   labels [np.int64(4)] vs [np.int64(4)]
+vertex (2974, 2760)  disc=0.726  sides=1715-1815 1716-1815
+   1715-1815  1716-1815  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (3133, 1200)  disc=0.376  sides=1806-1807 1807-1907
+   1806-1807  1807-1907  -> CONNECTED   labels [np.int64(4)] vs [np.int64(2), np.int64(4)]
+vertex (3133, 1751)  disc=0.556  sides=1809-1810 1809-1910
+   1809-1810  1809-1910  -> no   labels [np.int64(3)] vs [np.int64(2)]
+vertex (3133, 2485)  disc=0.683  sides=1813-1914 1814-1914
+   1813-1914  1814-1914  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
+vertex (3186, 2577)  disc=0.576  sides=1814-1914 1814-1915
+   1814-1914  1814-1915  -> CONNECTED   labels [np.int64(1), np.int64(2)] vs [np.int64(2)]
+vertex (3292, 2210)  disc=0.778  sides=1912-2012 1913-2012
+   1912-2012  1913-2012  -> CONNECTED   labels [np.int64(1)] vs [np.int64(1)]
