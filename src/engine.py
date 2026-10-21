@@ -432,6 +432,9 @@ class Game:
             with open(os.path.join(DATA, 'features.json'), encoding='utf-8') as f:
                 features = json.load(f)
         self.features = features
+        # JSON stores hexside pairs as lists; keep frozenset copies for O(1) tests.
+        self.road_sides = {frozenset(p) for p in features.get('road_sides', ())}
+        self.river_sides = {frozenset(p) for p in features.get('river_sides', ())}
         self.rng = random.Random(seed)
         self.log = []
         self.prompts = []
@@ -552,10 +555,21 @@ class Game:
 
     # ------------------------------------------------------------ travel (r204, r205)
     def is_road_move(self, a, b):
-        return frozenset((a, b)) in self.features['road_sides']
+        return frozenset((a, b)) in self.road_sides
 
     def is_river_move(self, a, b):
-        return frozenset((a, b)) in self.features['river_sides']
+        return frozenset((a, b)) in self.river_sides
+
+    def raft_available(self):
+        """r213 - rafting needs the river: the hex must touch a river hexside.
+
+        Once the party is afloat it stays on the raft until it gets off (by
+        choosing any other daily action) or the raft is lost or dismantled.
+        """
+        if self.raft:
+            return True
+        return any(self.is_river_move(self.hex, hid)
+                   for hid in self.model.neighbors(self.hex).values())
 
     def check_lost(self, terrain):
         """r205 - roll 2 dice vs the terrain threshold; a guide subtracts 1."""
@@ -1378,6 +1392,9 @@ class Game:
     # ------------------------------------------------------------ daily actions
     def begin_action(self, action):
         self.action = action
+        if action != 'raft' and self.raft:
+            self.note('The party leaves the raft (r213).')
+            self.raft = False
         if action == 'travel':
             return self.begin_travel()
         if action == 'rest':
@@ -1463,6 +1480,10 @@ class Game:
 
     def raft_action(self):
         """r213 - raft down the river: 2 dice, +1 per follower with skill 6+."""
+        if not self.raft_available():
+            self.note('No raft here - the party is nowhere near a river (r213).')
+            return 'No raft available.'
+        self.raft = True
         bonus = sum(1 for c in self.living() if c.skill >= 6)
         total = self.d2() + bonus
         self.note(f'Rafting: rolled {total} (bonus {bonus}).')
@@ -1475,6 +1496,9 @@ class Game:
             code = self.model.resolve_event_ref(code, self.d1())
         self.note(f'Rafting roll {total} -> {code}')
         self.raft_days += 1
+        if total >= 12:
+            self.raft = False
+            self.note('The raft reaches a stopping point and is dismantled.')
         self.encounter(code)
         return 'Rafting continues.'
 
@@ -1876,6 +1900,8 @@ class Game:
                 continue
             if act == 'cache' and self.hex not in self.caches:
                 continue
+            if act == 'raft' and not self.raft_available():
+                continue
             opts.append({'label': label,
                          'handler': (lambda a=act: self.begin_action(a))})
         opts.append({'label': 'End the day (food & lodging)',
@@ -1903,6 +1929,8 @@ class Game:
             'caches': dict(self.caches),
             'items': list(self.items),
             'staff': self.staff,
+            'raft': self.raft,
+            'raft_available': self.raft_available(),
             'game_over': self.game_over,
             'won': self.won,
             'reason': self.reason,

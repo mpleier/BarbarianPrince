@@ -178,7 +178,7 @@ class Bot:
         if cached is not None:
             return cached
         g = self.game
-        roads = g.features['road_sides']
+        roads = g.road_sides
         dist = {target: 0.0}
         heap = [(0.0, target)]
         while heap:

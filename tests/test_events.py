@@ -216,5 +216,58 @@ class EncounterResolutionTests(unittest.TestCase):
                             for line in game.log if isinstance(line, str)))
 
 
+class DailyMenuTests(unittest.TestCase):
+    """r213 - the raft option is only offered where the river is reachable."""
+
+    def setUp(self):
+        self.model = GameModel.load()
+
+    def menu_labels(self, game):
+        game.daily_menu()
+        return [o['label'] for o in game.current()['options']]
+
+    def test_raft_is_not_offered_inland(self):
+        game = Game(model=self.model, seed=21)
+        game.hex = '0101'                      # Ogon: no river hexside touches it
+        self.assertFalse(game.raft_available())
+        labels = self.menu_labels(game)
+        self.assertFalse(any('raft' in label.lower() for label in labels))
+
+    def test_raft_is_offered_next_to_a_river(self):
+        game = Game(model=self.model, seed=22)
+        game.hex = '0102'                      # touches the Tragoth river
+        self.assertTrue(game.raft_available())
+        labels = self.menu_labels(game)
+        self.assertTrue(any('raft' in label.lower() for label in labels))
+
+    def test_raft_stays_available_while_afloat(self):
+        game = Game(model=self.model, seed=23)
+        game.raft = True
+        game.hex = '0101'
+        self.assertTrue(game.raft_available())
+        self.assertTrue(any('raft' in label.lower() for label in self.menu_labels(game)))
+        game.begin_action('rest')              # any other action gets you off
+        self.assertFalse(game.raft)
+        self.assertFalse(game.raft_available())
+
+    def test_raft_action_refuses_a_hex_with_no_river(self):
+        game = Game(model=self.model, seed=24)
+        game.hex = '0101'
+        self.assertEqual(game.begin_action('raft'), 'No raft available.')
+        self.assertFalse(game.raft)
+
+    def test_rolling_12_ends_the_raft_trip(self):
+        game = Game(model=self.model, seed=25)
+        game.hex = '0102'
+        game.d2 = lambda: 12
+        game.d1 = lambda: 1
+        result = game.begin_action('raft')
+        self.assertEqual(result, 'Rafting continues.')
+        self.assertEqual(game.raft_days, 1)
+        self.assertFalse(game.raft)
+        self.assertTrue(any('stopping point' in line
+                            for line in game.log if isinstance(line, str)))
+
+
 if __name__ == '__main__':
     unittest.main()
