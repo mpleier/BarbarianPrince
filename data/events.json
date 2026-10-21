@@ -297,7 +297,7 @@
  "e060": {
   "code": "e060",
   "title": "Arrested",
-  "text": "You and your party are arrested by an overwhelming force, and cannot resist. You are put into jail, roll one die for the gravity of the offence: 1 (or less)-e061; 2-e06 2; 3,4-e06 3; 5,6-see next paragraph (e060a). e060a Minor Offence: you are held overnight, along with your entire party, although the jailers provide food and \"lodging\" for all. Tomorrow you are assessed 10 gold pieces fine, plus jailing cost of 2 gold pieces per character (including yourself) and 1 gold piece per mount. Any whom you pay for are released. Any whom you do not pay for are left in jail and lost. If you cannot pay for anyone's release (not even yourself), you and your party are imprisoned, see e063."
+  "text": "You and your party are arrested by an overwhelming force, and cannot resist. You are put into jail, roll one die for the gravity of the offence: 1 (or less)-e061; 2-e062; 3,4-e063; 5,6-see next paragraph (e060a). e060a Minor Offence: you are held overnight, along with your entire party, although the jailers provide food and \"lodging\" for all. Tomorrow you are assessed 10 gold pieces fine, plus jailing cost of 2 gold pieces per character (including yourself) and 1 gold piece per mount. Any whom you pay for are released. Any whom you do not pay for are left in jail and lost. If you cannot pay for anyone's release (not even yourself), you and your party are imprisoned, see e063."
  },
  "e061": {
   "code": "e061",

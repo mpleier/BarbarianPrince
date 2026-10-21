@@ -14,6 +14,6 @@ opts = ['N -> 0102 (Farmland)', 'Stop travelling for the day']
 print('chosen', opts[b.choose({'kind': 'choice', 'title': 'Move (0 hex(es) left)',
                                'text': 'In hex 0101.',
                                'options': [{'label': l, 'handler': (lambda: 'ok')}
-                                          for l in opts]}])
+                                          for l in opts]})])
 print('temples:', sorted(h for h, p in g.features['places'].items()
                          if p['kind'] == 'temple'))
