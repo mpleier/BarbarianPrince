@@ -32,7 +32,12 @@ globalThis.document = {
   createElement: t => makeEl(t),
   addEventListener: () => {},
 };
-globalThis.fetch = async (url, opts) => origFetch(BASE + url, opts);
+globalThis.fetch = async (url, opts = {}) => {
+  // 'Connection: close' so the process can exit cleanly at the end instead of
+  // process.exit() racing the keep-alive sockets (libuv assertion on Windows).
+  return origFetch(BASE + url,
+                   { ...opts, headers: { ...(opts.headers || {}), 'Connection': 'close' } });
+};
 
 eval(fs.readFileSync('web/app.js', 'utf8'));
 
@@ -63,8 +68,10 @@ setTimeout(async () => {
   traces.onchange({ target: traces });
   console.log('traces off ->', (svg.html.match(/<line /g) || []).length, 'lines');
 
-  const res = await fetch('/scan/board.jpg');
+  const res = await fetch('/scan/board.jpg', { headers: { 'Connection': 'close' } });
   console.log('/scan/board.jpg ->', res.status, res.headers.get('content-type'),
               (await res.arrayBuffer()).byteLength, 'bytes');
-  process.exit(0);
+  // exit naturally (not process.exit): a forced exit while the keep-alive
+  // socket is still open trips a libuv assertion on Windows.
+  process.exitCode = 0;
 }, 4000);

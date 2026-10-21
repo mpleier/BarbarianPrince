@@ -39,9 +39,12 @@ globalThis.document = {
   createElement: t => makeEl(t),
   addEventListener: (t, fn) => console.log('listener', t),
 };
-globalThis.fetch = async (url, opts) => {
+globalThis.fetch = async (url, opts = {}) => {
   console.log('fetch', BASE + url);
-  return origFetch(BASE + url, opts);
+  // 'Connection: close' lets the process exit cleanly at the end instead of
+  // process.exit() racing the keep-alive socket (libuv assertion on Windows).
+  return origFetch(BASE + url,
+                   { ...opts, headers: { ...(opts.headers || {}), 'Connection': 'close' } });
 };
 
 const src = fs.readFileSync('web/app.js', 'utf8') +
@@ -79,5 +82,5 @@ setTimeout(() => {
   console.log('status chars:', (els['status'] || {}).html.length);
   console.log('log paragraphs:', (els['log'] || {}).children.length);
   console.log('overlay:', ((els['overlay'] || {}).html || '').slice(0, 160));
-  process.exit(0);
+  process.exitCode = 0;
 }, 6000);

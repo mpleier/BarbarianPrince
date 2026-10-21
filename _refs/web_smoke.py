@@ -60,7 +60,7 @@ def main():
     print('\nindex.html:', len(html), 'bytes')
     print('app.js:', len(get('/app.js').decode()), 'bytes')
     print('style.css:', len(get('/style.css').decode()), 'bytes')
-    print('scan png:', len(get('/scan/board.png')), 'bytes')
+    print('scan jpg:', len(get('/scan/board.jpg')), 'bytes')
 
 
 if __name__ == '__main__':
