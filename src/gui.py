@@ -8,11 +8,14 @@ The GUI is deliberately thin: it only renders the prompt queue produced by
 ``engine.Game`` and feeds the player's choice back into ``Game.resolve``.
 """
 import math
+import os
+import tempfile
 import tkinter as tk
 from tkinter import ttk
 
 from features import load_features
 from geometry import R, DX, DY
+from map_scan import stitch, scan_rect
 
 TERRAIN_COLORS = {
     'farmland': '#dfe9b0',
@@ -38,13 +41,26 @@ PLACE_SYMBOL = {
 
 
 class MapCanvas:
-    """Draws the 20x23 board on a tkinter canvas."""
+    """Draws the 20x23 board on a tkinter canvas.
 
-    def __init__(self, canvas, grid, features, scale=0.24):
+    ``mode`` selects how the map is drawn:
+      * 'vector' - flat terrain fills (the default)
+      * 'scan'   - the original board artwork, hexes as thin outlines only
+
+    (The web front-end also has a 'blend' mode; tkinter cannot do
+    translucent fills, so the desktop map offers only the two above.)
+    """
+
+    def __init__(self, canvas, grid, features, scale=0.24, mode='vector'):
         self.canvas = canvas
         self.grid = grid
         self.features = features
         self.scale = scale
+        self.mode = mode
+        self.show_grid = True
+        self.show_ids = True
+        self.show_traces = True
+        self._scan_photo = None
         xs = [h['center'][0] for h in grid.values()]
         ys = [h['center'][1] for h in grid.values()]
         self.minx, self.maxx = min(xs) - R, max(xs) + R
@@ -52,6 +68,26 @@ class MapCanvas:
         self.w = (self.maxx - self.minx) * scale
         self.h = (self.maxy - self.miny) * scale
         canvas.configure(width=self.w, height=self.h)
+
+    def scan_photo(self):
+        """The stitched board scan scaled to the canvas, as a tk.PhotoImage."""
+        if self._scan_photo is not None:
+            return self._scan_photo
+        rect = scan_rect()
+        if not rect:
+            return None
+        sx, sy, sw, sh = rect
+        img = stitch(width=max(1, int(sw * self.scale)))
+        if img is None:
+            return None
+        path = os.path.join(tempfile.gettempdir(), 'bp_board_scan.png')
+        img.save(path)
+        try:
+            self._scan_photo = tk.PhotoImage(file=path)
+        except Exception:
+            self._scan_photo = tk.PhotoImage(image=img)
+        self._scan_offset = self.px(sx, sy)
+        return self._scan_photo
 
     def px(self, x, y):
         return ((x - self.minx) * self.scale, (y - self.miny) * self.scale)
@@ -66,37 +102,46 @@ class MapCanvas:
 
     def draw(self, game):
         self.canvas.delete('all')
+        if self.mode == 'scan':
+            photo = self.scan_photo()
+            if photo:
+                ox, oy = self._scan_offset
+                self.canvas.create_image(ox, oy, image=photo, anchor='nw',
+                                         tags='scan')
         for hid, h in self.grid.items():
             pts = self.hex_points(h)
-            color = TERRAIN_COLORS.get(h['terrain'], 'unknown')
-            self.canvas.create_polygon(pts, fill=color, outline='#555',
+            color = '' if self.mode == 'scan' else TERRAIN_COLORS.get(h['terrain'], 'unknown')
+            outline = '' if not self.show_grid else ('#ffffff' if self.mode == 'scan' else '#555')
+            self.canvas.create_polygon(pts, fill=color, outline=outline,
                                        width=1, tags='hex')
-            cx, cy = self.px(h['center'][0], h['center'][1])
-            self.canvas.create_text(cx, cy, text=hid, font=('Arial', 7),
-                                    fill='#333', tags='label')
+            if self.show_ids:
+                cx, cy = self.px(h['center'][0], h['center'][1])
+                self.canvas.create_text(cx, cy, text=hid, font=('Arial', 7),
+                                        fill='#333', tags='label')
 
-        # rivers: the shared edge between two hexes
-        for a, b in self.features['river_sides']:
-            if a not in self.grid or b not in self.grid:
-                continue
-            ha, hb = self.grid[a], self.grid[b]
-            vx, vy = hb['center'][0] - ha['center'][0], hb['center'][1] - ha['center'][1]
-            n = math.hypot(vx, vy)
-            nx, ny = -vy / n * R / 2, vx / n * R / 2
-            mx, my = (ha['center'][0] + hb['center'][0]) / 2, (ha['center'][1] + hb['center'][1]) / 2
-            p1 = self.px(mx + nx, my + ny)
-            p2 = self.px(mx - nx, my - ny)
-            self.canvas.create_line(p1[0], p1[1], p2[0], p2[1],
-                                    fill='#2b6fb5', width=3, tags='river')
+        if self.show_traces:
+            # rivers: the shared edge between two hexes
+            for a, b in self.features['river_sides']:
+                if a not in self.grid or b not in self.grid:
+                    continue
+                ha, hb = self.grid[a], self.grid[b]
+                vx, vy = hb['center'][0] - ha['center'][0], hb['center'][1] - ha['center'][1]
+                n = math.hypot(vx, vy)
+                nx, ny = -vy / n * R / 2, vx / n * R / 2
+                mx, my = (ha['center'][0] + hb['center'][0]) / 2, (ha['center'][1] + hb['center'][1]) / 2
+                p1 = self.px(mx + nx, my + ny)
+                p2 = self.px(mx - nx, my - ny)
+                self.canvas.create_line(p1[0], p1[1], p2[0], p2[1],
+                                        fill='#2b6fb5', width=3, tags='river')
 
-        # roads: line between the two hex centres
-        for a, b in self.features['road_sides']:
-            if a not in self.grid or b not in self.grid:
-                continue
-            p1 = self.px(self.grid[a]['center'][0], self.grid[a]['center'][1])
-            p2 = self.px(self.grid[b]['center'][0], self.grid[b]['center'][1])
-            self.canvas.create_line(p1[0], p1[1], p2[0], p2[1],
-                                    fill='#8a5a2b', width=3, tags='road')
+            # roads: line between the two hex centres
+            for a, b in self.features['road_sides']:
+                if a not in self.grid or b not in self.grid:
+                    continue
+                p1 = self.px(self.grid[a]['center'][0], self.grid[a]['center'][1])
+                p2 = self.px(self.grid[b]['center'][0], self.grid[b]['center'][1])
+                self.canvas.create_line(p1[0], p1[1], p2[0], p2[1],
+                                        fill='#8a5a2b', width=3, tags='road')
 
         for hid, place in self.features['places'].items():
             if hid not in self.grid:
@@ -134,6 +179,25 @@ class GameGUI:
 
         left = ttk.Frame(main)
         left.pack(side='left', fill='both', expand=True)
+
+        bar = ttk.Frame(left)
+        bar.pack(fill='x', padx=6, pady=4)
+        ttk.Label(bar, text='Map:').pack(side='left')
+        self.map_mode = tk.StringVar(value='vector')
+        box = ttk.Combobox(bar, textvariable=self.map_mode,
+                           values=['vector', 'scan'], state='readonly', width=10)
+        box.pack(side='left')
+        box.bind('<<ComboboxSelected>>', self.on_map_mode)
+        self.show_grid = tk.BooleanVar(value=True)
+        ttk.Checkbutton(bar, text='hex grid', variable=self.show_grid,
+                        command=self.redraw).pack(side='left')
+        self.show_ids = tk.BooleanVar(value=True)
+        ttk.Checkbutton(bar, text='hex ids', variable=self.show_ids,
+                       command=self.redraw).pack(side='left')
+        self.show_traces = tk.BooleanVar(value=True)
+        ttk.Checkbutton(bar, text='rivers & roads', variable=self.show_traces,
+                       command=self.redraw).pack(side='left')
+
         self.map = MapCanvas(tk.Canvas(left, bg='#f4f1e8'),
                             game.model.grid, self.features)
         self.map.canvas.pack(fill='both', expand=True)
@@ -157,6 +221,16 @@ class GameGUI:
         self.map.draw(game)
         self.refresh_status()
         self.log_index = 0
+
+    def redraw(self):
+        self.map.show_grid = bool(self.show_grid.get())
+        self.map.show_ids = bool(self.show_ids.get())
+        self.map.show_traces = bool(self.show_traces.get())
+        self.map.draw(self.game)
+
+    def on_map_mode(self, _event=None):
+        self.map.mode = self.map_mode.get()
+        self.map.draw(self.game)
 
     def refresh_status(self):
         g = self.game

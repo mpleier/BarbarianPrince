@@ -29,10 +29,10 @@ from features import load_features
 from game_model import GameModel
 from geometry import (NC, NR, R, DX, DY, BOARD_Y_OFF, board_bounds, board_corners,
                       board_xy, hex_id)
+from map_scan import scan_image, scan_rect
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB_DIR = os.path.join(ROOT, "web")
-STITCH = os.path.join(ROOT, "_refs", "board_stitch.png")
 
 MODEL = GameModel.load()
 FEATURES = load_features()
@@ -44,20 +44,10 @@ app = FastAPI(title="Barbarian Prince (web)")
 
 
 # ----------------------------------------------------------------- board data
-def scan_rect():
+def board_scan_rect():
     """Rectangle (x, y, w, h) in unified scan pixels covered by the stitched
-    board image, so the scan can be used as a map underlay."""
-    try:
-        from PIL import Image
-        w1, h1 = Image.open(os.path.join(ROOT, "_refs", "map1.jpg")).size
-        w2, h2 = Image.open(os.path.join(ROOT, "_refs", "map2.jpg")).size
-    except Exception:
-        return None
-    if not os.path.exists(STITCH):
-        return None
-    w = max(w1, w2)
-    h = int(max(h1 + BOARD_Y_OFF["map1.jpg"], h2 + BOARD_Y_OFF["map2.jpg"])) + 20
-    return [0, 0, w, h]
+    board scan, so the original artwork can be used as the map."""
+    return scan_rect()
 
 
 def build_board():
@@ -92,7 +82,7 @@ def build_board():
         "rivers": [list(p) for p in FEATURES["river_sides"]],
         "road_hexes": FEATURES["road_hexes"],
         "terrain_colors": FEATURES["terrain_colors"],
-        "scan": scan_rect(),
+        "scan": board_scan_rect(),
     }
 
 
@@ -324,11 +314,12 @@ def api_hex(hid: str):
     }
 
 
-@app.get("/scan/board.png")
+@app.get("/scan/board.jpg")
 def api_scan():
-    if not os.path.exists(STITCH):
-        raise HTTPException(status_code=404, detail="board scan not generated")
-    return FileResponse(STITCH, media_type="image/png")
+    path = scan_image()
+    if not path or not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="board scan not available")
+    return FileResponse(path, media_type="image/jpeg")
 
 app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="ui")
 

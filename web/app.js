@@ -5,7 +5,9 @@ let sid = null;
 let state = null;
 let zoom = 0.24;
 let showIds = true;
-let showScan = false;
+let showGrid = true;
+let showTraces = true;
+let mapStyle = 'vector';   // 'vector' | 'scan' | 'blend'
 let hexById = {};
 let botOn = false;
 let botTimer = null;
@@ -53,30 +55,42 @@ function renderBoard() {
   svg.setAttribute('height', Math.round(H * zoom));
 
   const parts = [];
+  const useScan = mapStyle !== 'vector' && board.scan;
 
-  if (showScan && board.scan) {
+  if (mapStyle !== 'vector' && !board.scan) {
+    parts.push(`<text x="${board.minx + W / 2}" y="${board.miny + H / 2}"
+               font-size="${fs(16)}" text-anchor="middle" fill="#8b3a2e">
+               No board scan available - run "python src/map_scan.py"</text>`);
+  }
+
+  if (useScan) {
     const [sx, sy, sw, sh] = board.scan;
-    parts.push(`<image href="/scan/board.png" x="${sx}" y="${sy}" width="${sw}" height="${sh}" opacity="0.5"/>`);
+    const opacity = mapStyle === 'blend' ? 0.55 : 1;
+    parts.push(`<image class="scan" href="/scan/board.jpg" x="${sx}" y="${sy}" width="${sw}" height="${sh}" opacity="${opacity}"/>`);
   }
 
   for (const h of board.hexes) {
     const pts = h.points.map(p => p.join(',')).join(' ');
-    const fill = board.terrain_colors[h.terrain] || '#d8d8d8';
+    const fill = mapStyle === 'scan' ? 'none' : (board.terrain_colors[h.terrain] || '#d8d8d8');
+    const cls = 'hex' + (useScan ? (mapStyle === 'scan' ? ' scan-mode' : ' scan-blend') : '')
+              + (showGrid ? '' : ' nogrid');
     const tip = `${h.id} - ${h.travel_terrain}` +
                 (h.place ? ` - ${h.place.name}` : '') +
                 (h.region ? ` (${h.region})` : '');
-    parts.push(`<polygon class="hex" data-hex="${h.id}" points="${pts}" fill="${fill}"><title>${esc(tip)}</title></polygon>`);
+    parts.push(`<polygon class="${cls}" data-hex="${h.id}" points="${pts}" fill="${fill}"><title>${esc(tip)}</title></polygon>`);
   }
 
-  for (const [a, b] of board.rivers) {
-    if (!hexById[a] || !hexById[b]) continue;
-    const [x1, y1, x2, y2] = sharedEdge(a, b);
-    parts.push(`<line class="river" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
-  }
-  for (const [a, b] of board.roads) {
-    if (!hexById[a] || !hexById[b]) continue;
-    const [x1, y1, x2, y2] = sharedEdge(a, b);
-    parts.push(`<line class="road" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
+  if (showTraces) {
+    for (const [a, b] of board.rivers) {
+      if (!hexById[a] || !hexById[b]) continue;
+      const [x1, y1, x2, y2] = sharedEdge(a, b);
+      parts.push(`<line class="river" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
+    }
+    for (const [a, b] of board.roads) {
+      if (!hexById[a] || !hexById[b]) continue;
+      const [x1, y1, x2, y2] = sharedEdge(a, b);
+      parts.push(`<line class="road" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
+    }
   }
 
   for (const h of board.hexes) {
@@ -354,8 +368,18 @@ async function init() {
     renderBoard();
     renderOverlay();
   };
-  document.getElementById('show-scan').onchange = e => {
-    showScan = e.target.checked;
+  document.getElementById('show-grid').onchange = e => {
+    showGrid = e.target.checked;
+    renderBoard();
+    renderOverlay();
+  };
+  document.getElementById('show-traces').onchange = e => {
+    showTraces = e.target.checked;
+    renderBoard();
+    renderOverlay();
+  };
+  document.getElementById('map-style').onchange = e => {
+    mapStyle = e.target.value;
     renderBoard();
     renderOverlay();
   };

@@ -52,7 +52,13 @@
           <button data-zoom="0.34">large</button>
         </span>
         <label class="toggle"><input type="checkbox" id="show-ids" checked> hex ids</label>
-        <label class="toggle"><input type="checkbox" id="show-scan"> board scan</label>
+        <label class="toggle"><input type="checkbox" id="show-grid" checked> hex grid</label>
+        <label class="toggle"><input type="checkbox" id="show-traces" checked> rivers &amp; roads</label>
+        <select id="map-style" title="How the map is drawn">
+          <option value="vector" selected>terrain fills</option>
+          <option value="scan">original map scan</option>
+          <option value="blend">scan + terrain</option>
+        </select>
       </div>
       <div class="map-scroll">
         <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -63,7 +69,9 @@
         <b>rNNN</b> / <b>eNNN</b> reference to read the rule.  The option tagged
         <b>bot</b> is the move the auto-play bot would make &mdash; click it to
         hand over control, or use <b>Bot move</b> / <b>Auto-play</b> to let the
-        bot play the whole campaign.
+        bot play the whole campaign.  Switch <b>Map style</b> to
+        <b>original map scan</b> to see the board artwork itself instead of the
+        flat terrain fills.
       </p>
     </section>
 

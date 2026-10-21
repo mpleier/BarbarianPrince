@@ -89,6 +89,16 @@ main {
 svg#board { display: block; }
 
 .hex { stroke: #6b6355; stroke-width: 2; }
+.hex.scan-mode { fill: none; stroke: rgba(255, 255, 255, .32); stroke-width: 1.5; pointer-events: all; }
+.hex.scan-blend { fill-opacity: .38; stroke: rgba(255, 255, 255, .32); stroke-width: 1.5; pointer-events: all; }
+.hex.nogrid { stroke: none; }
+.hex.scan-mode.visited { stroke: rgba(255, 255, 255, .65); }
+.hex.scan-mode.move { fill: var(--move); fill-opacity: .45; stroke: var(--move); stroke-width: 5; }
+.hex.scan-mode.current { stroke: var(--accent); stroke-width: 6; }
+.hex.scan-blend.visited { stroke: rgba(255, 255, 255, .65); }
+.hex.scan-blend.move { fill: var(--move); fill-opacity: .55; stroke: var(--move); stroke-width: 5; }
+.hex.scan-blend.current { stroke: var(--accent); stroke-width: 6; }
+.scan { image-rendering: auto; }
 .hex.visited { stroke: #2b2b2b; }
 .hex.move { stroke: var(--move); stroke-width: 6; fill-opacity: .55; cursor: pointer; }
 .hex.current { stroke: var(--accent); stroke-width: 7; }
