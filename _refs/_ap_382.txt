@@ -1,0 +1,76 @@
+﻿    def modifiers(self):
+        """Is any +1/+3 in play for the r212 offering roll?"""
+        g = self.game
+        return bool(g.offering_bonus or g.omen_bonus or g.influence_bonus)
+
+    def goal_hex(self):
+        """Where the bot wants to head.
+
+        The Staff of Command (r212) is the only way to win, so the campaign
+        is a two-phase plan:
+
+          1. mine the ruin that sits closest to a temple until the camp is
+             funded (``ruins_cap``), then
+          2. walk to that temple and stay there, offering every day.
+
+        Nothing else in the game produces gold fast enough to matter, so
+        towns and castles are only waypoints on the way to the ruin.
+        """
+        g = self.game
+        if g.staff:
+            return min(g.model.grid, key=lambda h: int(h[2:]))
+        if self.camping() or self.farming_ruins():
+            return g.hex                      # hold position and work
+        plan = self.plan()
+        # Broke and parked at a temple: the only way to get gold is a ruin.
+        if g.place_kind(g.hex) == 'temple' and plan:
+            return plan[1]
+        if plan and plan[0] >= MIN_CAMP_DAYS and self.mining():
+            return plan[1]                    # still mining: go to the ruin
+        temples = [h for h, p in g.features['places'].items()
+                   if p['kind'] == 'temple']
+        if not temples:
+            return None
+        return min(temples, key=lambda h: (self.travel_days(h).get(g.hex, 999.0), h))
+
+    # ------------------------------------------------------------ decisions
+    def choose(self, prompt, record=True):
+        """Pick the best option of `prompt`.
+
+        `record=False` leaves the bot's memory untouched, so the front-end can
+        preview the bot's choice without burning a "tried" or "used" entry.
+        """
+        opts = prompt.get('options') or []
+        if not opts:
+            return 0
+        title = prompt.get('title', '')
+        low = title.lower()
+
+        if prompt.get('kind') == 'combat':
+            return self._combat(len(opts))
+        if prompt.get('kind') == 'encounter' or 'try again' in low:
+            return self._encounter(prompt, record)
+
+        if title.startswith('Move'):
+            return self._move(prompt, record)
+        if 'action in hex' in low:
+            return self._action(prompt, record)
+        if 'meal' in low:
+            return self._food(prompt)
+        if 'lodging' in low:
+            return self._lodging(prompt)
+        if 'hiring' in low:
+            return self._hire(prompt)
+        if 'horse' in low:
+            return self._horses(prompt)
+        if 'porter' in low or 'guide' in low:
+            return self._porter(prompt)
+        if 'offering' in low:
+            return self._offering(prompt)
+        if 'high priest' in low:
+            return self._priest(prompt)
+        if 'escape' in low:
+            return self._escape(prompt)
+        return 0
+
+    def suggest(self, prompt):

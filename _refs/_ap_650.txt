@@ -1,0 +1,154 @@
+﻿                    s = max(s, self.p['travel'] + 12 + 14 * saved)
+            elif 'audience' in label:
+                s = self.p['audience']             # r211 - gold or trouble
+            elif 'offering' in label:
+                # r212 is the win condition.  With no modifiers 2d6 can never
+                # reach 14, so an offering is really a lottery ticket for the
+                # High Priest's +3 (roll 12/13) and for tomorrow's +1 (roll 7);
+                # 1 gold buys that lottery far more often per gold than 10.
+                # src/camp_dp.py decides the exact amount day by day.
+                if g.gold < 1:
+                    s = 1                          # broke: go and earn gold
+                elif g.gold < 10:
+                    s = 12                         # too poor to camp here
+                else:
+                    s = 26 + 4 * self.modifiers()
+                    if kind == 'temple':
+                        plan = self.camp_plan()
+                        if isinstance(plan, int):
+                            s = 30
+                        elif plan == 'news':
+                            s = 14
+                        else:
+                            s = 8
+            elif 'ruins' in label:
+                # r208 - the best repeatable gold source in the game.  A dice
+                # 4 (3/36) opens e136 (500 gold), and the search can be repeated
+                # every day.  The ruin phase is bounded by _refs/campaign_dp.py:
+                # once the time budget is spent the days are worth more at the
+                # temple, even if the gold target was never reached.
+                s = self.p['ruins']
+                if self.mining():
+                    s += 22
+                else:
+                    s -= 18                        # budget spent: go offer it
+            elif 'cache' in label:
+                s = 14
+            elif 'raft' in label:
+                s = 5
+            elif 'end the day' in label:
+                s = -6
+                if kind == 'temple' and self.camping() and self.camp_plan() == 'rest':
+                    s = 28                         # DP says bank the gold today
+            else:
+                s = 0
+            if goal and g.hex == goal and 'travel' not in label:
+                s += 4
+            if act == 'cache' and (g.hex, act) in self.done:
+                s -= 12                              # one-off per hex
+            if act not in ('offering', 'ruins', 'travel'):
+                s -= 5 * self.used.get((g.hex, act), 0)   # diminishing returns
+
+            if best_score is None or s > best_score:
+                best, best_score = i, s
+        chosen = prompt['options'][best]['label'].lower()
+        act = next((a for a, key in ACTION_KEYS if key in chosen), None)
+        if act and record:
+            self.done.add((g.hex, act))
+            self.used[(g.hex, act)] = self.used.get((g.hex, act), 0) + 1
+            if act == 'ruins':
+                self.ruin_days += 1
+        return best
+
+    # ---- food (r215, r216)
+    def _food(self, prompt):
+        g = self.game
+        m = NEED_RE.search(prompt['title'])
+        need = int(m.group(1)) if m else len(g.living())
+        opts = prompt['options']
+        for i, o in enumerate(opts):
+            if 'eat from stores' in o['label'].lower():
+                return i
+        # r216 starvation only rolls for follower desertion and only bites
+        # followers' skill.  A party of just the Prince therefore loses
+        # nothing by going without, and the gold saved is worth roughly
+        # doubling the number of offerings the camp can afford.
+        if len(self.party()) <= 1:
+            for i, o in enumerate(opts):
+                if 'hungry' in o['label'].lower():
+                    return i
+            return 0
+        for i, o in enumerate(opts):
+            if 'buy meals' in o['label'].lower() and g.gold >= need + self.p['buffer'] // 2:
+                return i
+        for i, o in enumerate(opts):
+            if 'hunting' in o['label'].lower():
+                return i
+        return 0
+
+    # ---- lodging (r217)
+    def _lodging(self, prompt):
+        opts = prompt['options']
+        if len(opts) < 2:
+            return 0
+        m = GOLD_RE.search(opts[0]['label'])
+        cost = int(m.group(1)) if m else 0
+        # r217 rough sleeping rolls for desertion; the Prince cannot desert
+        # himself, so an unaccompanied Prince sleeps rough for free.
+        if len(self.party()) <= 1:
+            return 1
+        return 0 if self.game.gold >= cost + self.p['buffer'] // 2 else 1
+
+    # ---- hiring (r210, r331-r340)
+    def _hire(self, prompt):
+        opts = prompt['options']
+        if len(opts) < 2:
+            return 0
+        label = opts[0]['label']
+        m = PAY_RE.search(label)
+        pay = int(m.group(1)) if m else 0
+        c = COUNT_RE.search(label)
+        n = int(c.group(1)) if c else 1
+        party = len(self.game.living())
+        if pay == 0:
+            return 0 if party < 8 else 1
+        if party < 4 and self.game.gold >= 25 + pay * n * 3:
+            return 0
+        return 1
+
+    # ---- horse dealer (r210)
+    def _horses(self, prompt):
+        """Buy horses: r204a doubles the daily move once *every* survivor is
+        mounted, and _refs/macro_dp5.py shows halving the travel legs is worth
+        about seven percentage points of win rate - far more than the 7-10 gold
+        a horse costs.  So the bot pays for a full mount as soon as it can.
+        """
+        opts = prompt['options']
+        decline = next((i for i, o in enumerate(opts)
+                        if 'decline' in o['label'].lower()), len(opts) - 1)
+        party = self.game.living()
+        unmounted = sum(1 for c in party if c.mount == 'none')
+        if unmounted == 0:
+            return decline
+        best, best_value = None, 0.0
+        for i, o in enumerate(opts):
+            m = BUY_RE.search(o['label'])
+            if not m:
+                continue
+            n = int(m.group(1))
+            price = int(GOLD_RE.search(o['label']).group(1)) // n
+            if self.game.gold < n * price + 5:
+                continue
+            # A complete mount is worth far more than a partial one.
+            value = 100 if n >= unmounted else 20 * n
+            if value > best_value:
+                best, best_value = i, value
+        return best if best is not None else decline
+
+    # ---- porters & guides (r210)
+    def _porter(self, prompt):
+        opts = prompt['options']
+        for i, o in enumerate(opts):
+            if 'guide' in o['label'].lower() and self.game.gold >= 12:
+                return i
+        for i, o in enumerate(opts):

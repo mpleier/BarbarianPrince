@@ -1,0 +1,223 @@
+﻿
+# Travel Table (r207) terrain -> how pleasant / safe the hex is.
+TERRAIN_SCORE = {'Farmland': 3, 'Countryside': 3, 'Forest': 2, 'Hills': 2,
+                 'Mountains': -4, 'Swamp': -4, 'Desert': -6}
+PLACE_SCORE = {'town': 4, 'castle': 4, 'temple': 6, 'ruins': 2,
+               'camp': 1, 'pass': 1, 'marsh': -2}
+TERRAIN_RISK = {'Mountains': 4, 'Desert': 5, 'Swamp': 3, 'Forest': 2,
+                'Wasteland': 2, 'Farmland': 0, 'Countryside': 0, 'River': 1}
+
+# r210 horse dealer: the hire roll is 2d6 (+1 in a hex already learned from
+# r209) and a dealer appears on a 5 or a 10, i.e. 7/36 of the time.
+DEALER_ODDS = 7 / 36.0
+
+# Personality weights: everything the bot cares about, in one table.
+PROFILE = {
+    'cautious':   dict(travel=9,  rest=12, news=6, hire=5,  audience=2,
+                       ruins=3,  raft=4,  fight=-3, flee=7,  talk=6, caution=2,
+                       buffer=30, min_party=2, max_party=4),
+    'balanced':   dict(travel=10, rest=8,  news=7, hire=8,  audience=6,
+                       ruins=8,  raft=5,  fight=2,  flee=4,  talk=4, caution=1,
+                       buffer=20, min_party=3, max_party=6),
+    'aggressive': dict(travel=12, rest=6,  news=7, hire=11, audience=9,
+                       ruins=12, raft=6,  fight=6,  flee=1,  talk=2, caution=0,
+                       buffer=10, min_party=4, max_party=8),
+}
+
+# (action name, substring of the daily-menu label)
+ACTION_KEYS = (('travel', 'travel'), ('rest', 'rest'), ('news', 'news'),
+               ('hire', 'hire'), ('audience', 'audience'),
+               ('offering', 'offering'), ('ruins', 'ruins'),
+               ('cache', 'cache'), ('raft', 'raft'))
+
+
+
+def _alive(chars):
+    return [c for c in chars if getattr(c, 'alive', True) and not c.dead]
+
+
+def _power(chars):
+    """Rough combat rating: skill drives hits, endurance drives survival."""
+    return sum(c.effective_skill * 2 + max(0, c.endurance - c.wounds)
+               for c in _alive(chars))
+
+
+class Bot:
+    """Pick the best option of the engine's current prompt."""
+
+    def __init__(self, game, strategy='balanced'):
+        self.game = game
+        self.strategy = strategy if strategy in STRATEGIES else 'balanced'
+        # risk: negative = risk-averse, positive = risk-hungry
+        self.p = PROFILE[self.strategy]
+        self.path = [game.hex]
+        self.tried = set()
+        self.done = set()          # (hex, action) already attempted
+        self.used = {}             # (hex, action) -> times attempted
+        self.ruin_days = 0         # days spent searching ruins this campaign
+        self._dist = {}
+        self._travel = {}
+
+    # ------------------------------------------------------------ helpers
+    def party(self):
+        return self.game.living()
+
+    def my_power(self):
+        return _power(self.party())
+
+    def distances(self, start):
+        """BFS over the hex graph, cached per starting hex."""
+        d = self._dist.get(start)
+        if d is not None:
+            return d
+        d = {start: 0}
+        q = deque([start])
+        while q:
+            h = q.popleft()
+            for nb in self.game.model.neighbors(h).values():
+                if nb not in d:
+                    d[nb] = d[h] + 1
+                    q.append(nb)
+        self._dist[start] = d
+        return d
+
+    def travel_days(self, target):
+        """Expected number of travel days from every hex to `target`.
+
+        BFS counts hexes, but r205 makes a day of travel vanish with probability
+        ``p_lost`` of the terrain you are *leaving*, so a step costs
+        ``1 / (1 - p_lost)`` days on average.  Roads are exempt (r204c), which
+        makes them worth far more than their length suggests.  Because the cost
+        depends on the hex you leave, the graph is directed, so this is a
+        Dijkstra run backwards from the target.
+
+        The result is keyed on the party's speed (r204a: a mounted party moves
+        two hexes a day), so buying a horse makes every cached route collapse to
+        half its length.
+        """
+        speed = max(1, self.game.speed())
+        key = (target, speed)
+        cached = self._travel.get(key)
+        if cached is not None:
+            return cached
+        g = self.game
+        roads = g.road_sides
+        dist = {target: 0.0}
+        heap = [(0.0, target)]
+        while heap:
+            d, h = heapq.heappop(heap)
+            if d > dist.get(h, 1e9) + 1e-9:
+                continue
+            for nb in g.model.neighbors(h).values():
+                step = (1.0 if frozenset((nb, h)) in roads else
+                        1.0 / (1.0 - _p_lost(g.model.travel_terrain(nb)))) / speed
+                nd = d + step
+                if nd < dist.get(nb, 1e9) - 1e-9:
+                    dist[nb] = nd
+                    heapq.heappush(heap, (nd, nb))
+        self._travel[key] = dist
+        return dist
+
+    # ------------------------------------------------------------ macro plan
+    # Economics measured over 150 campaigns (_refs/gold_days.py): a ruin day
+    # nets ~ +5.5 gold, a temple day nets ~ -5.5 gold.
+
+    def nearest(self, kind, start=None):
+        """Closest hex of `kind` from `start` as ``(hex, expected days)``."""
+        start = start or self.game.hex
+        pool = [h for h, p in self.game.features['places'].items()
+                if p['kind'] == kind]
+        if not pool:
+            return None, 999.0
+        h = min(pool, key=lambda x: (self.travel_days(x).get(start, 999.0), x))
+        return h, self.travel_days(h).get(start, 999.0)
+
+    def camp_days(self):
+        """Days of r212 camping left once the party walks to a temple."""
+        _, days = self.nearest('temple')
+        return max(0, int(TOTAL_DAYS - self.game.day - days))
+
+    def camp_days_left(self):
+        """Days of the game still available, counting today."""
+        return max(1, TOTAL_DAYS - self.game.day + 1)
+
+    def horse_days_saved(self, hex_=None):
+        """Expected travel days a mount would save, measured from `hex_`.
+
+        r210 puts a horse dealer in front of the party on a hire roll of 5 or
+        10 - 7/36 of the time - and r204a doubles the daily move once every
+        survivor is mounted.  The cost is the day spent rolling; the payoff is
+        half of whatever walking is still left.  A mount only pays for itself
+        while there is more than about five days of travel remaining.
+        """
+        g = self.game
+        hex_ = hex_ or g.hex
+        if g.speed() > 1:
+            return 0.0
+        unmounted = sum(1 for c in self.party() if c.mount == 'none')
+        if unmounted > 3 or g.gold < 10 * unmounted:
+            return 0.0
+        plan = self.plan()
+        if not plan:
+            return 0.0
+        remaining = (self.travel_days(plan[1]).get(hex_, 999.0) +
+                     self.travel_days(plan[2]).get(plan[1], 999.0))
+        odds = DEALER_ODDS + (1 / 36.0 if g.news_bonus.get(hex_) else 0.0)
+        return odds * remaining / 2.0 - 1.0
+
+    def wants_horse(self):
+        """Is a hire roll in this hex worth it for the chance of a mount?"""
+        return self.horse_days_saved() > 0.0
+
+    def camp_plan(self):
+        """The DP-optimal temple action: 'rest', 'news' or an offering amount.
+
+        ``src/camp_dp.py`` solves the camp exactly: 2d6 + 1 (for a 10+ gold
+        sacrifice) + permanent omen + one-day omen + High Priest influence,
+        with r209 news as the only other gold sink.  Food and lodging are free
+        for an unaccompanied Prince (r216/r217 only roll for follower
+        desertion), so gold is the only constraint.
+        """
+        g = self.game
+        return camp_action(self.camp_days_left(), g.gold, g.offering_bonus,
+                          g.omen_bonus, g.influence_bonus, g.wit >= 5)
+
+    def camp_win_chance(self):
+        """P(win) from the current temple position."""
+        g = self.game
+        return camp_value(self.camp_days_left(), g.gold, g.offering_bonus,
+                         g.omen_bonus, g.influence_bonus, g.wit >= 5)
+
+    def ruins_cap(self):
+        """How much gold is worth mining before committing to a temple.
+
+        ``_refs/ruin_target.py`` solves the ruin phase as a stopping problem
+        against the exact camp DP and the measured ruins lottery (97.3%
+        nothing, 1.75% 60 gold, 0.97% 500 gold): with ``c`` camp days left the
+        break-even pile is ``~2.8 * c + 20`` gold.  Banking more than that is
+        mining days thrown away; banking less leaves the camp unable to buy the
+        10-gold sacrifice on the day a modifier is in play.
+        """
+        return min(GOLD_CEILING, int(2.8 * self.camp_days() + 20))
+
+    def ruin_budget(self):
+        """Ruin-search days this campaign can still afford.
+
+        ``_refs/campaign_dp.py`` maximises ``camp(camp_days, gold)` `` over the
+        split of the non-travel days, and the optimum is consistently
+        ``R* ~= RUIN_RATIO * (mining + camping days)``.  Reconstructing the
+        original pool from the days already mined keeps the target stable as
+        the campaign runs down, so a ruin that yields nothing is abandoned on
+        schedule instead of eating the whole campaign.
+        """
+        g = self.game
+        plan = self.plan()
+        if not plan:
+            return 0
+        _, ruin, temple = plan
+        if g.hex == ruin:
+            pool = (TOTAL_DAYS - g.day) - self.travel_days(temple).get(ruin, 999.0)
+        else:
+            pool = plan[0]
+        pool += self.ruin_days
+        return max(0, int(RUIN_RATIO * pool) - self.ruin_days)

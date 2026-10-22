@@ -1,0 +1,250 @@
+﻿
+    def mining(self):
+        """True while digging at the planned ruin beats camping at the temple.
+
+        ``camp_dp.ruin_should_mine`` solves the ruin lottery as a stopping
+        problem against the exact camp DP, so the gold threshold falls as the
+        remaining travel eats into the camp days instead of being a flat cap.
+        The same test is applied from any hex - once the ruin is no longer
+        worth digging, the bot heads for the temple and never doubles back.
+        """
+        g = self.game
+        plan = self.plan()
+        if not plan:
+            return False
+        ruin, temple = plan[1], plan[2]
+        td = self.travel_days(temple).get(ruin, 999.0)
+        days_left = TOTAL_DAYS - g.day + 1
+        if g.hex != ruin:
+            days_left -= self.travel_days(ruin).get(g.hex, 999.0)
+        return camp_dp.ruin_should_mine(int(days_left), g.gold, td)
+
+    def plan(self):
+        """The ruin/temple pair this campaign should run on.
+
+        Returns ``(camp_days, ruin_hex, temple_hex)`` for the pair that leaves
+        the most days at a temple, so the party never backtracks.  Distances
+        are expected travel days, not hex counts: a longer road route can beat
+        a shorter swamp route by several days.
+        """
+        g = self.game
+        best = None
+        for r, p in g.features['places'].items():
+            if p['kind'] != 'ruins':
+                continue
+            t, td = self.nearest('temple', r)
+            camp = (TOTAL_DAYS - g.day) - self.travel_days(r).get(g.hex, 999.0) - td
+            if best is None or camp > best[0]:
+                best = (camp, r, t)
+        return best
+
+    def camping(self):
+        """True when the party is parked at a temple farming r212.
+
+        Once the party has committed to a temple it stays there: every day
+        spent walking back to a ruin is a day of offerings lost, and the camp
+        DP (_refs/camp_policy.py) shows a 1-gold offering beats a day of
+        ruin-searching as soon as the party is already on the temple.  The only
+        exception is a broke party with the mining budget still open and enough
+        days left to dig, walk back and still camp.
+        """
+        g = self.game
+        if g.place_kind(g.hex) != 'temple' or g.staff:
+            return False
+        # A camp with less than the 10 gold the winning sacrifice needs is not a
+        # camp at all: the party is better off back at the ruin.
+        if g.gold >= GOLD_GOAL or not self.mining():
+            return True
+        plan = self.plan()
+        if not plan:
+            return True
+        t = self.travel_days(plan[1]).get(g.hex, 999.0)
+        return (TOTAL_DAYS - g.day) - 2 * t < MIN_CAMP_DAYS
+
+    def farming_ruins(self):
+        """True when the bot is digging in a ruin to make gold.
+
+        r208 is the only repeatable, high-yield income in the game: a 4 on
+        the search roll opens e136 (a 500-gold treasure room) and a 6 opens
+        e139 (wealth 25-60).  The search is a daily action with no exhaustion
+        clause, so a broke party should keep searching until the camp is
+        funded - but only while there are still enough days left to camp.
+        """
+        g = self.game
+        return (g.place_kind(g.hex) == 'ruins'
+                and self.mining()
+                and self.camp_days() >= MIN_CAMP_DAYS)
+
+    def gold_hungry(self):
+        """How badly the bot needs gold right now (r212 needs 10)."""
+        return self.game.gold < GOLD_GOAL
+
+    def modifiers(self):
+        """Is any +1/+3 in play for the r212 offering roll?"""
+        g = self.game
+        return bool(g.offering_bonus or g.omen_bonus or g.influence_bonus)
+
+    def goal_hex(self):
+        """Where the bot wants to head.
+
+        The Staff of Command (r212) is the only way to win, so the campaign
+        is a two-phase plan:
+
+          1. mine the ruin that sits closest to a temple until the camp is
+             funded (``ruins_cap``), then
+          2. walk to that temple and stay there, offering every day.
+
+        Nothing else in the game produces gold fast enough to matter, so
+        towns and castles are only waypoints on the way to the ruin.
+        """
+        g = self.game
+        if g.staff:
+            return min(g.model.grid, key=lambda h: int(h[2:]))
+        if self.camping() or self.farming_ruins():
+            return g.hex                      # hold position and work
+        plan = self.plan()
+        # Broke and parked at a temple: the only way to get gold is a ruin.
+        if g.place_kind(g.hex) == 'temple' and plan:
+            return plan[1]
+        if plan and plan[0] >= MIN_CAMP_DAYS and self.mining():
+            return plan[1]                    # still mining: go to the ruin
+        temples = [h for h, p in g.features['places'].items()
+                   if p['kind'] == 'temple']
+        if not temples:
+            return None
+        return min(temples, key=lambda h: (self.travel_days(h).get(g.hex, 999.0), h))
+
+    # ------------------------------------------------------------ decisions
+    def choose(self, prompt, record=True):
+        """Pick the best option of `prompt`.
+
+        `record=False` leaves the bot's memory untouched, so the front-end can
+        preview the bot's choice without burning a "tried" or "used" entry.
+        """
+        opts = prompt.get('options') or []
+        if not opts:
+            return 0
+        title = prompt.get('title', '')
+        low = title.lower()
+
+        if prompt.get('kind') == 'combat':
+            return self._combat(len(opts))
+        if prompt.get('kind') == 'encounter' or 'try again' in low:
+            return self._encounter(prompt, record)
+
+        if title.startswith('Move'):
+            return self._move(prompt, record)
+        if 'action in hex' in low:
+            return self._action(prompt, record)
+        if 'meal' in low:
+            return self._food(prompt)
+        if 'lodging' in low:
+            return self._lodging(prompt)
+        if 'hiring' in low:
+            return self._hire(prompt)
+        if 'horse' in low:
+            return self._horses(prompt)
+        if 'porter' in low or 'guide' in low:
+            return self._porter(prompt)
+        if 'offering' in low:
+            return self._offering(prompt)
+        if 'high priest' in low:
+            return self._priest(prompt)
+        if 'escape' in low:
+            return self._escape(prompt)
+        return 0
+
+    def suggest(self, prompt):
+        """Same as choose(), but without updating the bot's memory."""
+        return self.choose(prompt, record=False)
+
+
+    # ---- combat (r220)
+    def _combat(self, n):
+        c = self.game.combat
+        if c is None or n < 2:
+            return 0
+        mine, theirs = _power(c.party), _power(c.foes)
+        prince = next((p for p in c.party if p.prince), None)
+        if prince and prince.wounds >= prince.endurance - 1:
+            return 1                                  # the Prince must survive
+        ratio = mine / max(1, theirs)
+        if c.round >= 8 and ratio < 1.5:
+            return 1                                  # a grinding fight is lost
+        return 0 if ratio >= 1.0 - self.p['fight'] * 0.05 else 1
+
+    # ---- encounters (r207, r311-r340)
+    def _encounter(self, prompt, record=True):
+        ev = self.game.pending_event or {}
+        headers = ev.get('headers') or []
+        opts = prompt['options']
+        n = len(opts)
+        if n <= 1:
+            return 0
+        theirs = _power(parse_foes(prompt['text']))
+        # r225: defeating the band pays out its wealth, so a fight is worth
+        # more when the opposition is rich.  Read the numbers straight from
+        # the text so the bot never disturbs the game's dice.
+        loot = sum(int(m) for m in WEALTH_RE.findall(prompt['text']))
+        mine = self.my_power()
+        wit = self.game.wit
+        scores = []
+        for i in range(n):
+            h = (headers[i] if i < len(headers) else opts[i]['label']).lower()
+            if 'fight' in h or 'attack' in h or 'battle' in h:
+                s = self.p['fight'] + 5 * (mine / max(1, theirs))
+                if theirs > mine * 1.5:
+                    s -= 6
+                else:
+                    s += min(8, loot // 10)         # r225 loot
+            elif 'evade' in h or 'escape' in h or 'flee' in h:
+                s = self.p['flee'] + (2 if theirs > mine else 0)
+            elif 'talk' in h or 'negotiate' in h or 'parley' in h or 'reason' in h:
+                s = self.p['talk'] + wit + (2 if theirs > mine else 0)
+            elif 'bribe' in h or 'pay' in h:
+                s = 1 + (4 if self.game.gold >= 30 else 0)
+            elif 'hide' in h:
+                s = 3
+            elif 'hire' in h:
+                m = PAY_RE.search(opts[i]['label'])
+                pay = int(m.group(1)) if m else 0
+                s = 8 if len(self.party()) < 6 and self.game.gold >= 20 + pay * 3 else -3
+            elif 'refuse' in h or 'decline' in h:
+                s = 1
+            else:
+                s = 1
+            if any(k in h for k in ('steal', 'theft', 'rob ')):
+                s -= 6
+            if 'surrender' in h:
+                s -= 4
+            if (ev.get('code'), h) in self.tried:
+                s -= 6                                # don't retry a failed approach
+            scores.append(s)
+        best = max(range(n), key=lambda i: scores[i])
+        if record:
+            self.tried.add((ev.get('code'),
+                            (headers[best] if best < len(headers) else '').lower()))
+        return best
+
+    # ---- travel (r204)
+    def _move(self, prompt, record=True):
+        g = self.game
+        opts = prompt['options']
+        goal = self.goal_hex()
+        # Expected days *to the goal*, so dgoal[hid] is "days still to go".
+        dgoal = self.travel_days(goal) if goal else {}
+        here = dgoal.get(g.hex, 0.0)
+        back = self.path[-2] if len(self.path) >= 2 else None
+        best, best_score = 0, None
+        for i, o in enumerate(opts):
+            label = o['label']
+            if 'Stop travelling' in label:
+                if g.moves_left <= 0:
+                    s = 100                          # nothing left to move
+                elif self.camping() or self.farming_ruins():
+                    s = 12                           # stay and keep working
+                else:
+                    s = -10                          # travelling is the point
+            else:
+                m = HEX_RE.search(label)
+                hid = m.group(1) if m else None

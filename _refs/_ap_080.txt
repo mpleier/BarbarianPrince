@@ -1,0 +1,60 @@
+﻿TERRAIN_SCORE = {'Farmland': 3, 'Countryside': 3, 'Forest': 2, 'Hills': 2,
+                 'Mountains': -4, 'Swamp': -4, 'Desert': -6}
+PLACE_SCORE = {'town': 4, 'castle': 4, 'temple': 6, 'ruins': 2,
+               'camp': 1, 'pass': 1, 'marsh': -2}
+TERRAIN_RISK = {'Mountains': 4, 'Desert': 5, 'Swamp': 3, 'Forest': 2,
+                'Wasteland': 2, 'Farmland': 0, 'Countryside': 0, 'River': 1}
+
+# r210 horse dealer: the hire roll is 2d6 (+1 in a hex already learned from
+# r209) and a dealer appears on a 5 or a 10, i.e. 7/36 of the time.
+DEALER_ODDS = 7 / 36.0
+
+# Personality weights: everything the bot cares about, in one table.
+PROFILE = {
+    'cautious':   dict(travel=9,  rest=12, news=6, hire=5,  audience=2,
+                       ruins=3,  raft=4,  fight=-3, flee=7,  talk=6, caution=2,
+                       buffer=30, min_party=2, max_party=4),
+    'balanced':   dict(travel=10, rest=8,  news=7, hire=8,  audience=6,
+                       ruins=8,  raft=5,  fight=2,  flee=4,  talk=4, caution=1,
+                       buffer=20, min_party=3, max_party=6),
+    'aggressive': dict(travel=12, rest=6,  news=7, hire=11, audience=9,
+                       ruins=12, raft=6,  fight=6,  flee=1,  talk=2, caution=0,
+                       buffer=10, min_party=4, max_party=8),
+}
+
+# (action name, substring of the daily-menu label)
+ACTION_KEYS = (('travel', 'travel'), ('rest', 'rest'), ('news', 'news'),
+               ('hire', 'hire'), ('audience', 'audience'),
+               ('offering', 'offering'), ('ruins', 'ruins'),
+               ('cache', 'cache'), ('raft', 'raft'))
+
+
+
+def _alive(chars):
+    return [c for c in chars if getattr(c, 'alive', True) and not c.dead]
+
+
+def _power(chars):
+    """Rough combat rating: skill drives hits, endurance drives survival."""
+    return sum(c.effective_skill * 2 + max(0, c.endurance - c.wounds)
+               for c in _alive(chars))
+
+
+class Bot:
+    """Pick the best option of the engine's current prompt."""
+
+    def __init__(self, game, strategy='balanced'):
+        self.game = game
+        self.strategy = strategy if strategy in STRATEGIES else 'balanced'
+        # risk: negative = risk-averse, positive = risk-hungry
+        self.p = PROFILE[self.strategy]
+        self.path = [game.hex]
+        self.tried = set()
+        self.done = set()          # (hex, action) already attempted
+        self.used = {}             # (hex, action) -> times attempted
+        self.ruin_days = 0         # days spent searching ruins this campaign
+        self._dist = {}
+        self._travel = {}
+
+    # ------------------------------------------------------------ helpers
+    def party(self):

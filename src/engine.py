@@ -426,6 +426,14 @@ class Game:
         ('Raft down the river (r213)', 'raft'),
     ]
 
+    # The 20 hexes on the north bank of the Tragoth River.  Winning requires
+    # carrying the Staff of Command into one of these (r212 result 14+).
+    NORTH_OF_TRAGOTH = frozenset({
+        '0101', '0201', '0301', '0302', '0501', '0502', '0601', '0701',
+        '0801', '0901', '1001', '1101', '1201', '1301', '1501', '1601',
+        '1701', '1801', '1901', '2001',
+    })
+
     def __init__(self, model=None, features=None, seed=None, start_hex='0101'):
         self.model = model or GameModel.load()
         if features is None:
@@ -455,6 +463,8 @@ class Game:
         self._ruins_retry = 0       # r208/e132 organised-search re-rolls
         self.free_lodging = False
         self.staff = False
+        self.imprisoned = None      # None | 'e061' | 'e062' | 'e063'
+        self.prison_days = 0
         self.party = []
         self.combat = None
         self.pending_event = None
@@ -537,6 +547,12 @@ class Game:
     def place_name(self, hid):
         p = self.place(hid)
         return p['name'] if p else None
+
+    def north_of_tragoth(self, hid=None):
+        """True if ``hid`` (default: the Prince's current hex) is on the north
+        bank of the Tragoth River - the region the Staff of Command must be
+        carried into to win (r212 result 14+)."""
+        return (hid if hid is not None else self.hex) in self.NORTH_OF_TRAGOTH
 
     def place_kind(self, hid):
         p = self.place(hid)
@@ -700,6 +716,9 @@ class Game:
             if self.combat:
                 self.push_combat()
                 continue
+            if self.imprisoned:
+                self.prison_step()
+                continue
             if self.phase == 'action':
                 if self.action is None:
                     self.daily_menu()
@@ -725,6 +744,9 @@ class Game:
         ev = self.model.events.get(code)
         if not ev:
             self.note(f'(event {code} is not in the booklet - nothing happens)')
+            return
+        if code in ('e060', 'e061', 'e062', 'e063'):
+            self.enter_prison(code)
             return
         # A chain of booklet cross-references can loop back on itself (e130
         # audience notes).  Refuse to re-enter an event already on the queue.
@@ -1574,6 +1596,16 @@ class Game:
         if 'staff of command' in low:
             self.staff = True
             self.note('The Staff of Command is in your hands.')
+            self.note('A pair of warrior monks (skill 5, endurance 6, mounted) '
+                      'join you to help carry the Staff north of the Tragoth '
+                      '(r212).')
+            self.party.append(Character('Warrior Monk', 5, 6, mount='horse'))
+            self.party.append(Character('Warrior Monk', 5, 6, mount='horse'))
+            if self.north_of_tragoth():
+                self.note('You are already north of the Tragoth River.')
+            else:
+                self.note('You must carry the Staff to a hex north of the '
+                          'Tragoth River to win (r212).')
         if 'free food' in low or 'free lodging' in low:
             self.free_lodging = True
         if total == 7:
@@ -1871,11 +1903,12 @@ class Game:
         self.day += 1
         self.action = None
         self.pending_event = None
-        if self.staff:
+        if self.staff and self.north_of_tragoth():
             self.game_over = True
             self.won = True
-            self.reason = 'The Staff of Command has been recovered - the ' \
-                         'Northlands are yours again.'
+            self.reason = ('The Staff of Command is carried north of the '
+                           'Tragoth River - you command the Northlands and '
+                           'regain your throne. Victory!')
         elif self.day > 70:
             self.game_over = True
             self.reason = 'Ten weeks have passed; the campaign is over.'
@@ -1883,8 +1916,137 @@ class Game:
             self.game_over = True
             self.reason = 'The party is gone.'
         else:
+            if self.staff:
+                self.note('You hold the Staff but are still south of the '
+                          'Tragoth - you must carry it north to win (r212).')
             self.note(f'Day {self.day} begins in hex {self.hex}.')
         return 'Day advanced.'
+
+    # ------------------------------------------------------------ prison (e060-e063)
+    def enter_prison(self, code):
+        """e060-e063: the Prince is arrested.  e060 rolls for the gravity of
+        the offence to pick the specific prison; gold, possessions and mounts
+        are confiscated.  The stay is then resolved day by day in
+        ``prison_step`` (escape or execution)."""
+        if self.game_over:
+            return
+        if code == 'e060':
+            die = self.d1()
+            if die == 1:
+                code = 'e061'
+            elif die == 2:
+                code = 'e062'
+            elif die in (3, 4):
+                code = 'e063'
+            else:
+                self._minor_offence()
+                return
+        self.imprisoned = code
+        self.prison_days = 0
+        self.moves_left = 0
+        self.action = 'skip'
+        self.gold = 0
+        self.items = []
+        for c in self.living():
+            if c.mount != 'none':
+                c.mount = 'none'
+        if code == 'e062':
+            # e062: the rest of the party is lost to the dungeon.
+            self.party = [c for c in self.party if c.prince]
+        self.note(f'You are arrested and imprisoned ({code}); gold, '
+                  'possessions and mounts are confiscated.')
+
+    def _minor_offence(self):
+        """e060a: held overnight and fined 10 gold + 2 gold per character +
+        1 gold per mount.  Pay to be released; if you cannot pay for yourself,
+        you are imprisoned (e063)."""
+        cost = 10 + 2 * len(self.living()) + sum(
+            1 for c in self.living() if c.mount != 'none')
+        if self.gold >= cost:
+            self.gold -= cost
+            self.note(f'Minor offence: you pay {cost} gold and are released '
+                      '(e060a).')
+            return
+        self.gold = 0
+        self.imprisoned = 'e063'
+        self.prison_days = 0
+        self.moves_left = 0
+        self.action = 'skip'
+        self.note('You cannot pay the fine - you are imprisoned (e063).')
+
+    def prison_step(self):
+        """Resolve one day in prison (e061/e062/e063): roll for escape or the
+        headsman.  The day advances on each call; past day 70 the kingdom is
+        lost.  e062 inflicts a poisoned wound every seven days."""
+        self.day += 1
+        self.prison_days += 1
+        if self.day > 70:
+            self.game_over = True
+            self.won = False
+            self.reason = 'You languish in prison until the ten weeks are up; ' \
+                          'the kingdom is lost.'
+            return
+        if self.imprisoned == 'e061':
+            die = self.d1()
+            if die == 6:
+                self.game_over = True
+                self.won = False
+                self.reason = 'You are led before the headsman and executed ' \
+                              '(e061).'
+                return
+            if die == 1:
+                self.note('Prison day: roll 1 - you escape (e061).')
+                self.escape_prison('e061')
+                return
+            self.note(f'Prison day: roll {die} - you continue to languish '
+                      '(e061).')
+        elif self.imprisoned == 'e062':
+            total = self.d2()
+            if total in (2, 3):
+                self.note(f'Prison day: roll {total} - you escape (e062).')
+                self.escape_prison('e062')
+                return
+            if self.prison_days % 7 == 0:
+                p = self.prince()
+                if p:
+                    p.wounds += 1
+                    self.note(f'The dungeon takes its toll: the Prince gains '
+                              f'a poisoned wound ({p.wounds}/{p.endurance}).')
+                    if p.dead:
+                        self.game_over = True
+                        self.won = False
+                        self.reason = 'The Prince dies in the dungeon (e062).'
+                        return
+            self.note(f'Prison day: roll {total} - you continue to languish '
+                      '(e062).')
+        elif self.imprisoned == 'e063':
+            die = self.d1()
+            if die == 1:
+                self.note('Prison day: roll 1 - you escape (e063).')
+                self.escape_prison('e063')
+                return
+            self.note(f'Prison day: roll {die} - you continue to languish '
+                      '(e063).')
+
+    def escape_prison(self, code):
+        """The Prince escapes (r218): relocate to an adjacent hex and resolve
+        which, if any, of the followers make it out.  e061: a follower escapes
+        on a 1 or 2; e063: on a 1.  e062 already lost the rest of the party."""
+        self.imprisoned = None
+        escape_rolls = {1, 2} if code == 'e061' else {1}
+        for c in self.party:
+            if c.prince or not c.alive:
+                continue
+            if self.d1() in escape_rolls:
+                self.note(f'{c.name} escapes with you.')
+            else:
+                c.alive = False
+                self.note(f'{c.name} is left behind and lost.')
+        self.party = [c for c in self.party if c.alive]
+        self.escape_move()
+        self.phase = 'action'
+        self.action = 'skip'
+        self.note('You are free again; the escape took the whole day (r218).')
 
     def daily_menu(self):
         kind = self.place_kind(self.hex)
@@ -1929,6 +2091,7 @@ class Game:
             'caches': dict(self.caches),
             'items': list(self.items),
             'staff': self.staff,
+            'imprisoned': self.imprisoned,
             'raft': self.raft,
             'raft_available': self.raft_available(),
             'game_over': self.game_over,

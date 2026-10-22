@@ -1,0 +1,75 @@
+﻿    def suggest(self, prompt):
+        """Same as choose(), but without updating the bot's memory."""
+        return self.choose(prompt, record=False)
+
+
+    # ---- combat (r220)
+    def _combat(self, n):
+        c = self.game.combat
+        if c is None or n < 2:
+            return 0
+        mine, theirs = _power(c.party), _power(c.foes)
+        prince = next((p for p in c.party if p.prince), None)
+        if prince and prince.wounds >= prince.endurance - 1:
+            return 1                                  # the Prince must survive
+        ratio = mine / max(1, theirs)
+        if c.round >= 8 and ratio < 1.5:
+            return 1                                  # a grinding fight is lost
+        return 0 if ratio >= 1.0 - self.p['fight'] * 0.05 else 1
+
+    # ---- encounters (r207, r311-r340)
+    def _encounter(self, prompt, record=True):
+        ev = self.game.pending_event or {}
+        headers = ev.get('headers') or []
+        opts = prompt['options']
+        n = len(opts)
+        if n <= 1:
+            return 0
+        theirs = _power(parse_foes(prompt['text']))
+        # r225: defeating the band pays out its wealth, so a fight is worth
+        # more when the opposition is rich.  Read the numbers straight from
+        # the text so the bot never disturbs the game's dice.
+        loot = sum(int(m) for m in WEALTH_RE.findall(prompt['text']))
+        mine = self.my_power()
+        wit = self.game.wit
+        scores = []
+        for i in range(n):
+            h = (headers[i] if i < len(headers) else opts[i]['label']).lower()
+            if 'fight' in h or 'attack' in h or 'battle' in h:
+                s = self.p['fight'] + 5 * (mine / max(1, theirs))
+                if theirs > mine * 1.5:
+                    s -= 6
+                else:
+                    s += min(8, loot // 10)         # r225 loot
+            elif 'evade' in h or 'escape' in h or 'flee' in h:
+                s = self.p['flee'] + (2 if theirs > mine else 0)
+            elif 'talk' in h or 'negotiate' in h or 'parley' in h or 'reason' in h:
+                s = self.p['talk'] + wit + (2 if theirs > mine else 0)
+            elif 'bribe' in h or 'pay' in h:
+                s = 1 + (4 if self.game.gold >= 30 else 0)
+            elif 'hide' in h:
+                s = 3
+            elif 'hire' in h:
+                m = PAY_RE.search(opts[i]['label'])
+                pay = int(m.group(1)) if m else 0
+                s = 8 if len(self.party()) < 6 and self.game.gold >= 20 + pay * 3 else -3
+            elif 'refuse' in h or 'decline' in h:
+                s = 1
+            else:
+                s = 1
+            if any(k in h for k in ('steal', 'theft', 'rob ')):
+                s -= 6
+            if 'surrender' in h:
+                s -= 4
+            if (ev.get('code'), h) in self.tried:
+                s -= 6                                # don't retry a failed approach
+            scores.append(s)
+        best = max(range(n), key=lambda i: scores[i])
+        if record:
+            self.tried.add((ev.get('code'),
+                            (headers[best] if best < len(headers) else '').lower()))
+        return best
+
+    # ---- travel (r204)
+    def _move(self, prompt, record=True):
+        g = self.game
