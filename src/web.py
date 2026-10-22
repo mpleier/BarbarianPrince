@@ -160,7 +160,20 @@ def snapshot(sess, full_log=False):
     st["speed"] = g.speed()
     st["phase"] = g.phase
     st["action"] = g.action
-    st["combat"] = bool(g.combat)
+    # Richer combat snapshot (mirrors what the Tk GUI refresh_status shows)
+    if g.combat:
+        st["combat"] = {
+            "name": g.combat.name,
+            "round": g.combat.round,
+            "party": [{"name": u.name, "hp": u.endurance - u.wounds,
+                       "max": u.endurance, "dead": u.dead}
+                      for u in g.combat.party],
+            "foes": [{"name": u.name, "hp": u.endurance - u.wounds,
+                      "max": u.endurance, "dead": u.dead}
+                     for u in g.combat.foes],
+        }
+    else:
+        st["combat"] = False
     st["visited"] = sorted(g.visited)
     st["raft"] = g.raft
 

@@ -1,94 +1,52 @@
-river_sides: 128 sides, non-adjacent: 39
-  BAD 0113-0214
-  BAD 0311-0412
-  BAD 0404-0503
-  BAD 0405-0504
-  BAD 0411-0510
-  BAD 0608-0707
-  BAD 0709-0810
-  BAD 0710-0811
-  BAD 0711-0812
-  BAD 0802-0901
-  BAD 0807-0906
-  BAD 0901-1002
-  BAD 0913-1014
-  BAD 0914-1015
-  BAD 0915-1016
-  BAD 1002-1101
-  BAD 1004-1103
-  BAD 1005-1104
-  BAD 1006-1105
-  BAD 1018-1117
-  BAD 1021-1120
-  BAD 1022-1121
-  BAD 1023-1122
-  BAD 1101-1202
-  BAD 1118-1219
-  BAD 1119-1220
-  BAD 1203-1302
-  BAD 1219-1318
-  BAD 1418-1517
-  BAD 1422-1521
-  BAD 1423-1522
-  BAD 1522-1623
-  BAD 1612-1711
-  BAD 1623-1722
-  BAD 1722-1823
-  BAD 1803-1902
-  BAD 1810-1909
-  BAD 1814-1913
-  BAD 1815-1914
-  directions: NE=26, S=26, SE=37
-  chains: 32  sizes: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 4, 5, 5, 5, 6, 7, 7, 7, 8, 9, 12, 13, 14]
+river_sides: 90 sides, non-adjacent: 0
+  directions: NE=26, S=27, SE=37
+  chains: 34  sizes: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 9]
+    chain of 1 sides, branching hexes: []
+    chain of 2 sides, branching hexes: []
+    chain of 1 sides, branching hexes: []
+    chain of 3 sides, branching hexes: []
+    chain of 6 sides, branching hexes: ['0511']
+    chain of 1 sides, branching hexes: []
+    chain of 1 sides, branching hexes: []
+    chain of 1 sides, branching hexes: []
+    chain of 3 sides, branching hexes: []
+    chain of 1 sides, branching hexes: []
+    chain of 8 sides, branching hexes: ['1006', '1106']
     chain of 1 sides, branching hexes: []
     chain of 4 sides, branching hexes: []
-    chain of 5 sides, branching hexes: ['0404']
     chain of 1 sides, branching hexes: []
-    chain of 7 sides, branching hexes: ['0411', '0511', '0510']
+    chain of 4 sides, branching hexes: []
+    chain of 9 sides, branching hexes: ['1021', '1022', '1122', '1123']
     chain of 1 sides, branching hexes: []
-    chain of 1 sides, branching hexes: []
-    chain of 3 sides, branching hexes: []
-    chain of 1 sides, branching hexes: []
-    chain of 1 sides, branching hexes: []
-    chain of 3 sides, branching hexes: []
-    chain of 5 sides, branching hexes: []
-    chain of 13 sides, branching hexes: ['1006', '1105', '1005', '1106']
-    chain of 8 sides, branching hexes: ['1015', '0915', '1016']
-    chain of 9 sides, branching hexes: ['1118', '1119', '1219']
-    chain of 12 sides, branching hexes: ['1021', '1121', '1022', '1122', '1123']
-    chain of 1 sides, branching hexes: []
-    chain of 3 sides, branching hexes: ['1302']
     chain of 1 sides, branching hexes: []
     chain of 1 sides, branching hexes: []
     chain of 1 sides, branching hexes: []
     chain of 1 sides, branching hexes: []
     chain of 2 sides, branching hexes: []
-    chain of 14 sides, branching hexes: ['1522', '1422', '1423', '1523', '1622', '1722']
     chain of 1 sides, branching hexes: []
-    chain of 7 sides, branching hexes: ['1802', '1902']
+    chain of 9 sides, branching hexes: ['1523', '1622']
+    chain of 1 sides, branching hexes: []
+    chain of 1 sides, branching hexes: []
+    chain of 6 sides, branching hexes: ['1802', '1902']
     chain of 7 sides, branching hexes: []
     chain of 1 sides, branching hexes: []
+    chain of 5 sides, branching hexes: ['1809', '1909']
     chain of 1 sides, branching hexes: []
-    chain of 6 sides, branching hexes: ['1809', '1909']
-    chain of 5 sides, branching hexes: ['1815']
+    chain of 2 sides, branching hexes: []
     chain of 1 sides, branching hexes: []
-road_sides: 70 sides, non-adjacent: 4
-  BAD 0104-0205
-  BAD 0223-0322
-  BAD 0306-0407
-  BAD 0911-1012
+    chain of 1 sides, branching hexes: []
+road_sides: 66 sides, non-adjacent: 0
   directions: NE=22, S=22, SE=22
-  chains: 25  sizes: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 4, 5, 5, 7, 9, 11]
-    chain of 5 sides, branching hexes: ['0205']
-    chain of 7 sides, branching hexes: ['0307', '0407']
+  chains: 24  sizes: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4, 4, 6, 9, 11]
+    chain of 4 sides, branching hexes: ['0205']
+    chain of 6 sides, branching hexes: ['0307']
     chain of 1 sides, branching hexes: []
-    chain of 5 sides, branching hexes: ['0323']
+    chain of 4 sides, branching hexes: ['0323']
     chain of 4 sides, branching hexes: ['0419']
     chain of 1 sides, branching hexes: []
     chain of 3 sides, branching hexes: []
     chain of 1 sides, branching hexes: []
     chain of 2 sides, branching hexes: []
-    chain of 1 sides, branching hexes: []
     chain of 11 sides, branching hexes: ['1011', '1109', '1208']
     chain of 2 sides, branching hexes: []
     chain of 1 sides, branching hexes: []

@@ -141,9 +141,12 @@ function renderOverlay() {
 }
 
 function renderStatus(st) {
-  const rows = st.party_detail.map(([name, skill, endurance, wounds, mount]) =>
-    `<tr><td>${esc(name)}</td><td>${skill}</td><td>${endurance - wounds}/${endurance}</td><td>${mount}</td></tr>`
-  ).join('');
+  const rows = (st.party_detail || []).map(([name, skill, endurance, wounds, mount, guide, unreliable]) => {
+    let flags = '';
+    if (guide) flags += ' [guide]';
+    if (unreliable) flags += ' [unreliable]';
+    return `<tr><td>${esc(name)}${flags}</td><td>${skill}</td><td>${endurance - wounds}/${endurance}</td><td>${mount}</td></tr>`;
+  }).join('');
   const caches = Object.keys(st.caches || {}).length
     ? '<div class="party"><b>Caches:</b> ' +
       Object.entries(st.caches).map(([k, v]) => `${k} (${v[1]}g)`).join(', ') + '</div>'
@@ -151,6 +154,27 @@ function renderStatus(st) {
   const items = (st.items || []).length
     ? '<div class="party"><b>Items:</b> ' + st.items.map(esc).join(', ') + '</div>'
     : '';
+
+  // Combat details (mirrors Tk GUI refresh_status)
+  let combatHtml = '';
+  if (st.combat && typeof st.combat === 'object') {
+    const sideUnits = (label, units) => units
+      .filter(u => !u.dead)
+      .map(u => `  ${label}: ${esc(u.name)} ${u.hp}/${u.max}`)
+      .join('<br>');
+    combatHtml = `<div class="combat-info">
+      <b>COMBAT: ${esc(st.combat.name)} (round ${st.combat.round})</b><br>
+      ${sideUnits('party', st.combat.party)}<br>
+      ${sideUnits('foes', st.combat.foes)}
+    </div>`;
+  }
+
+  // Extra state fields
+  let extraHtml = '';
+  if (st.staff > 0) extraHtml += `<span class="extra-tag" title="staff count">staff: ${st.staff}</span>`;
+  if (st.helm) extraHtml += `<span class="extra-tag" title="helm of command">helm</span>`;
+  if (st.imprisoned) extraHtml += `<span class="extra-tag" title="imprisoned">imprisoned</span>`;
+  if (st.altar_blessed_day) extraHtml += `<span class="extra-tag" title="altar blessing">altar day ${st.altar_blessed_day}</span>`;
 
   document.getElementById('status').innerHTML = `
     <div class="stat-grid">
@@ -161,13 +185,14 @@ function renderStatus(st) {
       <div class="stat"><b>${st.wit}</b><span>wit &amp; wiles</span></div>
       <div class="stat"><b>${st.moves_left}</b><span>moves left (${st.speed}/day)</span></div>
     </div>
+    ${extraHtml ? '<div class="extra-tags">' + extraHtml + '</div>' : ''}
     <div class="party">
       <table>
         <thead><tr><th>Party</th><th>skill</th><th>endurance</th><th>mount</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    ${caches}${items}`;
+    ${caches}${items}${combatHtml}`;
 }
 
 function renderPrompt(p) {

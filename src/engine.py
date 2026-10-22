@@ -2443,7 +2443,8 @@ class Game:
             'food': self.food,
             'wit': self.wit,
             'party': [c.name for c in self.living()],
-            'party_detail': [(c.name, c.skill, c.endurance, c.wounds, c.mount)
+            'party_detail': [(c.name, c.skill, c.endurance, c.wounds, c.mount,
+                              c.guide, c.unreliable)
                              for c in self.living()],
             'caches': dict(self.caches),
             'items': list(self.items),
