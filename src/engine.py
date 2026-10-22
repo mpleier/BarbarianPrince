@@ -53,7 +53,6 @@ with open(os.path.join(DATA, 'tables.json'), encoding='utf-8') as _f:
     _TABLES = json.load(_f)
 
 RUINS = {int(k): v for k, v in _TABLES['ruins_search'].items()}
-RUINS = {int(k): v for k, v in _TABLES['ruins_search'].items()}
 RAFTING = {int(k): v for k, v in _TABLES['raft_travel_events'].items()}
 
 # An option cell ends with a booklet reference.  The OCR occasionally renders
@@ -1254,7 +1253,7 @@ class Game:
                     'handler': (lambda: self.flee_combat())}])
 
     def fight_round(self):
-        result = self.combat.step()
+        self.combat.step()
         if self.combat.over:
             return self.finish_combat()
         self.push_combat()
@@ -2154,7 +2153,7 @@ class Game:
                 n -= 1
                 if n == 0:
                     break
-        self.note(f'Bought horses; party now mounted.')
+        self.note('Bought horses; party now mounted.')
         return 'Horses bought.'
 
     # ------------------------------------------------------------ lodging (r217)

@@ -27,7 +27,7 @@ from engine import Game
 from autoplay import Bot, STRATEGIES
 from features import load_features
 from game_model import GameModel
-from geometry import (NC, NR, R, DX, DY, BOARD_Y_OFF, board_bounds, board_corners,
+from geometry import (NC, NR, R, DX, DY, board_bounds, board_corners,
                       board_xy, hex_id)
 from map_scan import scan_image, scan_rect
 

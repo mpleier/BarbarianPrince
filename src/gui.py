@@ -14,7 +14,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from features import load_features
-from geometry import R, DX, DY
+from geometry import R
 from map_scan import stitch, scan_rect
 
 TERRAIN_COLORS = {

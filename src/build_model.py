@@ -16,8 +16,8 @@ import os
 import re
 from collections import Counter, defaultdict
 
-from geometry import (NC, NR, R, DX, DY, SCANS, TERRAIN_TO_TRAVEL, MOVEMENT_MODES,
-                      centre, board_xy, best_scan, neighbours)
+from geometry import (NC, NR, R, DX, DY, SCANS, TERRAIN_TO_TRAVEL,
+                      board_xy, best_scan, neighbours)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')

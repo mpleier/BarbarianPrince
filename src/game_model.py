@@ -14,9 +14,6 @@ row spec such as "6,7,8" matches any of those totals.
 import json
 import os
 
-from geometry import (NC, NR, R, DX, DY, SCANS, TERRAIN_TO_TRAVEL, MOVEMENT_MODES,
-                      centre, neighbours, hex_id, parse_hex, in_grid, hex_corners)
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(ROOT, 'data', 'game_model.json')
 

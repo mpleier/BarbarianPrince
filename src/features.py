@@ -9,8 +9,6 @@ Writes data/features.json
 import json
 import os
 
-from geometry import NC, NR, hex_id, parse_hex, neighbours
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
 REFS = os.path.join(ROOT, '_refs')
