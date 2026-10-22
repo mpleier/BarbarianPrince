@@ -424,15 +424,24 @@ class Game:
         ('Search the ruins (r208)', 'ruins'),
         ('Recover a hidden cache (r214)', 'cache'),
         ('Raft down the river (r213)', 'raft'),
+        ('Follow encountered characters (r219)', 'follow'),
     ]
 
     # The 20 hexes on the north bank of the Tragoth River.  Winning requires
-    # carrying the Staff of Command into one of these (r212 result 14+).
+    # carrying the Staff of Command into one of these (r212 result 14+), or
+    # reaching any of them within 30 days of the High Altar blessing (e044).
     NORTH_OF_TRAGOTH = frozenset({
         '0101', '0201', '0301', '0302', '0501', '0502', '0601', '0701',
         '0801', '0901', '1001', '1101', '1201', '1301', '1501', '1601',
         '1701', '1801', '1901', '2001',
     })
+
+    # The Royal Helm of the Northlands (e194) wins the game when the Prince
+    # returns to either of these towns with it.
+    HELM_WIN_HEXES = frozenset({'0101', '1501'})
+
+    # Days the High Altar blessing (e044 roll 6) lasts before it fades.
+    ALTAR_BLESSING_DAYS = 30
 
     def __init__(self, model=None, features=None, seed=None, start_hex='0101'):
         self.model = model or GameModel.load()
@@ -463,6 +472,8 @@ class Game:
         self._ruins_retry = 0       # r208/e132 organised-search re-rolls
         self.free_lodging = False
         self.staff = False
+        self.helm = False
+        self.altar_blessed_day = None    # day the e044 roll-6 blessing was won
         self.imprisoned = None      # None | 'e061' | 'e062' | 'e063'
         self.prison_days = 0
         self.party = []
@@ -501,12 +512,50 @@ class Game:
         raw = table[code][(self.d1() - 1) % len(table[code])]
         raw = str(raw)
         item = None
+        event = None
         if '+' in raw:
+            # A letter code: a special possession was found.  Roll again on the
+            # Treasure Table and read the matching letter line for the specific
+            # event that describes the new possession (r226).
             gold, letter = raw.split('+')
+            lines = self.model.tables.get('special_possession_lines', {})
+            options = lines.get(letter, [])
+            if options:
+                event = options[(self.d1() - 1) % len(options)]
             item = f'Special possession {letter}'
         else:
             gold = raw
-        return int(gold), item
+        return int(gold), item, event
+
+    def gain_treasure(self, gold, item, event):
+        """Apply loot from a Treasure Table result (r226) and resolve any
+        special possession.
+
+        The Royal Helm of the Northlands (e194) is the only possession with a
+        standing effect: it raises the Prince's wit & wiles by one (+1) and
+        lets him win by returning to Ogon or Weshor (checked in ``finish_day``).
+
+        After gaining treasure, checks whether the party exceeds load capacity
+        (r206). If so, automatically caches excess gold to bring loads within
+        the party's carrying capacity.
+        """
+        self.gold += gold
+        if item:
+            self.items.append(item)
+        if event == 'e194' and not self.helm:
+            self.helm = True
+            self.wit += 1
+            self.note('You found the Royal Helm of the Northlands (e194).')
+            self.note('Its possession raises your wit & wiles by one (+1), and '
+                      'it wins the game if you return to Ogon (0101) or Weshor '
+                      '(1501) with it.')
+        # r206 - post-treasure load check: auto-cache if over capacity
+        used = self.current_loads()
+        cap = self.max_capacity()
+        if used > cap:
+            self.note(f'Treasure pushes the party over capacity '
+                      f'({used}/{cap} loads). Auto-caching excess gold.')
+            self._auto_cache_loads(used - cap)
 
     # ------------------------------------------------------------ party helpers
     def living(self):
@@ -567,6 +616,86 @@ class Game:
         self.caches[self.hex] = (code, amount)
         self.note(f'Cached {amount} gold in hex {self.hex}.')
         return True
+
+    # ------------------------------------------------------------ transport (r206)
+    # r206a load weights:
+    #   food  = 1 load per unit
+    #   gold  = 1 load per 100 gp (or fraction thereof)
+    #   person carried = 20 loads
+    #   weapons do not count
+    # r206b transport capacities:
+    #   man on foot  = 10 loads
+    #   mount        = 30 loads (or a rider (20 loads) + 10 loads of cargo)
+    def current_loads(self):
+        """r206a - calculate the total loads currently carried by the party."""
+        loads = self.food
+        # gold: every 100 gp or fraction thereof = 1 load
+        loads += max(1, self.gold // 100) if self.gold > 0 else 0
+        return loads
+
+    def max_capacity(self):
+        """r206b - calculate the total load capacity of the whole party."""
+        cap = 0
+        for c in self.living():
+            if hasattr(c, '_carried') and c._carried:
+                # An unconscious Prince being carried contributes 0 capacity
+                continue
+            if c.mount != 'none':
+                # Mounted character: mount can carry 30 loads;
+                # the rider counts as 20 loads of that, leaving 10 for cargo.
+                cap += 10
+            else:
+                # On foot: 10 loads each
+                cap += 10
+        return cap
+
+    def loads_used(self):
+        """Return (used, capacity) for status display."""
+        used = self.current_loads()
+        cap = self.max_capacity()
+        return used, cap
+
+    def check_loads(self):
+        """r206 - enforce load limits.  If the party is over-capacity, prompt
+        the player to leave excess items behind or cache them."""
+        used = self.current_loads()
+        cap = self.max_capacity()
+        if used <= cap:
+            return 'Loads within capacity.'
+        excess = used - cap
+        self.note(f'Over capacity by {excess} load(s) (r206: {used}/{cap}).')
+        # Try to auto-cache excess gold if possible; each 100 gold cached
+        # removes one load, but each individual food unit removed also helps.
+        # For now we just log the warning; the player must cache voluntarily
+        # before picking another action, or we auto-reduce.
+        return self.prompt_load_reduction(excess)
+
+    def prompt_load_reduction(self, excess):
+        """Prompt the player to drop or cache excess loads."""
+        self.push('choice', 'Over capacity (r206)',
+                  f'The party is carrying {self.current_loads()} loads but '
+                  f'can only carry {self.max_capacity()}. '
+                  f'{excess} load(s) must be left behind.',
+                  [{'label': 'Cache excess gold (auto)',
+                    'handler': (lambda: self._auto_cache_loads(excess))},
+                   {'label': 'Accept and continue (load penalty)',
+                    'handler': (lambda: 'Accepting load penalty.')}])
+        return 'Over capacity - decision pending.'
+
+    def _auto_cache_loads(self, excess):
+        """Cache enough gold to bring the party within load capacity."""
+        cached = 0
+        while excess > 0 and self.gold >= 100:
+            # Cache in increments of 100 gold (= 1 load each)
+            self.cache(100)
+            cached += 100
+            excess -= 1
+        # If still over and we have remaining gold < 100, cache the rest too
+        if excess > 0 and self.gold > 0:
+            self.cache(self.gold)
+            cached += self.gold
+        self.note(f'Cached {cached} gold to reduce loads.')
+        return 'Loads reduced.'
 
 
     # ------------------------------------------------------------ travel (r204, r205)
@@ -748,6 +877,10 @@ class Game:
         if code in ('e060', 'e061', 'e062', 'e063'):
             self.enter_prison(code)
             return
+        if code == 'e044':
+            # The High Altar's die table is written with ". " separators, which
+            # the generic parser cannot read, so it is resolved by hand.
+            return self.high_altar()
         # A chain of booklet cross-references can loop back on itself (e130
         # audience notes).  Refuse to re-enter an event already on the queue.
         chain = {p.get('code') for p in self.prompts if p.get('code')}
@@ -816,6 +949,81 @@ class Game:
             return f'Gain {amount} gold.'
         self.note(f'{ev["title"]}: die {die} - {entry}')
         return 'Nothing happens.'
+
+    def altar_blessing(self):
+        """e044 roll 6: a god appears at the High Altar and pledges support.
+
+        The Prince must give all his money to the gods instantly, his endurance
+        is permanently reduced by one (-1), and he wins the game if he returns
+        alive to any hex north of the Tragoth River within the next 30 days
+        (checked in ``finish_day``).
+        """
+        self.gold = 0
+        p = self.prince()
+        if p:
+            p.endurance -= 1
+        self.altar_blessed_day = self.day
+        self.note('A god appears at the High Altar and pledges support to your '
+                  'cause (e044).')
+        self.note('You give all your money to the gods, and your endurance is '
+                  f'permanently reduced by one ({p.endurance if p else "?"}).')
+        if self.north_of_tragoth():
+            self.note('You are already north of the Tragoth River - the '
+                      'blessing wins the game the moment the day ends.')
+        else:
+            self.note('You must return alive to a hex north of the Tragoth '
+                      f'River within {self.ALTAR_BLESSING_DAYS} days to win.')
+
+    def high_altar(self):
+        """e044 - the High Altar: a priest or monk in the party can invoke it.
+
+        Only a priest or monk knows the invocations; without one the event ends.
+        Roll one die: 1 the invoker dies; 2 the altar collapses and the party is
+        wounded; 3 the invoker is wounded and the altar is the wrong god's; 4 an
+        impossible riddle ends invocations; 5 a prophecy (see e147); 6 a god
+        pledges support and the Prince must reach the Northlands within 30 days
+        (the winning blessing, see ``altar_blessing``).
+        """
+        party = self.living()
+        invoker = next((c for c in party
+                        if any(k in c.name.lower()
+                               for k in ('priest', 'monk'))), None)
+        if invoker is None:
+            self.note('No priest or monk is in the party to invoke the High '
+                      'Altar - the event ends (e044).')
+            return 'No invocation.'
+        die = self.d1()
+        self.note(f'High Altar invocation by {invoker.name}: die {die} (e044).')
+        if die == 1:
+            invoker.alive = False
+            self.note(f'{invoker.name} is engulfed in godly fires and dies.')
+        elif die == 2:
+            self.note('Lightning and earthquakes destroy the High Altar.')
+            for c in self.living():
+                c.wounds += die
+                self.note(f'{c.name} is wounded ({c.wounds}/{c.endurance})'
+                          + (' -> dead' if c.dead else ''))
+                if c.dead:
+                    c.alive = False
+            self.party = [c for c in self.party if c.alive]
+            if not self.living():
+                self.game_over = True
+                self.reason = 'The party was destroyed at the High Altar (e044).'
+        elif die == 3:
+            invoker.wounds += 1
+            self.note(f'{invoker.name} is struck for one wound '
+                      f'({invoker.wounds}/{invoker.endurance}); the altar is the '
+                      'wrong god and further invocations are impossible.')
+        elif die == 4:
+            self.note('A voice of the gods gives an impossible riddle and a '
+                      'prophecy none can understand - no more invocations.')
+        elif die == 5:
+            self.note('The gods give a prophecy that seems to promise a '
+                      'treasure (e147).')
+            self.encounter('e147')
+        else:
+            self.altar_blessing()
+        return 'The High Altar is invoked.'
 
 
     def evade_override(self, ev, header):
@@ -1070,14 +1278,43 @@ class Game:
             # may take their wealth" - the defeated band, not whoever is still
             # standing, is what gets looted.
             for foe in c.original_foes:
-                gold, item = self.treasure_roll(foe.wealth)
-                self.gold += gold
-                if item:
-                    self.items.append(item)
+                gold, item, event = self.treasure_roll(foe.wealth)
+                self.gain_treasure(gold, item, event)
                 self.note(f'Loot from {foe.name}: {gold} gold'
                           + (f' + {item}' if item else ''))
         self.combat = None
         self.party = [x for x in self.party if x.alive]
+        # r221c: if the Prince is dead, the game is lost immediately.
+        p = self.prince()
+        if p and p.dead:
+            self.game_over = True
+            self.reason = ('The Barbarian Prince has been killed in combat. '
+                           'Game over!')
+            return f'Combat over - the Prince is dead ({c.result}).'
+        # r221b: if the Prince is unconscious (wounds == endurance - 1),
+        # roll 1d6 for follower attitude.
+        if p and p.unconscious and not p.dead:
+            followers = [c for c in self.living() if not c.prince]
+            if followers:
+                die = self.d1()
+                self.note(f'The Prince is unconscious (r221b) - follower roll: {die}.')
+                if die >= 4:
+                    self.note('Followers carry the unconscious Prince (r221b). '
+                              'He counts as 20 loads.')
+                    # The prince is carried -- transport rules apply;
+                    # his effective capacity drops to 0 (he can carry nothing).
+                    p._carried = True
+                else:
+                    self.note('Followers desert the unconscious Prince '
+                              'with all money and possessions (r221b).')
+                    self.gold = 0
+                    self.items = []
+                    self.staff = False
+                    self.helm = False
+                    for f in followers:
+                        f.alive = False
+                        self.note(f'{f.name} deserts.')
+                    self.party = [x for x in self.party if x.alive]
         if not self.living():
             self.game_over = True
             self.reason = 'The whole party has been wiped out.'
@@ -1435,6 +1672,8 @@ class Game:
             return self.recover_cache()
         if action == 'raft':
             return self.raft_action()
+        if action == 'follow':
+            return self.do_follow()
         if action == 'explore':
             return self.explore()
         return 'Unknown action.'
@@ -1493,10 +1732,8 @@ class Game:
             self.note('There is no cache hidden in this hex.')
             return 'No cache here.'
         code, amount = self.caches.pop(self.hex)
-        gold, item = self.treasure_roll(code)
-        self.gold += gold
-        if item:
-            self.items.append(item)
+        gold, item, event = self.treasure_roll(code)
+        self.gain_treasure(gold, item, event)
         self.note(f'Recovered the cache: {gold} gold' + (f' + {item}' if item else ''))
         return 'Cache recovered.'
 
@@ -1668,6 +1905,96 @@ class Game:
         if combat_or_escape:
             self.note('The rest was disturbed, so no wounds are healed.')
         return 'Rested and healed.'
+
+    # ------------------------------------------------------------ trap locks (r227)
+    def do_trap_lock(self, victim=None):
+        """r227 - open or enter an item with a trap lock.
+
+        If ``victim`` is None the Prince opens it himself.  Roll one die for
+        the trap outcome and inflict wounds accordingly.
+        """
+        p = victim or self.prince()
+        if p is None:
+            self.note('No one available to open the trap lock.')
+            return 'No victim.'
+        die = self.d1()
+        self.note(f'{p.name} attempts to open a trap lock - roll {die} (r227).')
+        if die == 1:
+            # Poison needle: 1 poisoned wound
+            p.wounds += 1
+            p.poisoned += 1
+            self.note(f'{p.name} is struck by a poison needle: 1 poisoned wound '\
+                      f'({p.wounds}/{p.endurance}).')
+        elif die == 2:
+            # Burning acid: roll d6 wounds
+            wounds = self.d1()
+            p.wounds += wounds
+            self.note(f'{p.name} is hit by burning acid: {wounds} wounds '\
+                      f'({p.wounds}/{p.endurance}).')
+        elif die == 3:
+            # Poison gas: roll d6 poison wounds
+            wounds = self.d1()
+            p.wounds += wounds
+            p.poisoned += wounds
+            self.note(f'{p.name} is engulfed by poison gas: {wounds} poison wounds '\
+                      f'({p.wounds}/{p.endurance}).')
+        elif die == 4:
+            # Plague dust: sickness, d6 halved (round up) wounds each day
+            base = (self.d1() + 1) // 2
+            p.wounds += base
+            self.note(f'{p.name} is contaminated by plague dust: {base} sickness '\
+                      f'wounds at end of each day ({p.wounds}/{p.endurance}). '\
+                      'Recovery check needed.')
+            # Recovery check
+            rec = self.d1()
+            if rec >= 4:
+                self.note(f'Recovery roll {rec} - {p.name} recovers from the sickness.')
+                p._sickness = 0
+            else:
+                p._sickness = base
+                self.note(f'Recovery roll {rec} - sickness continues for {p.name} '\
+                          f'({base} wounds/day).')
+        elif die == 5:
+            # Flying spikes: d6 + 3 wounds
+            wounds = self.d1() + 3
+            p.wounds += wounds
+            self.note(f'{p.name} is blasted by flying spikes: {wounds} wounds '\
+                      f'({p.wounds}/{p.endurance}).')
+        else:
+            # die == 6: trap malfunctions
+            self.note(f'{p.name} triggers the lock but the trap malfunctions - '\
+                      'no damage.')
+        # Check for death
+        if p.dead:
+            p.alive = False
+            self.note(f'{p.name} has died from trap wounds.')
+            if p.prince:
+                self.game_over = True
+                self.reason = ('The Barbarian Prince has died from a trap lock. '\
+                               'Game over!')
+        return f'Trap lock resolved ({die}).'
+
+    # ------------------------------------------------------------ following (r219)
+    def do_follow(self):
+        """r219 - follow or trail encountered characters.
+
+        Rolls 1d6 for the direction the chase leads, moves the party to that
+        hex, and ends all remaining normal travel/actions for the day.
+        """
+        self.note('Following encountered characters (r219).')
+        direction = self.d1()
+        d = DIRECTIONS[direction - 1]
+        dest = self.model.neighbors(self.hex).get(d)
+        if dest is None:
+            self.note(f'Cannot follow in direction {d} - no hex in that direction.')
+            return 'Follow failed.'
+        self.hex = dest
+        self.visited.add(dest)
+        self.moves_left = 0
+        self.note(f'Rolled {direction} -> following toward {d}, '\
+                  f'arriving at hex {dest}. All other actions end.')
+        return f'Following to {dest}.'
+
 
     # ------------------------------------------------------------ food (r215, r216)
     def foraging_ok(self):
@@ -1900,15 +2227,35 @@ class Game:
     def finish_day(self):
         """Called after food/lodging prompts are answered."""
         self.peak_gold = max(self.peak_gold, self.gold)
-        self.day += 1
         self.action = None
         self.pending_event = None
+        # --- altar-blessing victory must be checked BEFORE the day increments ---
+        # so that a blessing received on day N still counts day N + 30 as valid
+        # (e.g., blessed on day 5, reach north on day 35: 35-5 = 30 ≤ 30 ✓)
+        if (self.altar_blessed_day is not None
+                and self.north_of_tragoth()
+                and self.day - self.altar_blessed_day
+                <= self.ALTAR_BLESSING_DAYS):
+            self.game_over = True
+            self.won = True
+            self.reason = ('You return alive to the Northlands within 30 days '
+                           'of the High Altar blessing - the gods strike down '
+                           'the usurpers and you regain your throne. Victory!')
+        # --- advance to the next day for all remaining checks ---
+        self.day += 1
         if self.staff and self.north_of_tragoth():
             self.game_over = True
             self.won = True
             self.reason = ('The Staff of Command is carried north of the '
                            'Tragoth River - you command the Northlands and '
                            'regain your throne. Victory!')
+        elif self.helm and self.hex in self.HELM_WIN_HEXES:
+            name = self.place_name(self.hex) or self.hex
+            self.game_over = True
+            self.won = True
+            self.reason = (f'You return to {name} with the Royal Helm of the '
+                           'Northlands and are instantly hailed as the '
+                           'rightful King of the Northlands. Victory!')
         elif self.day > 70:
             self.game_over = True
             self.reason = 'Ten weeks have passed; the campaign is over.'
@@ -1916,9 +2263,17 @@ class Game:
             self.game_over = True
             self.reason = 'The party is gone.'
         else:
+            if self.altar_blessed_day is not None \
+                    and self.day - self.altar_blessed_day > self.ALTAR_BLESSING_DAYS:
+                self.note('The High Altar blessing fades - you have run out '
+                          'of time to reach the Northlands (e044).')
+                self.altar_blessed_day = None
             if self.staff:
                 self.note('You hold the Staff but are still south of the '
                           'Tragoth - you must carry it north to win (r212).')
+            if self.helm and self.hex not in self.HELM_WIN_HEXES:
+                self.note('You carry the Royal Helm - return to Ogon (0101) '
+                          'or Weshor (1501) to be hailed King (e194).')
             self.note(f'Day {self.day} begins in hex {self.hex}.')
         return 'Day advanced.'
 
@@ -1947,6 +2302,8 @@ class Game:
         self.action = 'skip'
         self.gold = 0
         self.items = []
+        self.staff = False
+        self.helm = False
         for c in self.living():
             if c.mount != 'none':
                 c.mount = 'none'
@@ -2091,6 +2448,8 @@ class Game:
             'caches': dict(self.caches),
             'items': list(self.items),
             'staff': self.staff,
+            'helm': self.helm,
+            'altar_blessed_day': self.altar_blessed_day,
             'imprisoned': self.imprisoned,
             'raft': self.raft,
             'raft_available': self.raft_available(),

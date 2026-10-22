@@ -349,7 +349,8 @@ class Bot:
         days left to dig, walk back and still camp.
         """
         g = self.game
-        if g.place_kind(g.hex) != 'temple' or g.staff:
+        if g.place_kind(g.hex) != 'temple' or g.staff or g.helm \
+                or g.altar_blessed_day is not None:
             return False
         # A camp with less than the 10 gold the winning sacrifice needs is not a
         # camp at all: the party is better off back at the ruin.
@@ -400,6 +401,16 @@ class Bot:
         g = self.game
         if g.staff:
             return min(g.model.grid, key=lambda h: int(h[2:]))
+        if g.altar_blessed_day is not None:
+            # The High Altar blessing (e044) wins by reaching any north-bank
+            # hex within 30 days, so head for the nearest one.
+            return min(g.model.grid,
+                       key=lambda h: (int(h[2:]), h)
+                       if h in g.NORTH_OF_TRAGOTH else (9999, h))
+        if g.helm:
+            # The Royal Helm (e194) wins by returning to Ogon or Weshor.
+            return min(g.HELM_WIN_HEXES,
+                       key=lambda h: (self.travel_days(h).get(g.hex, 999.0), h))
         if self.camping() or self.farming_ruins():
             return g.hex                      # hold position and work
         plan = self.plan()

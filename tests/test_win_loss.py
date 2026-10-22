@@ -179,5 +179,161 @@ class ArrestDefeatTests(unittest.TestCase):
         self.assertIn('prison', game.reason.lower())
 
 
+class HelmVictoryTests(unittest.TestCase):
+    """e194 Royal Helm of the Northlands: +1 Wit, and a win by returning to
+    Ogon (0101) or Weshor (1501) with it."""
+
+    def setUp(self):
+        self.model = GameModel.load()
+
+    def test_helm_win_hexes_match_the_booklet(self):
+        self.assertEqual(Game.HELM_WIN_HEXES, frozenset({'0101', '1501'}))
+
+    def test_helm_at_ogon_wins(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.helm = True
+        game.hex = '0101'          # Ogon
+        game.day = 10
+        game.finish_day()
+        self.assertTrue(game.game_over)
+        self.assertTrue(game.won)
+        self.assertIn('Royal Helm', game.reason)
+
+    def test_helm_at_weshor_wins(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.helm = True
+        game.hex = '1501'          # Weshor
+        game.day = 10
+        game.finish_day()
+        self.assertTrue(game.game_over)
+        self.assertTrue(game.won)
+        self.assertIn('Weshor', game.reason)
+
+    def test_helm_but_elsewhere_does_not_win(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.helm = True
+        game.hex = '0102'          # a plain south-bank hex
+        game.day = 10
+        game.finish_day()
+        self.assertFalse(game.game_over)
+        self.assertFalse(game.won)
+        self.assertTrue(any('Royal Helm' in line
+                            for line in game.log if isinstance(line, str)))
+
+    def test_treasure_roll_resolves_letter_to_event(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        # First die picks the table entry (line 12 index 1 = '9+C'), the
+        # second die resolves the letter C to a specific event (index 5 = e194).
+        rolls = iter([2, 6])
+        game.d1 = lambda: next(rolls)
+        gold, item, event = game.treasure_roll(12)
+        self.assertEqual(event, 'e194')
+        self.assertIn('C', item)
+        self.assertEqual(gold, 9)
+
+    def test_gain_treasure_applies_helm_wit_bonus(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        wit_before = game.wit
+        game.gold = 5
+        game.gain_treasure(12, 'Special possession C', 'e194')
+        self.assertTrue(game.helm)
+        self.assertEqual(game.wit, wit_before + 1)
+        self.assertEqual(game.gold, 5 + 12)
+        self.assertIn('Special possession C', game.items)
+
+    def test_gain_treasure_helm_is_idempotent(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        wit_before = game.wit
+        game.gain_treasure(12, 'Special possession C', 'e194')
+        game.gain_treasure(20, 'Special possession C', 'e194')
+        self.assertEqual(game.wit, wit_before + 1)   # only the first applies
+        self.assertTrue(game.helm)
+
+
+class AltarVictoryTests(unittest.TestCase):
+    """e044 roll 6: the High Altar blessing - gold forfeited, endurance -1,
+    and a 30-day window to win by reaching any north-bank hex."""
+
+    def setUp(self):
+        self.model = GameModel.load()
+
+    def test_altar_blessing_forfeits_gold_and_reduces_endurance(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.gold = 200
+        prince = game.prince()
+        endurance_before = prince.endurance
+        game.day = 5
+        game.altar_blessing()
+        self.assertEqual(game.gold, 0)
+        self.assertEqual(prince.endurance, endurance_before - 1)
+        self.assertEqual(game.altar_blessed_day, 5)
+
+    def test_altar_blessing_wins_when_north_within_30_days(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.gold = 50
+        game.day = 5
+        game.altar_blessing()
+        game.hex = '0101'          # north of the river
+        game.day = 12              # 7 days later, well within 30
+        game.finish_day()
+        self.assertTrue(game.game_over)
+        self.assertTrue(game.won)
+        self.assertIn('Northlands', game.reason)
+
+    def test_altar_blessing_expires_after_30_days(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.day = 5
+        game.altar_blessing()
+        game.hex = '0102'          # still south of the river
+        game.day = 36              # 31 days after the blessing
+        game.finish_day()
+        self.assertFalse(game.game_over)
+        self.assertFalse(game.won)
+        self.assertIsNone(game.altar_blessed_day)
+        self.assertTrue(any('blessing fades' in line
+                            for line in game.log if isinstance(line, str)))
+
+    def test_altar_blessing_wins_exactly_on_day_30(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.day = 5
+        game.altar_blessing()
+        game.hex = '0101'
+        game.day = 35              # exactly 30 days later
+        game.finish_day()
+        self.assertTrue(game.game_over)
+        self.assertTrue(game.won)
+
+    def test_high_altar_roll_6_triggers_blessing(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.party.append(Character('Monk', 2, 3))
+        game.gold = 30
+        game.day = 3
+        game.d1 = lambda: 6        # the invocation die -> roll 6
+        game.encounter('e044')
+        self.assertEqual(game.altar_blessed_day, 3)
+        self.assertEqual(game.gold, 0)
+
+    def test_high_altar_without_priest_or_monk_ends(self):
+        game = Game(model=self.model, seed=1)
+        game.start()
+        game.gold = 30
+        game.day = 3
+        game.d1 = lambda: 6
+        game.encounter('e044')
+        self.assertIsNone(game.altar_blessed_day)
+        self.assertEqual(game.gold, 30)
+
+
 if __name__ == '__main__':
     unittest.main()
