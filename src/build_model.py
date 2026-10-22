@@ -16,8 +16,8 @@ import os
 import re
 from collections import Counter, defaultdict
 
-from geometry import (NC, NR, R, DX, DY, SCANS, TERRAIN_TO_TRAVEL,
-                      board_xy, best_scan, neighbours)
+from geometry import (NC, NR, R, DX, DY, TERRAIN_TO_TRAVEL,
+                      MOVEMENT_MODES, board_xy, neighbours)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
@@ -33,7 +33,6 @@ def build_grid(hexes):
     grid = {}
     for h in hexes:
         col, row = h['col'], h['row']
-        scan = best_scan(col, row)
         cx, cy = board_xy(col, row)
         grid[h['id']] = {
             'id': h['id'],
@@ -43,7 +42,6 @@ def build_grid(hexes):
             'travel_terrain': TERRAIN_TO_TRAVEL.get(h['terrain'], 'Countryside'),
             'confidence': round(1.0 - min(h['dist'], 100) / 100.0, 3),
             'neighbors': neighbours(col, row),
-            'scan': scan,
             'center': [round(cx, 1), round(cy, 1)],
         }
     return grid
@@ -190,7 +188,7 @@ def main():
             'dy_px': round(DY, 3),
             'columns': NC,
             'rows': NR,
-            'scans': SCANS,
+            'scan': 'barbarianprince_onepiecemap-revc.jpg',
         },
         'grid': grid,
         'rules': rules,

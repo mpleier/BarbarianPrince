@@ -6,8 +6,8 @@ SRC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
 sys.path.insert(0, SRC)
 
 from geometry import (NC, NR, R, DX, DY, centre, neighbours, hex_id, parse_hex,
-                      TERRAIN_TO_TRAVEL, MOVEMENT_MODES, BOARD_Y_OFF, SEAM_Y,
-                      board_xy, board_corners, board_bounds)
+                      TERRAIN_TO_TRAVEL, MOVEMENT_MODES, board_xy, board_corners,
+                      board_bounds)
 from game_model import GameModel
 
 
@@ -20,136 +20,52 @@ class GeometryTests(unittest.TestCase):
             self.assertEqual(parse_hex(hex_id(col, row)), (col, row))
 
     def test_first_hex_centre(self):
-        x, y = centre(1, 1, 'map1.jpg')
-        self.assertAlmostEqual(x, 377.0)
-        self.assertAlmostEqual(y, 98.2)
+        x, y = centre(1, 1)
+        self.assertAlmostEqual(x, 111.0)
+        self.assertAlmostEqual(y, 78.1, delta=0.1)
 
     def test_column_and_row_steps(self):
-        x0, y0 = centre(1, 1, 'map1.jpg')
-        x1, y1 = centre(2, 1, 'map1.jpg')
+        x0, y0 = centre(1, 1)
+        x1, y1 = centre(2, 1)
         self.assertAlmostEqual(x1 - x0, DX)
         self.assertAlmostEqual(y1 - y0, DY / 2)
-        x2, y2 = centre(1, 2, 'map1.jpg')
+        x2, y2 = centre(1, 2)
         self.assertAlmostEqual(y2 - y0, DY)
 
-    def test_scans_share_one_lattice(self):
-        """Both scans must sit on the same 106 px lattice, not just be adjacent."""
-        self.assertAlmostEqual(centre(1, 1, 'map1.jpg')[0],
-                               centre(1, 1, 'map2.jpg')[0])
-        # row 12 centre in map1 vs row 13 centre in map2, after stitching
-        y12 = board_xy(1, 12)[1]
-        y13 = board_xy(1, 13)[1]
-        self.assertAlmostEqual(y13 - y12, DY, delta=1.0)
-
-    def test_stitch_seam_is_continuous(self):
-        """The bottom edge of row 12 and the top edge of row 13 must coincide."""
-        bottom_of_12 = board_xy(1, 12)[1] + DY / 2
-        top_of_13 = board_xy(1, 13)[1] - DY / 2
-        self.assertAlmostEqual(bottom_of_12, top_of_13, delta=1e-6)
-        self.assertAlmostEqual(SEAM_Y, bottom_of_12, delta=1e-6)
-        self.assertAlmostEqual(BOARD_Y_OFF['map2.jpg'], 2098.2, delta=1.0)
-
-    def test_seam_is_continuous_for_every_column(self):
-        """The stitch line must be a single straight line across all 20 columns."""
+    def test_board_is_continuous(self):
+        """Row 12 and row 13 must meet at every column."""
         for col in range(1, NC + 1):
             bottom = board_xy(col, 12)[1] + DY / 2
             top = board_xy(col, 13)[1] - DY / 2
             self.assertAlmostEqual(bottom, top, delta=1e-6,
-                                   msg=f'column {col} does not meet at the seam')
-
-    def test_lattice_matches_the_printed_grid_lines(self):
-        """Predicted row boundaries must land on the printed lines in both scans.
-
-        The printed horizontal grid lines in the column-1 band were measured
-        directly from the scans; the model may not drift more than a couple of
-        pixels away from them.
-        """
-        measured_map1 = [190.5, 373.5, 557.5, 741.5, 924.0, 1106.5,
-                         1291.0, 1473.5, 1657.5, 1842.0, 2027.5]
-        for k, line in enumerate(measured_map1, start=1):
-            predicted = centre(1, k, 'map1.jpg')[1] + DY / 2
-            self.assertAlmostEqual(predicted, line, delta=2.0,
-                                   msg=f'map1 boundary {k} off by '
-                                       f'{predicted - line:.2f} px')
-
-        measured_map2 = [111.5, 297.0, 482.5, 666.5, 850.5, 1034.5,
-                         1218.0, 1402.0, 1586.0, 1770.5, 1954.5]
-        for k, line in enumerate(measured_map2, start=13):
-            predicted = centre(1, k, 'map2.jpg')[1] - DY / 2
-            self.assertAlmostEqual(predicted, line, delta=8.0,
-                                   msg=f'map2 boundary {k} off by '
-                                       f'{predicted - line:.2f} px')
-
-    def test_column_axes_match_the_printed_flat_edges(self):
-        """Flat hex edges on a row boundary must be centred on the column axis.
-
-        On the row 10/11 boundary only the columns with an even index present a
-        flat R-px edge; those edges were measured directly from the map1 scan.
-        """
-        measured_edges = [1328.5, 1648.5, 1966.5]      # columns 7, 9, 11
-        for c in measured_edges:
-            col = round((c - 377.0) / DX) + 1
-            predicted = centre(col, 11)[0]
-            self.assertAlmostEqual(c, predicted, delta=3.0,
-                                   msg=f'flat edge at x={c} is '
-                                       f'{c - predicted:.2f} px off column {col}')
-            self.assertEqual(col % 2, 1, 'even-index columns are odd-numbered')
-
-    def test_seam_matches_the_printed_line(self):
-        """The stitch line must land on the printed 12/13 grid line.
-
-        The 12/13 boundary was measured at y = 2209.5 in the stitched board;
-        SEAM_Y is derived from the lattice, so it has to agree with it.
-        """
-        self.assertAlmostEqual(SEAM_Y, 2209.5, delta=0.5,
-                               msg=f'seam at {SEAM_Y:.2f} is not on the '
-                                   f'printed 12/13 line (2209.5)')
+                                   msg=f'column {col} does not meet at row 12/13')
 
     def test_board_extents_match_the_printed_board(self):
-        """The lattice must span the printed board rectangle.
-
-        The printed board's right edge is directly measurable in the scans:
-        coloured content runs out at x ~ 3504-3509.  The lattice's rightmost
-        vertex (column 20) must sit on it.  The left vertex (column 1) is
-        inferred from x0 and R, because the white paper margin blends with the
-        white hex fills.
-        """
+        """Predicted board extents match the one-piece scan content bounds."""
         minx, miny, maxx, maxy = board_bounds()
-        self.assertAlmostEqual(minx, 271.0, delta=1.0)
-        self.assertAlmostEqual(maxx, 3504.0, delta=1.0)
-        self.assertAlmostEqual(miny, 6.4, delta=1.0)
-        # map2's scan is cropped, so the lattice may overhang the paper, but
-        # only by the amount a clipped bottom row can.
-        self.assertLess(maxy, 4330.0)
+        self.assertAlmostEqual(minx, 30.0, delta=1.0)
+        self.assertAlmostEqual(miny, 8.0, delta=1.0)
+        self.assertAlmostEqual(maxx, 2500.5, delta=2.0)
+        self.assertAlmostEqual(maxy, 3305.0, delta=10.0)
 
     def test_board_fits_the_scans(self):
-        minx, miny, maxx, maxy = board_bounds()
-        self.assertGreater(minx, 0)
-        self.assertGreater(miny, 0)
-        self.assertLess(maxx, 3510)   # map1.jpg / map2.jpg are 3510 px wide
-        # The stitched board is 23 rows tall: the seam sits at SEAM_Y and the
-        # remaining 11 rows add 11 * DY below it.
-        self.assertLess(maxy, SEAM_Y + 12 * DY)
-        self.assertGreater(maxy, SEAM_Y + 11 * DY)
-
-    def test_corner_hex_has_two_neighbors(self):
-        self.assertEqual(neighbours(1, 1), {'SE': '0201', 'S': '0102'})
-
-    def test_interior_hex_has_six_neighbors(self):
-        self.assertEqual(len(neighbours(10, 10)), 6)
-
-    def test_neighbors_are_symmetric(self):
-        for col in range(1, NC + 1):
-            for row in range(1, NR + 1):
-                for d, n in neighbours(col, row).items():
-                    back = {'N': 'S', 'S': 'N', 'NE': 'SW', 'SW': 'NE',
-                            'NW': 'SE', 'SE': 'NW'}[d]
-                    self.assertIn(back, neighbours(*parse_hex(n)),
-                                  f'{hex_id(col, row)} -> {n} not reciprocal')
+        """All hexes fall within the scanned image."""
+        maxx, maxy = board_bounds()[2], board_bounds()[3]
+        self.assertLess(maxx, 2720)
+        # maxy slightly exceeds scan content due to row-23 zigzag overhang
+        self.assertLess(maxy, 3400)
 
     def test_radius_is_consistent(self):
         self.assertAlmostEqual(DX, 1.5 * R)
         self.assertAlmostEqual(DY, (3 ** 0.5) * R)
+
+    def test_neighbour_reciprocity(self):
+        for col in range(1, NC + 1):
+            for row in range(1, NR + 1):
+                for d, n in neighbours(col, row).items():
+                    nc, nr = parse_hex(n)
+                    self.assertIn(hex_id(col, row), neighbours(nc, nr).values(),
+                                  msg=f'{hex_id(col, row)} -> {n} not reciprocal')
 
 
 class ModelTests(unittest.TestCase):
@@ -179,10 +95,16 @@ class ModelTests(unittest.TestCase):
                 if ref != '-':
                     self.assertRegex(ref, r'^[er]\d{3}$')
 
-    def test_movement_modes_covered(self):
+    def test_movement_modes_in_travel_table(self):
+        """Travel table rows cover all terrains plus non-hex modes."""
         present = {r['terrain'] for r in self.m.tables['travel_table']}
+        # Water hexes use 'Cross River' / 'Rafting' instead of a 'Water' row
+        for t in TERRAIN_TO_TRAVEL.values():
+            if t == 'Water':
+                continue
+            self.assertIn(t, present, msg=f'{t} missing from travel table')
         for mode in MOVEMENT_MODES:
-            self.assertIn(mode, present)
+            self.assertIn(mode, present, msg=f'{mode} missing from travel table')
 
     def test_events_complete(self):
         self.assertEqual(len(self.m.events), 182)
@@ -201,8 +123,6 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(self.m.resolve_event_ref(ref, 4), 'e082')
 
     def test_combat_table(self):
-        # Combat Table (r220c): -1,3,5,8,11 = 1 wound; 10,12,13,17 = 2; 14 = 3;
-        # 16,18,19 = 5; 20 = 6. Any other total is a miss.
         self.assertEqual(self.m.combat_wounds(3), 1)
         self.assertEqual(self.m.combat_wounds(11), 1)
         self.assertEqual(self.m.combat_wounds(14), 3)

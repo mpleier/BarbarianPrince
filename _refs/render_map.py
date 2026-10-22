@@ -9,11 +9,10 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
 from PIL import Image, ImageDraw
 
-from geometry import NC, NR
+from geometry import NC, NR, R
 from game_model import GameModel
 from features import load_features
 
-R = 105.7
 SCALE = 0.30
 
 TERRAIN_COLORS = {
