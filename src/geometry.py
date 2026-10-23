@@ -1,43 +1,41 @@
 """Unified hex-grid model for the BarbarianPrince board.
 
 Geometry calibrated from a single one-piece scan
-(_refs/BPMap.jpg):
+(_refs/BPMap.jpg, 2435x3235):
   * flat-top hexes, 20 columns x 23 rows = 460 hexes
   * hex id = CCRR  (column 01-20, row 01-23)
-  * hex radius R = 81.0 px in the scans
+  * hex radius R = 79.5 px in the scans
   * column step DX = 1.5 * R, row step DY = sqrt(3) * R
-  * the grid is split into two sections with a zigzag transition
-    between row 12 and row 13:
-      - top section (rows 1-12): odd rows shifted down by DY/2
-      - bottom section (rows 13-23): even rows shifted down by DY/2
+  * odd rows are offset by DY/2 (row-based zigzag)
   * SCAN_Y0 positioned so row 1 centre aligns near the top of image content
 
-Scan layout: the one-piece scan content starts at approximately x=30, y=8.
+Scan layout: the one-piece scan content starts at approximately x=1, y=5.
 The hex grid is anchored to this content frame.
 
-Calibration note: the one-piece scan has a different aspect ratio (~0.83)
-than the theoretical hex grid (~0.77), due to perspective distortion in
-the photograph.  R was chosen to fit the vertical extent (23 rows).
+Calibration note: the one-piece scan has a slightly different aspect ratio
+(~0.75) than the theoretical hex grid (~0.77), due to perspective distortion
+in the photograph.  R was chosen to keep all hex corners within the image
+bounds.
 
 Board extents in the scan pixel frame:
-  x   30.0 .. 2500.5   (left vertex of column 1 near x = 30;
-                        right vertex of column 20 near x = 2500)
-  y    7.7 .. 3305.7   (top vertex of row 1 near y = 8;
-                         bottom row near y ~ 3306)
+  x    1.0 .. 2425.8   (left vertex of column 1 near x = 1;
+                        right vertex of column 20 near x = 2426)
+  y    5.0 .. 3172.1   (top vertex of row 1 near y = 5;
+                         bottom row near y ~ 3172)
 
 Calibrated by _refs/calibrate_onepiece.py.
 """
 import math
 
 SQ3 = math.sqrt(3.0)
-R = 81.0
+R = 79.5
 DX = 1.5 * R
 DY = SQ3 * R
 NC, NR = 20, 23
 
 # Anchor: centre of column 1, row 1 in scan pixel coordinates.
-SCAN_X0 = 111.0
-SCAN_Y0 = 78.1481
+SCAN_X0 = 80.5
+SCAN_Y0 = 73.8490
 
 
 def _zigzag(row):

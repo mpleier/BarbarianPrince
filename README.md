@@ -50,10 +50,10 @@ node  _refs/js_smoke.mjs  http://127.0.0.1:8000   # app.js against a DOM shim
 The board is a 20-column x 23-row hex grid (460 hexes), **flat-top** hexes.
 Hex `colrow` is zero-padded, e.g. `1212` = column 12, row 12.
 
-With `i = col - 1`, `j = row - 1` and `R = 106.0 px`:
+With `i = col - 1`, `j = row - 1` and `R = 79.5 px`:
 
 ```
-centre(col, row) = (X0 + 1.5*R*i, Y0 + sqrt(3)*R*j + (i % 2) * sqrt(3)*R/2)
+centre(col, row) = (X0 + 1.5*R*i, Y0 + sqrt(3)*R*j)
 ```
 
 Even columns sit half a row higher than odd columns, so the east/west neighbours

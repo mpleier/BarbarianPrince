@@ -21,8 +21,8 @@ class GeometryTests(unittest.TestCase):
 
     def test_first_hex_centre(self):
         x, y = centre(1, 1)
-        self.assertAlmostEqual(x, 111.0)
-        self.assertAlmostEqual(y, 78.1, delta=0.1)
+        self.assertAlmostEqual(x, 80.5)
+        self.assertAlmostEqual(y, 73.8, delta=0.1)
 
     def test_column_and_row_steps(self):
         """Row-based zigzag: hexes in the same row share the same y-coordinate."""
@@ -45,17 +45,16 @@ class GeometryTests(unittest.TestCase):
     def test_board_extents_match_the_printed_board(self):
         """Predicted board extents match the one-piece scan content bounds."""
         minx, miny, maxx, maxy = board_bounds()
-        self.assertAlmostEqual(minx, 30.0, delta=1.0)
-        self.assertAlmostEqual(miny, 8.0, delta=1.0)
-        self.assertAlmostEqual(maxx, 2500.5, delta=2.0)
-        self.assertAlmostEqual(maxy, 3234.8, delta=10.0)
+        self.assertAlmostEqual(minx, 1.0, delta=1.0)
+        self.assertAlmostEqual(miny, 5.0, delta=1.0)
+        self.assertAlmostEqual(maxx, 2425.8, delta=2.0)
+        self.assertAlmostEqual(maxy, 3172.1, delta=10.0)
 
     def test_board_fits_the_scans(self):
         """All hexes fall within the scanned image."""
         maxx, maxy = board_bounds()[2], board_bounds()[3]
-        self.assertLess(maxx, 2720)
-        # maxy slightly exceeds scan content due to row-23 zigzag overhang
-        self.assertLess(maxy, 3400)
+        self.assertLess(maxx, 2435)
+        self.assertLess(maxy, 3235)
 
     def test_radius_is_consistent(self):
         self.assertAlmostEqual(DX, 1.5 * R)
