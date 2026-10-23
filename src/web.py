@@ -56,7 +56,7 @@ def board_scan_rect():
         return None
     img = Image.open(SCAN_SOURCE)
     w, h = img.size
-    return [0, -DY / 2, w, h]
+    return [0, DY / 2, w, h]
 
 
 def build_board():
@@ -343,7 +343,10 @@ def api_scan():
     path = original_scan_path()
     if not path or not os.path.exists(path):
         raise HTTPException(status_code=404, detail="board scan not available")
-    return FileResponse(path, media_type="image/jpeg")
+    return FileResponse(
+        path, media_type="image/jpeg",
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+    )
 
 app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="ui")
 
