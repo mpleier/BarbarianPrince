@@ -22,6 +22,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from PIL import Image
 
 from engine import Game
 from autoplay import Bot, STRATEGIES
@@ -29,7 +30,7 @@ from features import load_features
 from game_model import GameModel
 from geometry import (NC, NR, R, DX, DY, board_bounds, board_corners,
                       board_xy, hex_id)
-from map_scan import scan_image, scan_rect
+from map_scan import scan_image, scan_rect, original_scan_path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB_DIR = os.path.join(ROOT, "web")
@@ -45,9 +46,17 @@ app = FastAPI(title="Barbarian Prince (web)")
 
 # ----------------------------------------------------------------- board data
 def board_scan_rect():
-    """Rectangle (x, y, w, h) in unified scan pixels covered by the stitched
-    board scan, so the original artwork can be used as the map."""
-    return scan_rect()
+    """Return (x, y, w, h) for the scan image. The SVG's image element
+    is placed at (0, -DY/2) with full original image dimensions so the
+    artwork lines up with the hex lattice (the scan is offset half a
+    row upward relative to the centre-grid). The SVG viewBox clips to
+    the board area so top/bottom margins are hidden automatically."""
+    from map_scan import SCAN_SOURCE
+    if not os.path.exists(SCAN_SOURCE):
+        return None
+    img = Image.open(SCAN_SOURCE)
+    w, h = img.size
+    return [0, -DY / 2, w, h]
 
 
 def build_board():
@@ -329,7 +338,9 @@ def api_hex(hid: str):
 
 @app.get("/scan/board.jpg")
 def api_scan():
-    path = scan_image()
+    """Serve the original full-resolution scan so hex coordinates align
+    perfectly with the geometry-calibrated centers."""
+    path = original_scan_path()
     if not path or not os.path.exists(path):
         raise HTTPException(status_code=404, detail="board scan not available")
     return FileResponse(path, media_type="image/jpeg")

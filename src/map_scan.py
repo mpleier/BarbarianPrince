@@ -93,6 +93,16 @@ def scan_image(path=SCAN_PATH, width=MAX_WIDTH):
     return path
 
 
+def original_scan_path():
+    """Return the path to the original full-resolution scan image.
+    
+    Use this when serving the scan to the web frontend so that the
+    image pixel coordinates match the geometry-calibrated hex centers
+    exactly, without any scaling mismatch.
+    """
+    return SCAN_SOURCE
+
+
 if __name__ == '__main__':
     from geometry import board_bounds
     p = scan_image()
