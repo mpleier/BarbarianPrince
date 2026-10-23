@@ -5,9 +5,9 @@ import unittest
 SRC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src')
 sys.path.insert(0, SRC)
 
-from geometry import (NC, NR, R, DX, DY, centre, neighbours, hex_id, parse_hex,
-                      TERRAIN_TO_TRAVEL, MOVEMENT_MODES, board_xy, board_corners,
-                      board_bounds)
+from geometry import (NC, NR, R, RX, RY, DX, DY, centre, neighbours, hex_id,
+                      parse_hex, TERRAIN_TO_TRAVEL, MOVEMENT_MODES, board_xy,
+                      board_corners, board_bounds)
 from game_model import GameModel
 
 
@@ -21,8 +21,8 @@ class GeometryTests(unittest.TestCase):
 
     def test_first_hex_centre(self):
         x, y = centre(1, 1)
-        self.assertAlmostEqual(x, 80.5)
-        self.assertAlmostEqual(y, 73.8, delta=0.1)
+        self.assertAlmostEqual(x, 83.4)
+        self.assertAlmostEqual(y, 74.65, delta=0.01)
 
     def test_column_and_row_steps(self):
         """Column zigzag: even columns sit half a row lower than odd ones."""
@@ -36,38 +36,46 @@ class GeometryTests(unittest.TestCase):
         x3, y3 = centre(1, 2)
         self.assertAlmostEqual(y3 - y0, DY)
 
-    def test_neighbours_are_one_row_step_apart(self):
-        """Every adjacent pair of centres is exactly sqrt(3)*R apart."""
+    def test_neighbours_sit_on_the_lattice_steps(self):
+        """Neighbours are either a row apart, or a column step and a half row."""
         for col in range(1, NC + 1):
             for row in range(1, NR + 1):
                 cx, cy = centre(col, row)
                 for n in neighbours(col, row).values():
                     nx, ny = centre(*parse_hex(n))
-                    self.assertAlmostEqual(((nx - cx) ** 2 + (ny - cy) ** 2) ** 0.5,
-                                           DY, delta=1e-6,
-                                           msg=f'{hex_id(col, row)} -> {n}')
+                    dx, dy = abs(nx - cx), abs(ny - cy)
+                    if dx < 1e-9:                      # north / south
+                        self.assertAlmostEqual(dy, DY, delta=1e-6,
+                                               msg=f'{hex_id(col, row)} -> {n}')
+                    else:                              # the four diagonal steps
+                        self.assertAlmostEqual(dx, DX, delta=1e-6,
+                                               msg=f'{hex_id(col, row)} -> {n}')
+                        self.assertAlmostEqual(dy, DY / 2, delta=1e-6,
+                                               msg=f'{hex_id(col, row)} -> {n}')
 
     def test_board_extents_match_the_printed_board(self):
-        """Predicted board extents match the one-piece scan content bounds."""
+        """Predicted board extents cover the printed board on the scan."""
         minx, miny, maxx, maxy = board_bounds()
-        self.assertAlmostEqual(minx, 1.0, delta=1.0)
-        self.assertAlmostEqual(miny, 5.0, delta=1.0)
-        self.assertAlmostEqual(maxx, 2425.8, delta=2.0)
-        self.assertAlmostEqual(maxy, 3240.9, delta=2.0)
+        self.assertAlmostEqual(minx, 4.3, delta=2.0)
+        self.assertAlmostEqual(miny, 5.0, delta=2.0)
+        self.assertAlmostEqual(maxx, 2416.9, delta=2.0)
+        self.assertAlmostEqual(maxy, 3277.6, delta=2.0)
 
-    def test_board_fits_the_scans(self):
-        """All hexes fall within the scanned image.
+    def test_board_matches_the_scan_crop(self):
+        """The photograph is cropped just inside the printed border.
 
-        The photograph is cropped inside the printed border, so the bottom
-        row of the even (lower) columns runs a few pixels past the edge.
+        The fitted lattice therefore runs a few pixels past the artwork at the
+        top and bottom; the web view clips to the scan so this is invisible.
         """
-        maxx, maxy = board_bounds()[2], board_bounds()[3]
+        minx, miny, maxx, maxy = board_bounds()
+        self.assertLess(abs(minx), 10)
+        self.assertLess(abs(miny), 10)
         self.assertLess(maxx, 2435)
-        self.assertLess(maxy, 3245)
+        self.assertLess(maxy - 3235, 60)
 
     def test_radius_is_consistent(self):
-        self.assertAlmostEqual(DX, 1.5 * R)
-        self.assertAlmostEqual(DY, (3 ** 0.5) * R)
+        self.assertAlmostEqual(DX, 1.5 * RX)
+        self.assertAlmostEqual(DY, (3 ** 0.5) * RY)
 
     def test_neighbour_reciprocity(self):
         for col in range(1, NC + 1):

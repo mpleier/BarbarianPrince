@@ -17,7 +17,7 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-from geometry import (R, DX, DY, SCAN_X0, SCAN_Y0, neighbours, parse_hex,
+from geometry import (R, RX, RY, DX, DY, SCAN_X0, SCAN_Y0, neighbours, parse_hex,
                       hex_id, NC, NR)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -179,6 +179,8 @@ def _sides(calib=None):
     the geometry module's BPMap calibration.
     """
     radius, _x0, _y0 = calib or (R, SCAN_X0, SCAN_Y0)
+    # the board is slightly taller than wide, so an edge is about this long
+    edge_len = radius * (1 + RY / RX) / 2 if calib is None else radius
 
     def point(col, row):
         return _hex_point(col, row, calib)
@@ -199,7 +201,8 @@ def _sides(calib=None):
                 along = cb - ca
                 along /= np.linalg.norm(along)
                 across = np.array([-along[1], along[0]])
-                out.append((key, mid - across * radius / 2, mid + across * radius / 2))
+                out.append((key, mid - across * edge_len / 2,
+                            mid + across * edge_len / 2))
     return out
 
 

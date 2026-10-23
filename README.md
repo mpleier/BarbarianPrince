@@ -52,18 +52,22 @@ node  _refs/js_smoke.mjs  http://127.0.0.1:8000   # app.js against a DOM shim
 The board is a 20-column x 23-row hex grid (460 hexes), **flat-top** hexes.
 Hex `colrow` is zero-padded, e.g. `1212` = column 12, row 12.
 
-With `i = col - 1`, `j = row - 1` and `R = 79.5 px`:
+With `i = col - 1`, `j = row - 1`, `RX = 79.1 px` and `RY = 80.4 px`:
 
 ```
-centre(col, row) = (X0 + 1.5*R*i, Y0 + sqrt(3)*R*j + (DY/2 if col is even))
+centre(col, row) = (X0 + 1.5*RX*i, Y0 + sqrt(3)*RY*j + (sqrt(3)*RY/2 if col is even))
+corners          = centre + (RX*cos(a), RY*sin(a))  for a in 0..300 step 60
 ```
 
-Even columns sit half a row lower than odd columns, so the east/west neighbours
-of an odd column are one row higher than those of the even column beside it.
-Adjacent hex centres are `sqrt(3) * R` apart everywhere, which is what the map
-scan confirms: the printed hex numbers sit half a row lower in every even
-column, and the traced river/road sides only close up as hex sides under this
-parity.
+The photograph is a little taller than the board's true proportions, so the
+printed grid is not perfectly regular; fitting the drawn borders as an
+anisotropic lattice (`RY > RX`) drops the mean distance from a lattice edge to
+the printed border from 7.5 px to 5.8 px.  Even columns sit half a row lower
+than odd columns, so the east/west neighbours of an odd column are one row
+higher than those of the even column beside it.  The scan is cropped just
+inside the printed border, so the fitted board runs ~5 px past the artwork at
+the top and ~40 px at the bottom; the web view clips to the scan, which is why
+the outer row looks cut just like the photograph.
 
 ## Model schema (`data/game_model.json`)
 

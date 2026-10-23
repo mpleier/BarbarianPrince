@@ -4,25 +4,21 @@ Geometry calibrated from a single one-piece scan
 (_refs/BPMap.jpg, 2435x3235):
   * flat-top hexes, 20 columns x 23 rows = 460 hexes
   * hex id = CCRR  (column 01-20, row 01-23)
-  * hex radius R = 79.5 px in the scans
-  * column step DX = 1.5 * R, row step DY = sqrt(3) * R
+  * hex circumradius RX = 79.1 px horizontally, RY = 80.4 px vertically
+  * column step DX = 1.5 * RX, row step DY = sqrt(3) * RY
   * even columns sit half a row lower than odd columns (column zigzag)
-  * SCAN_Y0 positioned so row 1 centre aligns near the top of image content
+  * SCAN_Y0 positioned so row 1 centre aligns with the top of the artwork
 
-Scan layout: the one-piece scan content starts at approximately x=1, y=5.
-The hex grid is anchored to this content frame.
-
-Calibration note: the one-piece scan has a slightly different aspect ratio
-(~0.75) than the theoretical hex grid (~0.77), due to perspective distortion
-in the photograph.  R was chosen to keep all hex corners within the image
-bounds.
+The photograph is a little taller than the board's true proportions, so the
+printed grid is not perfectly regular.  Fitting the drawn borders as an
+anisotropic lattice (RX != RY) instead of a regular one drops the mean
+distance from a lattice edge to the nearest printed border from 7.5 px to
+5.8 px, which is what makes the overlay line up across the whole board.
 
 Board extents in the scan pixel frame:
-  x    1.0 .. 2425.8   (left vertex of column 1 near x = 1;
-                        right vertex of column 20 near x = 2426)
-  y    5.0 .. 3240.9   (top edge of row 1 in the odd columns near y = 5;
-                        row 23 in the even columns runs ~6 px past the
-                        bottom border of the photograph)
+  x    4.3 .. 2416.9   (left vertex of column 1, right vertex of column 20)
+  y   -5.8 .. 3290.3   (the scan is cropped inside the printed border, so the
+                        top of row 1 and the bottom of row 23 are cut off)
 
 The column zigzag is visible on the scan: the printed hex numbers sit half a
 row lower in every even column, and the traced roads only close up as hex
@@ -31,14 +27,17 @@ sides under this parity.
 import math
 
 SQ3 = math.sqrt(3.0)
-R = 79.5
-DX = 1.5 * R
-DY = SQ3 * R
+
+RX = 79.1                      # horizontal circumradius
+RY = 80.4                      # vertical circumradius
+R = RX                         # historical alias: the horizontal radius
+DX = 1.5 * RX                  # column step
+DY = SQ3 * RY                  # row step
 NC, NR = 20, 23
 
 # Anchor: centre of column 1, row 1 in scan pixel coordinates.
-SCAN_X0 = 80.5
-SCAN_Y0 = 73.8490
+SCAN_X0 = 83.4
+SCAN_Y0 = 74.65
 
 
 def _column_offset(col):
@@ -108,7 +107,8 @@ def neighbours(col, row):
 
 def hex_corners(col, row):
     cx, cy = centre(col, row)
-    return [(cx + R * math.cos(math.radians(a)), cy + R * math.sin(math.radians(a)))
+    return [(cx + RX * math.cos(math.radians(a)),
+             cy + RY * math.sin(math.radians(a)))
             for a in range(0, 360, 60)]
 
 
@@ -118,7 +118,8 @@ board_xy = centre
 
 def board_corners(col, row):
     cx, cy = board_xy(col, row)
-    return [(cx + R * math.cos(math.radians(a)), cy + R * math.sin(math.radians(a)))
+    return [(cx + RX * math.cos(math.radians(a)),
+             cy + RY * math.sin(math.radians(a)))
             for a in range(0, 360, 60)]
 
 

@@ -62,6 +62,16 @@ def board_scan_rect():
 
 def build_board():
     minx, miny, maxx, maxy = board_bounds()
+
+    # The photograph is cropped inside the printed border, so the fitted
+    # lattice runs a few pixels past the artwork; clip the view to the scan.
+    rect = board_scan_rect()
+    if rect:
+        minx = max(minx, rect[0])
+        miny = max(miny, rect[1])
+        maxx = min(maxx, rect[0] + rect[2])
+        maxy = min(maxy, rect[1] + rect[3])
+
     hexes = []
     for col in range(1, NC + 1):
         for row in range(1, NR + 1):
