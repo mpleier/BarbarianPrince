@@ -20,10 +20,10 @@ the photograph.  R was chosen to fit the vertical extent (23 rows), so
 there is some horizontal margin.
 
 Board extents in the scan pixel frame:
-  x  219.0 .. 2590.5   (left vertex of column 1 near x = 219;
-                        right vertex of column 20 near x = 2590)
-  y   7.0 .. 3165.0   (top vertex of row 1 near y = 7;
-                       bottom row near y ~ 3165)
+  x  220.5 .. 2645.2   (left vertex of column 1 near x = 220;
+                        right vertex of column 20 near x = 2645)
+  y   10.6 .. 3246.5   (top vertex of row 1 near y = 11;
+                       bottom row near y ~ 3247)
 
 Calibrated by _refs/recalibrate_geometry.py.
 """

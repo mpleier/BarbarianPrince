@@ -9,6 +9,8 @@ Writes data/features.json
 import json
 import os
 
+from geometry import neighbours
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
 REFS = os.path.join(ROOT, '_refs')
@@ -73,7 +75,12 @@ def build_features():
     links = load(os.path.join(REFS, 'road_links.json'))
     road_hexes = load(os.path.join(REFS, 'roadhexes.json'))
 
-    grid = {h['id']: h for h in hexes}
+    # Enrich hexes with neighbor data computed from geometry
+    grid = {}
+    for h in hexes:
+        entry = dict(h)
+        entry['neighbors'] = neighbours(h['col'], h['row'])
+        grid[entry['id']] = entry
 
     road_hexes_clean = {hid: p for hid, p in road_hexes.items() if p > 0.12}
 

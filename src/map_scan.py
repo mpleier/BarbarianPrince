@@ -7,7 +7,7 @@ includes a white paper margin, so the rect is trimmed to the
 artwork rather than to the canvas, otherwise the map canvas would paint
 a white band over the bottom hex row.
 
-The hex-grid geometry (R=81.0, x0, y0, etc.) is stored in `geometry.py`
+The hex-grid geometry (R=79.5, x0, y0, etc.) is stored in `geometry.py`
 and was calibrated specifically for this one-piece scan.
 """
 import os

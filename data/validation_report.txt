@@ -1,5 +1,5 @@
 hexes: 460  rules: 69  events: 182  option tables: 22
-terrain counts: forest=113, countryside=94, mountains=67, desert=60, badlands=58, swamp=37, farmland=31
+terrain counts: forest=150, farmland=132, countryside=66, badlands=28, mountains=28, water=22, swamp=19, desert=15
 low-confidence terrain: 5
 misprinted refs corrected (5): e226->e026, e250->e050, e341->r341, r119->r319, r143->r341
 dangling refs (0): 
