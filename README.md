@@ -96,3 +96,7 @@ index           - reverse index of every rNNN/eNNN reference, hex->event map,
   detector produced 39 river and 4 road sides between hexes that do not
   touch).  The masks are not perfect: a few mountain ridges still register as
   river sides, and short road stretches between long roads are missed.
+* The colour-corrected scan (`_refs/barbarianprince_onepiecemap-revc.jpg`,
+  wider page with the map key) has its own lattice in `features.CALIB_REVC`;
+  tracing it agrees with `BPMap.jpg` on 133 of 138 river sides and 63 of 67
+  road sides, so `BPMap.jpg` stays the default.

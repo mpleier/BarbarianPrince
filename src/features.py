@@ -17,12 +17,19 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-from geometry import R, neighbours, parse_hex, hex_id, centre, NC, NR
+from geometry import (R, DX, DY, SCAN_X0, SCAN_Y0, neighbours, parse_hex,
+                      hex_id, NC, NR)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
 REFS = os.path.join(ROOT, '_refs')
 SCAN = os.path.join(REFS, 'BPMap.jpg')
+
+# The colour-corrected scan is stored with a wider page (map key on the left).
+# Its lattice is the BPMap one shifted by the content box and scaled by about
+# 0.4%:  (264 + (x-1)*1.00165, 9 + (y-5)*0.99567).
+SCAN_REVC = os.path.join(REFS, 'barbarianprince_onepiecemap-revc.jpg')
+CALIB_REVC = (79.5, 343.6, 77.6)
 
 # Terrain -> (fill, outline) colours used by the GUI map.
 TERRAIN_COLORS = {
@@ -143,25 +150,35 @@ def _masks(img):
     return water, road
 
 
-def _sides():
-    """Every undirected pair of adjacent hexes, with its shared edge."""
+def _sides(calib=None):
+    """Every undirected pair of adjacent hexes, with its shared edge.
+
+    ``calib`` is (radius, x0, y0) for the scan being traced; it defaults to
+    the geometry module's BPMap calibration.
+    """
+    radius, x0, y0 = calib or (R, SCAN_X0, SCAN_Y0)
+
+    def point(col, row):
+        dy = DY * (row - 1) + (DY / 2 if col % 2 == 0 else 0.0)
+        return np.array([x0 + DX * (col - 1), y0 + dy], dtype=float)
+
     seen = set()
     out = []
     for col in range(1, NC + 1):
         for row in range(1, NR + 1):
             a = hex_id(col, row)
-            ca = np.array(centre(col, row), dtype=float)
+            ca = point(col, row)
             for nb in neighbours(col, row).values():
                 key = tuple(sorted((a, nb)))
                 if key in seen:
                     continue
                 seen.add(key)
-                cb = np.array(centre(*parse_hex(nb)), dtype=float)
+                cb = point(*parse_hex(nb))
                 mid = (ca + cb) / 2.0
                 along = cb - ca
                 along /= np.linalg.norm(along)
                 across = np.array([-along[1], along[0]])
-                out.append((key, mid - across * R / 2, mid + across * R / 2))
+                out.append((key, mid - across * radius / 2, mid + across * radius / 2))
     return out
 
 
@@ -181,7 +198,7 @@ def _profile(dmap, p1, p2, samples=23, along=0.44):
     return float(ds.mean()), float((ds <= COVER_DIST).mean())
 
 
-def detect_sides(scan=SCAN):
+def detect_sides(scan=SCAN, calib=None):
     """Trace river and road sides from the board scan."""
     img = Image.open(scan).convert('RGB')
     water, road = _masks(img)
@@ -189,7 +206,7 @@ def detect_sides(scan=SCAN):
     dr = ndimage.distance_transform_edt(~road)
 
     rivers, roads = [], []
-    for key, p1, p2 in _sides():
+    for key, p1, p2 in _sides(calib):
         mean, cover = _profile(dw, p1, p2)
         if mean <= RIVER_MAX_MEAN_DIST and cover >= RIVER_MIN_COVERAGE:
             rivers.append(key)
