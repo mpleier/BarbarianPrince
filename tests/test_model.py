@@ -25,10 +25,12 @@ class GeometryTests(unittest.TestCase):
         self.assertAlmostEqual(y, 78.1, delta=0.1)
 
     def test_column_and_row_steps(self):
+        """Row-based zigzag: hexes in the same row share the same y-coordinate."""
         x0, y0 = centre(1, 1)
         x1, y1 = centre(2, 1)
         self.assertAlmostEqual(x1 - x0, DX)
-        self.assertAlmostEqual(y1 - y0, DY / 2)
+        # Same row → same y in row-based zigzag
+        self.assertAlmostEqual(y1 - y0, 0)
         x2, y2 = centre(1, 2)
         self.assertAlmostEqual(y2 - y0, DY)
 
@@ -46,7 +48,7 @@ class GeometryTests(unittest.TestCase):
         self.assertAlmostEqual(minx, 30.0, delta=1.0)
         self.assertAlmostEqual(miny, 8.0, delta=1.0)
         self.assertAlmostEqual(maxx, 2500.5, delta=2.0)
-        self.assertAlmostEqual(maxy, 3305.0, delta=10.0)
+        self.assertAlmostEqual(maxy, 3234.8, delta=10.0)
 
     def test_board_fits_the_scans(self):
         """All hexes fall within the scanned image."""

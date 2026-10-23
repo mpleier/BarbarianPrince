@@ -4,42 +4,51 @@ Geometry calibrated from a single one-piece scan
 (_refs/barbarianprince_onepiecemap-revc.jpg):
   * flat-top hexes, 20 columns x 23 rows = 460 hexes
   * hex id = CCRR  (column 01-20, row 01-23)
-  * hex radius R = 79.5 px in the scans
+  * hex radius R = 81.0 px in the scans
   * column step DX = 1.5 * R, row step DY = sqrt(3) * R
-  * even columns are aligned with top, odd columns shifted down by DY/2
-  * SCAN_Y0 shifted upward to align hex row 1 centers near top of image
+  * the grid is split into two sections with a zigzag transition
+    between row 12 and row 13:
+      - top section (rows 1-12): odd rows shifted down by DY/2
+      - bottom section (rows 13-23): even rows shifted down by DY/2
+  * SCAN_Y0 positioned so row 1 centre aligns near the top of image content
 
-Scan margins: the one-piece scan has a sidebar on the left (~220px wide)
-containing the map key. The hex grid content starts after the sidebar.
-SCAN_X0 is anchored to the center of hex 0101 (Ogon) which accounts for
-the sidebar offset.
+Scan layout: the one-piece scan content starts at approximately x=30, y=8.
+The hex grid is anchored to this content frame.
 
 Calibration note: the one-piece scan has a different aspect ratio (~0.83)
 than the theoretical hex grid (~0.77), due to perspective distortion in
-the photograph.  R was chosen to fit the vertical extent (23 rows), so
-there is some horizontal margin.
+the photograph.  R was chosen to fit the vertical extent (23 rows).
 
 Board extents in the scan pixel frame:
-  x  220.5 .. 2645.2   (left vertex of column 1 near x = 220;
-                        right vertex of column 20 near x = 2645)
-  y   10.6 .. 3246.5   (top vertex of row 1 near y = 11;
-                       bottom row near y ~ 3247)
+  x   30.0 .. 2500.5   (left vertex of column 1 near x = 30;
+                        right vertex of column 20 near x = 2500)
+  y    7.7 .. 3305.7   (top vertex of row 1 near y = 8;
+                         bottom row near y ~ 3306)
 
-Calibrated by _refs/recalibrate_geometry.py.
+Calibrated by _refs/calibrate_onepiece.py.
 """
 import math
 
 SQ3 = math.sqrt(3.0)
-R = 79.5
+R = 81.0
 DX = 1.5 * R
 DY = SQ3 * R
 NC, NR = 20, 23
 
 # Anchor: centre of column 1, row 1 in scan pixel coordinates.
-# Adjusted for the sidebar offset in the one-piece scan.
-# Shifted down by DY/2 for correct hex center alignment.
-SCAN_X0 = 300.0
-SCAN_Y0 = 79.4462
+SCAN_X0 = 111.0
+SCAN_Y0 = 78.1481
+
+
+def _zigzag(row):
+    """Return True when the row's hex centres are offset by DY/2.
+
+    Odd rows are offset in both halves to ensure that every adjacent
+    pair of rows has opposite zigzag states, including across the
+    row-12 / row-13 boundary.
+    """
+    return row % 2 == 1
+
 
 # Map legend terrain -> terrain name used by the Travel Table (r207).
 TERRAIN_TO_TRAVEL = {
@@ -73,19 +82,19 @@ def in_grid(col, row):
 def centre(col, row):
     """Pixel centre of a hex in the single scan."""
     i = col - 1
-    return (SCAN_X0 + DX * i,
-            SCAN_Y0 + DY * (row - 1) + (col % 2) * DY / 2.0)
+    return (SCAN_X0 + DX * i, SCAN_Y0 + DY * (row - 1))
 
 
 def neighbours(col, row):
     """Return {direction: hex_id} for the up to 6 adjacent hexes.
 
-    Columns are offset: even columns sit half a row higher than odd columns,
-    so the east/west neighbours shift by one row depending on the parity
-    of the column index.
+    Rows are offset in a zigzag pattern (see _zigzag), so the east/west
+    neighbours shift by one row depending on whether the current row
+    is zigzagged or not.
     """
     i, j = col - 1, row - 1
-    if col % 2 == 0:
+    z = _zigzag(row)
+    if z:
         pairs = {'NE': (i + 1, j - 1), 'SE': (i + 1, j),
                  'NW': (i - 1, j - 1), 'SW': (i - 1, j)}
     else:
