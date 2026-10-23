@@ -9,8 +9,9 @@ spent on offerings and news.
 
 Offering roll: 2d6 + 1 (for 10+ gold) + perm + omen + influence
   14+   -> Staff of Command, win
-  2     -> temple defiled, party arrested (the engine has no prison, so it
-           is a no-op in practice)
+  2     -> the rites are botched, the temple is defiled and lost
+  5     -> arrested (e060): the purse is confiscated and the party loses
+           ARREST_DAYS to prison and the walk back
   7     -> +1 on tomorrow's offering
   12/13 -> +3 influence on tomorrow's offering
 
@@ -24,6 +25,8 @@ TOTAL = 36
 OFFERS = (1, 5, 10, 20, 50)
 GOLD_CAP = 400
 WIN = 14
+ARREST = 5          # r212 result 5: arrested, purse confiscated
+ARREST_DAYS = 3     # prison day + escape + walk back
 
 
 def win_chance(bonus):
@@ -40,6 +43,13 @@ def _offer(days, gold, perm, omen, influence, amount):
         p = count / TOTAL
         if total >= WIN:
             ev += p
+        elif total == 2:
+            # the rites are botched: the temple is defiled and abandoned
+            ev += 0.0
+        elif total == ARREST:
+            # r212 result 5: arrested (e060) - the purse is confiscated and
+            # several days go on prison and the walk back to the temple
+            ev += p * camp_value(days - ARREST_DAYS, 0, perm, 0, 0, False)
         elif total == 7:
             ev += p * camp_value(days - 1, left, perm, 1, 0, False)
         elif total in (12, 13):
@@ -143,7 +153,7 @@ def ruin_value(days, gold, travel):
 
 def ruin_should_mine(days, gold, travel):
     """True when another day of searching beats walking to the temple now."""
-    if days <= travel:
+    if days <= travel or gold >= GOLD_CAP:
         return False
     camp_now = camp_value(max(0, days - travel), min(gold, GOLD_CAP),
                           0, 0, 0, False)

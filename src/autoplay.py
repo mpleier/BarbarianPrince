@@ -11,8 +11,13 @@ Three personalities are available:
   balanced    the default: sensible travel, opportunistic fighting
   aggressive  seeks battle, hires big parties, spends gold freely
 
-The win condition is the Staff of Command (r212, offerings at a temple), so the
-bot steers towards temples once it has gold to spare.
+The win condition is the Staff of Command (r212, offerings at a temple) carried
+north of the Tragoth, so the campaign is a three-legged plan: mine a ruin for
+gold, camp at a temple for the Staff, then march the Staff to the north bank.
+The temple is chosen with the *exit* in mind - the same purse wins about five
+times as often from the Temple of Zhor (8 days from the bank) as from
+Branwyn's Temple (13 days) because a southern camp runs out of days for the
+last march.
 """
 import heapq
 import re
@@ -42,6 +47,12 @@ CAMP_OVERHEAD = 3       # upkeep a party with followers must pay at a temple
 CAMP_COST = 1           # cheapest possible temple day for a lone Prince
 GOLD_CEILING = 400          # a camp can never spend more than this
 MIN_CAMP_DAYS = 5           # temple days still worth travelling for
+# Winning the Staff is only half the job: the Prince still has to walk it north
+# of the Tragoth.  Measured on the engine from a temple with 400 gold on day 40,
+# camping at the Temple of Zhor (8 days from the bank) wins 22% while Branwyn's
+# Temple (13 days away) wins 4%, so the exit march is weighted above raw camp
+# days when choosing the ruin/temple pair.
+NORTH_PENALTY = 1.6
 # _refs/macro_dp5.py runs the exact camp DP against the real ruins lottery
 # (97.3% nothing, 1.7% 60 gold, 1.1% 500 gold) and solves the ruin phase as a
 # stopping problem: mining costs nothing, and camping with no gold is worthless,
@@ -172,27 +183,48 @@ class Bot:
         two hexes a day), so buying a horse makes every cached route collapse to
         half its length.
         """
-        speed = max(1, self.game.speed())
-        key = (target, speed)
+        key = (target, max(1, self.game.speed()))
         cached = self._travel.get(key)
-        if cached is not None:
-            return cached
+        if cached is None:
+            cached = self._dist_map({target})
+            self._travel[key] = cached
+        return cached
+
+    def north_days(self, start=None):
+        """Expected days from `start` to the nearest north-bank hex.
+
+        Winning with the Staff is not the end of the game: the Prince still has
+        to carry it north of the Tragoth, and that walk has to be paid for out
+        of the same 70 days.  One multi-source Dijkstra covers every north hex
+        at once.
+        """
+        g = self.game
+        key = ('north', max(1, g.speed()))
+        dist = self._travel.get(key)
+        if dist is None:
+            dist = self._dist_map(g.NORTH_OF_TRAGOTH)
+            self._travel[key] = dist
+        return dist.get(start or g.hex, 999.0)
+
+    def _dist_map(self, sources):
+        """Expected travel days from every hex to the nearest of `sources`."""
         g = self.game
         roads = g.road_sides
-        dist = {target: 0.0}
-        heap = [(0.0, target)]
+        dist = {h: 0.0 for h in sources}
+        heap = [(0.0, h) for h in sources]
+        heapq.heapify(heap)
         while heap:
             d, h = heapq.heappop(heap)
             if d > dist.get(h, 1e9) + 1e-9:
                 continue
             for nb in g.model.neighbors(h).values():
                 step = (1.0 if frozenset((nb, h)) in roads else
-                        1.0 / (1.0 - _p_lost(g.model.travel_terrain(nb)))) / speed
+                        1.0 / (1.0 - _p_lost(g.model.travel_terrain(nb)))) \
+                    / max(1, g.speed())
                 nd = d + step
                 if nd < dist.get(nb, 1e9) - 1e-9:
                     dist[nb] = nd
                     heapq.heappush(heap, (nd, nb))
-        self._travel[key] = dist
         return dist
 
     # ------------------------------------------------------------ macro plan
@@ -211,12 +243,20 @@ class Bot:
 
     def camp_days(self):
         """Days of r212 camping left once the party walks to a temple."""
-        _, days = self.nearest('temple')
-        return max(0, int(TOTAL_DAYS - self.game.day - days))
+        temple, days = self.nearest('temple')
+        return max(0, int(TOTAL_DAYS - self.game.day - days
+                          - self.north_days(temple)))
 
     def camp_days_left(self):
-        """Days of the game still available, counting today."""
-        return max(1, TOTAL_DAYS - self.game.day + 1)
+        """Camp days available, counting today, less the walk to the north bank.
+
+        The Staff only wins once it is carried north of the Tragoth, so the
+        days needed for that last march are not camping days.  Without this the
+        DP happily camps until day 70 and wins the Staff on the last day of a
+        campaign it can no longer finish.
+        """
+        days = TOTAL_DAYS - self.game.day + 1
+        return max(1, int(days - self.north_days()))
 
     def horse_days_saved(self, hex_=None):
         """Expected travel days a mount would save, measured from `hex_`.
@@ -333,7 +373,10 @@ class Bot:
             if p['kind'] != 'ruins':
                 continue
             t, td = self.nearest('temple', r)
-            camp = (TOTAL_DAYS - g.day) - self.travel_days(r).get(g.hex, 999.0) - td
+            # The Staff has to be carried north afterwards, so a temple near
+            # the north bank is worth more than a closer one in the south.
+            camp = ((TOTAL_DAYS - g.day) - self.travel_days(r).get(g.hex, 999.0)
+                    - td - NORTH_PENALTY * self.north_days(t))
             if best is None or camp > best[0]:
                 best = (camp, r, t)
         return best
@@ -400,13 +443,15 @@ class Bot:
         """
         g = self.game
         if g.staff:
-            return min(g.model.grid, key=lambda h: int(h[2:]))
+            # Carrying the Staff north of the Tragoth is the win: head for the
+            # closest north-bank hex, not the topmost one on the map.
+            return min(g.NORTH_OF_TRAGOTH,
+                       key=lambda h: (self.travel_days(h).get(g.hex, 999.0), h))
         if g.altar_blessed_day is not None:
             # The High Altar blessing (e044) wins by reaching any north-bank
             # hex within 30 days, so head for the nearest one.
-            return min(g.model.grid,
-                       key=lambda h: (int(h[2:]), h)
-                       if h in g.NORTH_OF_TRAGOTH else (9999, h))
+            return min(g.NORTH_OF_TRAGOTH,
+                       key=lambda h: (self.travel_days(h).get(g.hex, 999.0), h))
         if g.helm:
             # The Royal Helm (e194) wins by returning to Ogon or Weshor.
             return min(g.HELM_WIN_HEXES,

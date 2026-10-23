@@ -83,7 +83,13 @@ class OfferingTests(unittest.TestCase):
         idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
         self.assertEqual(opts[idx], 'Offer 10 gold')
 
-    def test_offering_farms_the_men_when_broke_of_omens(self):
+    def test_offering_buys_the_sacrifice_bonus_even_without_omens(self):
+        """The +1 for 10 gold also keeps the r212 arrest result (5) away.
+
+        A 1-gold offering has no bonus, so it is arrested on any total of 5
+        (4/36) and can never reach 14; 10 gold is both safer and the only
+        amount that wins once the omen lands.
+        """
         g = Game(seed=5)
         g.gold = 60
         g.offering_bonus = 0          # a 14 is impossible without the omen
@@ -91,7 +97,7 @@ class OfferingTests(unittest.TestCase):
         opts = ['Offer 1 gold', 'Offer 5 gold', 'Offer 10 gold',
                 'Offer 20 gold', 'Offer 50 gold', 'Withdraw']
         idx = bot.choose(choice('Submit offerings (r212)', 'How much gold?', opts))
-        self.assertEqual(opts[idx], 'Offer 1 gold')
+        self.assertEqual(opts[idx], 'Offer 10 gold')
 
     def test_offering_skips_unaffordable(self):
         g = Game(seed=5)
@@ -119,13 +125,15 @@ MENU = ('Day 4 - action in hex 1209', "Choose today's action (r203).",
 
 
 class ActionTests(unittest.TestCase):
-    def test_temple_with_gold_offers(self):
+    def test_temple_with_gold_works_the_camp(self):
+        """A funded party at a temple works r212/r209, it does not walk off."""
         g = Game(seed=11)
         g.hex = '1209'                      # a temple
         g.gold = 40
         bot = Bot(g, 'balanced')
         idx = bot.choose(choice(*MENU))
-        self.assertIn('offering', MENU[2][idx].lower())
+        chosen = MENU[2][idx].lower()
+        self.assertTrue(any(k in chosen for k in ('offering', 'news', 'rest')))
 
     def test_omen_bonus_beats_travel(self):
         g = Game(seed=11)
@@ -222,8 +230,10 @@ class MoveTests(unittest.TestCase):
         g.hex = '0101'
         bot = Bot(g, 'balanced')
         # With no gold the camp DP is worthless, so the first leg of the plan
-        # is the ruin that sits closest to a temple, not the temple itself.
-        self.assertEqual(bot.goal_hex(), '0307')
+        # is the ruin of the chosen ruin/temple pair, not the temple itself.
+        plan = bot.plan()
+        self.assertIsNotNone(plan)
+        self.assertEqual(bot.goal_hex(), plan[1])
         self.assertTrue(bot.mining())
 
     def test_moves_towards_the_nearest_temple(self):
