@@ -4,9 +4,10 @@ Geometry calibrated from a single one-piece scan
 (_refs/barbarianprince_onepiecemap-revc.jpg):
   * flat-top hexes, 20 columns x 23 rows = 460 hexes
   * hex id = CCRR  (column 01-20, row 01-23)
-  * hex radius R = 81.0 px in the scans
+  * hex radius R = 79.5 px in the scans
   * column step DX = 1.5 * R, row step DY = sqrt(3) * R
   * even columns are aligned with top, odd columns shifted down by DY/2
+  * SCAN_Y0 shifted down by DY/2 for correct hex center alignment
 
 Scan margins: the one-piece scan has a sidebar on the left (~220px wide)
 containing the map key. The hex grid content starts after the sidebar.
@@ -29,15 +30,16 @@ Calibrated by _refs/recalibrate_geometry.py.
 import math
 
 SQ3 = math.sqrt(3.0)
-R = 81.0
+R = 79.5
 DX = 1.5 * R
 DY = SQ3 * R
 NC, NR = 20, 23
 
 # Anchor: centre of column 1, row 1 in scan pixel coordinates.
 # Adjusted for the sidebar offset in the one-piece scan.
+# Shifted down by DY/2 for correct hex center alignment.
 SCAN_X0 = 300.0
-SCAN_Y0 = 78.1481
+SCAN_Y0 = 148.2962
 
 # Map legend terrain -> terrain name used by the Travel Table (r207).
 TERRAIN_TO_TRAVEL = {
