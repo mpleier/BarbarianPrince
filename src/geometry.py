@@ -1,7 +1,7 @@
 """Unified hex-grid model for the BarbarianPrince board.
 
 Geometry calibrated from a single one-piece scan
-(_refs/barbarianprince_onepiecemap-revc.jpg):
+(_refs/BPMap.jpg):
   * flat-top hexes, 20 columns x 23 rows = 460 hexes
   * hex id = CCRR  (column 01-20, row 01-23)
   * hex radius R = 81.0 px in the scans

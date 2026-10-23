@@ -1,7 +1,7 @@
 # BarbarianPrince — game model
 
 A machine-readable model of the 1981 *BarbarianPrince* board game, built from the
-rule booklet, the events sheet, the errata sheet and the three map scans.
+rule booklet, the events sheet, the errata sheet and the map scan.
 
 ## Pipeline
 
@@ -35,8 +35,7 @@ The web front-end (`src/web.py` + `web/`) needs FastAPI and uvicorn
 (`pip install fastapi uvicorn`).  It serves an SVG of the 20x23 board - terrain
 fills, roads, rivers, named places - plus the party status, the prompt panel
 and the adventure log.  The toolbar's **Map style** dropdown switches between
-flat terrain fills, the original board artwork (`_refs/map1.jpg` + `map2.jpg`
-stitched into `_refs/board_scan.jpg` by `src/map_scan.py`, served at
+flat terrain fills, the original board artwork (`_refs/BPMap.jpg`, served at
 `/scan/board.jpg`) and a blend of the two; **rivers & roads** toggles the
 traced feature lines.  One `engine.Game` is kept per browser session, so
 several tabs can run independent games.  Two smoke tests drive it end to end:

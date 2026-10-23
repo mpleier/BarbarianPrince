@@ -1,6 +1,6 @@
 """The original board artwork as a single 20x23 image.
 
-A one-piece scan of the full board is stored in `_refs/barbarianprince_onepiecemap-revc.jpg`
+A scan of the full board is stored in `_refs/BPMap.jpg`
 and served at `/scan/board.jpg`.  ``scan_rect()`` returns the rectangle
 that image actually covers in pixel coordinates - the scan
 includes a white paper margin, so the rect is trimmed to the
@@ -16,7 +16,7 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REFS = os.path.join(ROOT, '_refs')
-SCAN_SOURCE = os.path.join(REFS, 'barbarianprince_onepiecemap-revc.jpg')
+SCAN_SOURCE = os.path.join(REFS, 'BPMap.jpg')
 SCAN_PATH = os.path.join(REFS, 'board_scan.jpg')
 MAX_WIDTH = 1800
 WHITE = 248          # a pixel this bright counts as paper, not artwork

@@ -188,7 +188,7 @@ def main():
             'dy_px': round(DY, 3),
             'columns': NC,
             'rows': NR,
-            'scan': 'barbarianprince_onepiecemap-revc.jpg',
+            'scan': 'BPMap.jpg',
         },
         'grid': grid,
         'rules': rules,
