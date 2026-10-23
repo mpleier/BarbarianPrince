@@ -7,7 +7,7 @@ Geometry calibrated from a single one-piece scan
   * hex radius R = 79.5 px in the scans
   * column step DX = 1.5 * R, row step DY = sqrt(3) * R
   * even columns are aligned with top, odd columns shifted down by DY/2
-  * SCAN_Y0 shifted down by DY/2 for correct hex center alignment
+  * SCAN_Y0 shifted upward to align hex row 1 centers near top of image
 
 Scan margins: the one-piece scan has a sidebar on the left (~220px wide)
 containing the map key. The hex grid content starts after the sidebar.
@@ -39,7 +39,7 @@ NC, NR = 20, 23
 # Adjusted for the sidebar offset in the one-piece scan.
 # Shifted down by DY/2 for correct hex center alignment.
 SCAN_X0 = 300.0
-SCAN_Y0 = 148.2962
+SCAN_Y0 = 79.4462
 
 # Map legend terrain -> terrain name used by the Travel Table (r207).
 TERRAIN_TO_TRAVEL = {

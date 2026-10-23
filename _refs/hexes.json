@@ -10,7 +10,7 @@
   "id": "0102",
   "col": 1,
   "row": 2,
-  "terrain": "countryside",
+  "terrain": "farmland",
   "dist": 43.53
  },
  {
@@ -24,21 +24,21 @@
   "id": "0104",
   "col": 1,
   "row": 4,
-  "terrain": "mountains",
+  "terrain": "farmland",
   "dist": 32.53
  },
  {
   "id": "0105",
   "col": 1,
   "row": 5,
-  "terrain": "farmland",
+  "terrain": "badlands",
   "dist": 45.16
  },
  {
   "id": "0106",
   "col": 1,
   "row": 6,
-  "terrain": "badlands",
+  "terrain": "farmland",
   "dist": 26.25
  },
  {
@@ -59,14 +59,14 @@
   "id": "0109",
   "col": 1,
   "row": 9,
-  "terrain": "farmland",
+  "terrain": "countryside",
   "dist": 19.81
  },
  {
   "id": "0110",
   "col": 1,
   "row": 10,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 43.81
  },
  {
@@ -87,7 +87,7 @@
   "id": "0113",
   "col": 1,
   "row": 13,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 27.69
  },
  {
@@ -122,7 +122,7 @@
   "id": "0118",
   "col": 1,
   "row": 18,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 46.16
  },
  {
@@ -164,7 +164,7 @@
   "id": "0201",
   "col": 2,
   "row": 1,
-  "terrain": "mountains",
+  "terrain": "farmland",
   "dist": 19.3
  },
  {
@@ -185,14 +185,14 @@
   "id": "0204",
   "col": 2,
   "row": 4,
-  "terrain": "mountains",
+  "terrain": "farmland",
   "dist": 16.18
  },
  {
   "id": "0205",
   "col": 2,
   "row": 5,
-  "terrain": "farmland",
+  "terrain": "mountains",
   "dist": 23.42
  },
  {
@@ -206,14 +206,14 @@
   "id": "0207",
   "col": 2,
   "row": 7,
-  "terrain": "badlands",
+  "terrain": "desert",
   "dist": 42.6
  },
  {
   "id": "0208",
   "col": 2,
   "row": 8,
-  "terrain": "farmland",
+  "terrain": "badlands",
   "dist": 28.6
  },
  {
@@ -248,7 +248,7 @@
   "id": "0213",
   "col": 2,
   "row": 13,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 25.83
  },
  {
@@ -269,7 +269,7 @@
   "id": "0216",
   "col": 2,
   "row": 16,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 13.99
  },
  {
@@ -283,21 +283,21 @@
   "id": "0218",
   "col": 2,
   "row": 18,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 49.71
  },
  {
   "id": "0219",
   "col": 2,
   "row": 19,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 41.88
  },
  {
   "id": "0220",
   "col": 2,
   "row": 20,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 27.81
  },
  {
@@ -318,7 +318,7 @@
   "id": "0223",
   "col": 2,
   "row": 23,
-  "terrain": "forest",
+  "terrain": "badlands",
   "dist": 29.99
  },
  {
@@ -360,7 +360,7 @@
   "id": "0306",
   "col": 3,
   "row": 6,
-  "terrain": "badlands",
+  "terrain": "farmland",
   "dist": 26.94
  },
  {
@@ -374,7 +374,7 @@
   "id": "0308",
   "col": 3,
   "row": 8,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 35.43
  },
  {
@@ -395,7 +395,7 @@
   "id": "0311",
   "col": 3,
   "row": 11,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 38.45
  },
  {
@@ -430,7 +430,7 @@
   "id": "0316",
   "col": 3,
   "row": 16,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 26.06
  },
  {
@@ -451,14 +451,14 @@
   "id": "0319",
   "col": 3,
   "row": 19,
-  "terrain": "farmland",
+  "terrain": "badlands",
   "dist": 19.16
  },
  {
   "id": "0320",
   "col": 3,
   "row": 20,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 27.34
  },
  {
@@ -479,7 +479,7 @@
   "id": "0323",
   "col": 3,
   "row": 23,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 30.25
  },
  {
@@ -500,7 +500,7 @@
   "id": "0403",
   "col": 4,
   "row": 3,
-  "terrain": "water",
+  "terrain": "farmland",
   "dist": 33.32
  },
  {
@@ -556,7 +556,7 @@
   "id": "0411",
   "col": 4,
   "row": 11,
-  "terrain": "countryside",
+  "terrain": "farmland",
   "dist": 19.04
  },
  {
@@ -577,7 +577,7 @@
   "id": "0414",
   "col": 4,
   "row": 14,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 19.43
  },
  {
@@ -591,7 +591,7 @@
   "id": "0416",
   "col": 4,
   "row": 16,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 20.96
  },
  {
@@ -612,21 +612,21 @@
   "id": "0419",
   "col": 4,
   "row": 19,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 12.51
  },
  {
   "id": "0420",
   "col": 4,
   "row": 20,
-  "terrain": "badlands",
+  "terrain": "countryside",
   "dist": 19.86
  },
  {
   "id": "0421",
   "col": 4,
   "row": 21,
-  "terrain": "forest",
+  "terrain": "badlands",
   "dist": 54.19
  },
  {
@@ -654,7 +654,7 @@
   "id": "0502",
   "col": 5,
   "row": 2,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 24.99
  },
  {
@@ -668,7 +668,7 @@
   "id": "0504",
   "col": 5,
   "row": 4,
-  "terrain": "forest",
+  "terrain": "mountains",
   "dist": 35.43
  },
  {
@@ -710,14 +710,14 @@
   "id": "0510",
   "col": 5,
   "row": 10,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 14.12
  },
  {
   "id": "0511",
   "col": 5,
   "row": 11,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 17.55
  },
  {
@@ -752,35 +752,35 @@
   "id": "0516",
   "col": 5,
   "row": 16,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 29.61
  },
  {
   "id": "0517",
   "col": 5,
   "row": 17,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 37.1
  },
  {
   "id": "0518",
   "col": 5,
   "row": 18,
-  "terrain": "badlands",
+  "terrain": "forest",
   "dist": 6.75
  },
  {
   "id": "0519",
   "col": 5,
   "row": 19,
-  "terrain": "forest",
+  "terrain": "badlands",
   "dist": 26.43
  },
  {
   "id": "0520",
   "col": 5,
   "row": 20,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 4.7
  },
  {
@@ -794,7 +794,7 @@
   "id": "0522",
   "col": 5,
   "row": 22,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 18.75
  },
  {
@@ -822,14 +822,14 @@
   "id": "0603",
   "col": 6,
   "row": 3,
-  "terrain": "mountains",
+  "terrain": "farmland",
   "dist": 31.73
  },
  {
   "id": "0604",
   "col": 6,
   "row": 4,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 23.19
  },
  {
@@ -864,21 +864,21 @@
   "id": "0609",
   "col": 6,
   "row": 9,
-  "terrain": "swamp",
+  "terrain": "farmland",
   "dist": 13.74
  },
  {
   "id": "0610",
   "col": 6,
   "row": 10,
-  "terrain": "forest",
+  "terrain": "swamp",
   "dist": 40.33
  },
  {
   "id": "0611",
   "col": 6,
   "row": 11,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 15.5
  },
  {
@@ -892,7 +892,7 @@
   "id": "0613",
   "col": 6,
   "row": 13,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 41.07
  },
  {
@@ -906,28 +906,28 @@
   "id": "0615",
   "col": 6,
   "row": 15,
-  "terrain": "farmland",
+  "terrain": "countryside",
   "dist": 41.61
  },
  {
   "id": "0616",
   "col": 6,
   "row": 16,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 28.95
  },
  {
   "id": "0617",
   "col": 6,
   "row": 17,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 37.48
  },
  {
   "id": "0618",
   "col": 6,
   "row": 18,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 19.34
  },
  {
@@ -955,14 +955,14 @@
   "id": "0622",
   "col": 6,
   "row": 22,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 34.67
  },
  {
   "id": "0623",
   "col": 6,
   "row": 23,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 40.52
  },
  {
@@ -976,7 +976,7 @@
   "id": "0702",
   "col": 7,
   "row": 2,
-  "terrain": "water",
+  "terrain": "farmland",
   "dist": 13.97
  },
  {
@@ -1025,7 +1025,7 @@
   "id": "0709",
   "col": 7,
   "row": 9,
-  "terrain": "swamp",
+  "terrain": "forest",
   "dist": 15.32
  },
  {
@@ -1074,7 +1074,7 @@
   "id": "0716",
   "col": 7,
   "row": 16,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 44.99
  },
  {
@@ -1088,14 +1088,14 @@
   "id": "0718",
   "col": 7,
   "row": 18,
-  "terrain": "badlands",
+  "terrain": "forest",
   "dist": 21.27
  },
  {
   "id": "0719",
   "col": 7,
   "row": 19,
-  "terrain": "forest",
+  "terrain": "badlands",
   "dist": 34.21
  },
  {
@@ -1130,14 +1130,14 @@
   "id": "0801",
   "col": 8,
   "row": 1,
-  "terrain": "mountains",
+  "terrain": "farmland",
   "dist": 43.59
  },
  {
   "id": "0802",
   "col": 8,
   "row": 2,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 16.56
  },
  {
@@ -1151,7 +1151,7 @@
   "id": "0804",
   "col": 8,
   "row": 4,
-  "terrain": "mountains",
+  "terrain": "forest",
   "dist": 15.8
  },
  {
@@ -1165,14 +1165,14 @@
   "id": "0806",
   "col": 8,
   "row": 6,
-  "terrain": "mountains",
+  "terrain": "forest",
   "dist": 35.49
  },
  {
   "id": "0807",
   "col": 8,
   "row": 7,
-  "terrain": "forest",
+  "terrain": "swamp",
   "dist": 8.62
  },
  {
@@ -1235,21 +1235,21 @@
   "id": "0816",
   "col": 8,
   "row": 16,
-  "terrain": "badlands",
+  "terrain": "forest",
   "dist": 21.48
  },
  {
   "id": "0817",
   "col": 8,
   "row": 17,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 15.99
  },
  {
   "id": "0818",
   "col": 8,
   "row": 18,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 13.68
  },
  {
@@ -1263,14 +1263,14 @@
   "id": "0820",
   "col": 8,
   "row": 20,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 27.23
  },
  {
   "id": "0821",
   "col": 8,
   "row": 21,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 16.65
  },
  {
@@ -1298,21 +1298,21 @@
   "id": "0902",
   "col": 9,
   "row": 2,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 39.07
  },
  {
   "id": "0903",
   "col": 9,
   "row": 3,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 27.03
  },
  {
   "id": "0904",
   "col": 9,
   "row": 4,
-  "terrain": "farmland",
+  "terrain": "countryside",
   "dist": 25.82
  },
  {
@@ -1326,7 +1326,7 @@
   "id": "0906",
   "col": 9,
   "row": 6,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 25.79
  },
  {
@@ -1340,7 +1340,7 @@
   "id": "0908",
   "col": 9,
   "row": 8,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 44.49
  },
  {
@@ -1354,21 +1354,21 @@
   "id": "0910",
   "col": 9,
   "row": 10,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 38.99
  },
  {
   "id": "0911",
   "col": 9,
   "row": 11,
-  "terrain": "mountains",
+  "terrain": "forest",
   "dist": 15.45
  },
  {
   "id": "0912",
   "col": 9,
   "row": 12,
-  "terrain": "forest",
+  "terrain": "mountains",
   "dist": 17.29
  },
  {
@@ -1389,7 +1389,7 @@
   "id": "0915",
   "col": 9,
   "row": 15,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 18.82
  },
  {
@@ -1445,7 +1445,7 @@
   "id": "0923",
   "col": 9,
   "row": 23,
-  "terrain": "countryside",
+  "terrain": "mountains",
   "dist": 18.21
  },
  {
@@ -1466,14 +1466,14 @@
   "id": "1003",
   "col": 10,
   "row": 3,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 5.97
  },
  {
   "id": "1004",
   "col": 10,
   "row": 4,
-  "terrain": "farmland",
+  "terrain": "countryside",
   "dist": 7.87
  },
  {
@@ -1494,14 +1494,14 @@
   "id": "1007",
   "col": 10,
   "row": 7,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 13.97
  },
  {
   "id": "1008",
   "col": 10,
   "row": 8,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 34.31
  },
  {
@@ -1515,7 +1515,7 @@
   "id": "1010",
   "col": 10,
   "row": 10,
-  "terrain": "mountains",
+  "terrain": "badlands",
   "dist": 37.79
  },
  {
@@ -1529,7 +1529,7 @@
   "id": "1012",
   "col": 10,
   "row": 12,
-  "terrain": "countryside",
+  "terrain": "mountains",
   "dist": 26.39
  },
  {
@@ -1550,7 +1550,7 @@
   "id": "1015",
   "col": 10,
   "row": 15,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 36.27
  },
  {
@@ -1571,21 +1571,21 @@
   "id": "1018",
   "col": 10,
   "row": 18,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 21.23
  },
  {
   "id": "1019",
   "col": 10,
   "row": 19,
-  "terrain": "badlands",
+  "terrain": "forest",
   "dist": 25.82
  },
  {
   "id": "1020",
   "col": 10,
   "row": 20,
-  "terrain": "swamp",
+  "terrain": "mountains",
   "dist": 29.3
  },
  {
@@ -1606,35 +1606,35 @@
   "id": "1023",
   "col": 10,
   "row": 23,
-  "terrain": "mountains",
+  "terrain": "water",
   "dist": 36.09
  },
  {
   "id": "1101",
   "col": 11,
   "row": 1,
-  "terrain": "badlands",
+  "terrain": "mountains",
   "dist": 13.18
  },
  {
   "id": "1102",
   "col": 11,
   "row": 2,
-  "terrain": "swamp",
+  "terrain": "countryside",
   "dist": 11.63
  },
  {
   "id": "1103",
   "col": 11,
   "row": 3,
-  "terrain": "farmland",
+  "terrain": "countryside",
   "dist": 31.96
  },
  {
   "id": "1104",
   "col": 11,
   "row": 4,
-  "terrain": "swamp",
+  "terrain": "countryside",
   "dist": 28.98
  },
  {
@@ -1648,7 +1648,7 @@
   "id": "1106",
   "col": 11,
   "row": 6,
-  "terrain": "mountains",
+  "terrain": "water",
   "dist": 45.25
  },
  {
@@ -1669,21 +1669,21 @@
   "id": "1109",
   "col": 11,
   "row": 9,
-  "terrain": "forest",
+  "terrain": "badlands",
   "dist": 21.43
  },
  {
   "id": "1110",
   "col": 11,
   "row": 10,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 25.25
  },
  {
   "id": "1111",
   "col": 11,
   "row": 11,
-  "terrain": "badlands",
+  "terrain": "countryside",
   "dist": 10.74
  },
  {
@@ -1697,21 +1697,21 @@
   "id": "1113",
   "col": 11,
   "row": 13,
-  "terrain": "swamp",
+  "terrain": "forest",
   "dist": 17.52
  },
  {
   "id": "1114",
   "col": 11,
   "row": 14,
-  "terrain": "farmland",
+  "terrain": "swamp",
   "dist": 28.95
  },
  {
   "id": "1115",
   "col": 11,
   "row": 15,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 36.3
  },
  {
@@ -1732,7 +1732,7 @@
   "id": "1118",
   "col": 11,
   "row": 18,
-  "terrain": "forest",
+  "terrain": "swamp",
   "dist": 17.24
  },
  {
@@ -1746,7 +1746,7 @@
   "id": "1120",
   "col": 11,
   "row": 20,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 24.64
  },
  {
@@ -1774,7 +1774,7 @@
   "id": "1201",
   "col": 12,
   "row": 1,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 21.52
  },
  {
@@ -1788,35 +1788,35 @@
   "id": "1203",
   "col": 12,
   "row": 3,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 21.09
  },
  {
   "id": "1204",
   "col": 12,
   "row": 4,
-  "terrain": "swamp",
+  "terrain": "forest",
   "dist": 29.82
  },
  {
   "id": "1205",
   "col": 12,
   "row": 5,
-  "terrain": "farmland",
+  "terrain": "swamp",
   "dist": 35.97
  },
  {
   "id": "1206",
   "col": 12,
   "row": 6,
-  "terrain": "swamp",
+  "terrain": "farmland",
   "dist": 7.68
  },
  {
   "id": "1207",
   "col": 12,
   "row": 7,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 22.8
  },
  {
@@ -1851,7 +1851,7 @@
   "id": "1212",
   "col": 12,
   "row": 12,
-  "terrain": "countryside",
+  "terrain": "mountains",
   "dist": 38.03
  },
  {
@@ -1865,21 +1865,21 @@
   "id": "1214",
   "col": 12,
   "row": 14,
-  "terrain": "water",
+  "terrain": "farmland",
   "dist": 36.24
  },
  {
   "id": "1215",
   "col": 12,
   "row": 15,
-  "terrain": "mountains",
+  "terrain": "swamp",
   "dist": 23.09
  },
  {
   "id": "1216",
   "col": 12,
   "row": 16,
-  "terrain": "forest",
+  "terrain": "mountains",
   "dist": 22.15
  },
  {
@@ -1907,14 +1907,14 @@
   "id": "1220",
   "col": 12,
   "row": 20,
-  "terrain": "forest",
+  "terrain": "swamp",
   "dist": 19.42
  },
  {
   "id": "1221",
   "col": 12,
   "row": 21,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 47.62
  },
  {
@@ -1928,70 +1928,70 @@
   "id": "1223",
   "col": 12,
   "row": 23,
-  "terrain": "swamp",
+  "terrain": "forest",
   "dist": 54.8
  },
  {
   "id": "1301",
   "col": 13,
   "row": 1,
-  "terrain": "countryside",
+  "terrain": "swamp",
   "dist": 31.4
  },
  {
   "id": "1302",
   "col": 13,
   "row": 2,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 21.66
  },
  {
   "id": "1303",
   "col": 13,
   "row": 3,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 20.4
  },
  {
   "id": "1304",
   "col": 13,
   "row": 4,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 13.94
  },
  {
   "id": "1305",
   "col": 13,
   "row": 5,
-  "terrain": "countryside",
+  "terrain": "farmland",
   "dist": 36.82
  },
  {
   "id": "1306",
   "col": 13,
   "row": 6,
-  "terrain": "water",
+  "terrain": "countryside",
   "dist": 10.18
  },
  {
   "id": "1307",
   "col": 13,
   "row": 7,
-  "terrain": "countryside",
+  "terrain": "water",
   "dist": 17.62
  },
  {
   "id": "1308",
   "col": 13,
   "row": 8,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 62.6
  },
  {
   "id": "1309",
   "col": 13,
   "row": 9,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 13.15
  },
  {
@@ -2005,21 +2005,21 @@
   "id": "1311",
   "col": 13,
   "row": 11,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 28.01
  },
  {
   "id": "1312",
   "col": 13,
   "row": 12,
-  "terrain": "water",
+  "terrain": "countryside",
   "dist": 32.68
  },
  {
   "id": "1313",
   "col": 13,
   "row": 13,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 10.66
  },
  {
@@ -2033,14 +2033,14 @@
   "id": "1315",
   "col": 13,
   "row": 15,
-  "terrain": "badlands",
+  "terrain": "countryside",
   "dist": 37.92
  },
  {
   "id": "1316",
   "col": 13,
   "row": 16,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 15.83
  },
  {
@@ -2068,7 +2068,7 @@
   "id": "1320",
   "col": 13,
   "row": 20,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 10.93
  },
  {
@@ -2096,7 +2096,7 @@
   "id": "1401",
   "col": 14,
   "row": 1,
-  "terrain": "countryside",
+  "terrain": "swamp",
   "dist": 22.36
  },
  {
@@ -2110,7 +2110,7 @@
   "id": "1403",
   "col": 14,
   "row": 3,
-  "terrain": "countryside",
+  "terrain": "farmland",
   "dist": 31.0
  },
  {
@@ -2145,7 +2145,7 @@
   "id": "1408",
   "col": 14,
   "row": 8,
-  "terrain": "countryside",
+  "terrain": "desert",
   "dist": 66.66
  },
  {
@@ -2159,7 +2159,7 @@
   "id": "1410",
   "col": 14,
   "row": 10,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 18.44
  },
  {
@@ -2180,7 +2180,7 @@
   "id": "1413",
   "col": 14,
   "row": 13,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 51.57
  },
  {
@@ -2194,14 +2194,14 @@
   "id": "1415",
   "col": 14,
   "row": 15,
-  "terrain": "mountains",
+  "terrain": "badlands",
   "dist": 24.74
  },
  {
   "id": "1416",
   "col": 14,
   "row": 16,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 24.92
  },
  {
@@ -2236,14 +2236,14 @@
   "id": "1421",
   "col": 14,
   "row": 21,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 29.62
  },
  {
   "id": "1422",
   "col": 14,
   "row": 22,
-  "terrain": "forest",
+  "terrain": "swamp",
   "dist": 30.6
  },
  {
@@ -2264,7 +2264,7 @@
   "id": "1502",
   "col": 15,
   "row": 2,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 9.3
  },
  {
@@ -2320,7 +2320,7 @@
   "id": "1510",
   "col": 15,
   "row": 10,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 49.97
  },
  {
@@ -2348,14 +2348,14 @@
   "id": "1514",
   "col": 15,
   "row": 14,
-  "terrain": "countryside",
+  "terrain": "farmland",
   "dist": 30.89
  },
  {
   "id": "1515",
   "col": 15,
   "row": 15,
-  "terrain": "forest",
+  "terrain": "badlands",
   "dist": 12.17
  },
  {
@@ -2397,7 +2397,7 @@
   "id": "1521",
   "col": 15,
   "row": 21,
-  "terrain": "swamp",
+  "terrain": "forest",
   "dist": 40.85
  },
  {
@@ -2418,7 +2418,7 @@
   "id": "1601",
   "col": 16,
   "row": 1,
-  "terrain": "farmland",
+  "terrain": "countryside",
   "dist": 11.07
  },
  {
@@ -2432,7 +2432,7 @@
   "id": "1603",
   "col": 16,
   "row": 3,
-  "terrain": "swamp",
+  "terrain": "farmland",
   "dist": 28.54
  },
  {
@@ -2446,14 +2446,14 @@
   "id": "1605",
   "col": 16,
   "row": 5,
-  "terrain": "water",
+  "terrain": "countryside",
   "dist": 15.07
  },
  {
   "id": "1606",
   "col": 16,
   "row": 6,
-  "terrain": "desert",
+  "terrain": "water",
   "dist": 25.94
  },
  {
@@ -2481,21 +2481,21 @@
   "id": "1610",
   "col": 16,
   "row": 10,
-  "terrain": "mountains",
+  "terrain": "desert",
   "dist": 19.76
  },
  {
   "id": "1611",
   "col": 16,
   "row": 11,
-  "terrain": "swamp",
+  "terrain": "mountains",
   "dist": 31.55
  },
  {
   "id": "1612",
   "col": 16,
   "row": 12,
-  "terrain": "countryside",
+  "terrain": "mountains",
   "dist": 14.79
  },
  {
@@ -2516,7 +2516,7 @@
   "id": "1615",
   "col": 16,
   "row": 15,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 14.91
  },
  {
@@ -2565,7 +2565,7 @@
   "id": "1622",
   "col": 16,
   "row": 22,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 20.99
  },
  {
@@ -2579,28 +2579,28 @@
   "id": "1701",
   "col": 17,
   "row": 1,
-  "terrain": "farmland",
+  "terrain": "countryside",
   "dist": 29.89
  },
  {
   "id": "1702",
   "col": 17,
   "row": 2,
-  "terrain": "water",
+  "terrain": "farmland",
   "dist": 32.19
  },
  {
   "id": "1703",
   "col": 17,
   "row": 3,
-  "terrain": "farmland",
+  "terrain": "swamp",
   "dist": 16.54
  },
  {
   "id": "1704",
   "col": 17,
   "row": 4,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 25.5
  },
  {
@@ -2628,42 +2628,42 @@
   "id": "1708",
   "col": 17,
   "row": 8,
-  "terrain": "badlands",
+  "terrain": "desert",
   "dist": 49.86
  },
  {
   "id": "1709",
   "col": 17,
   "row": 9,
-  "terrain": "desert",
+  "terrain": "countryside",
   "dist": 22.43
  },
  {
   "id": "1710",
   "col": 17,
   "row": 10,
-  "terrain": "badlands",
+  "terrain": "desert",
   "dist": 45.18
  },
  {
   "id": "1711",
   "col": 17,
   "row": 11,
-  "terrain": "water",
+  "terrain": "countryside",
   "dist": 29.09
  },
  {
   "id": "1712",
   "col": 17,
   "row": 12,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 48.59
  },
  {
   "id": "1713",
   "col": 17,
   "row": 13,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 17.97
  },
  {
@@ -2677,7 +2677,7 @@
   "id": "1715",
   "col": 17,
   "row": 15,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 12.37
  },
  {
@@ -2691,7 +2691,7 @@
   "id": "1717",
   "col": 17,
   "row": 17,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 44.56
  },
  {
@@ -2705,14 +2705,14 @@
   "id": "1719",
   "col": 17,
   "row": 19,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 28.85
  },
  {
   "id": "1720",
   "col": 17,
   "row": 20,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 11.88
  },
  {
@@ -2726,28 +2726,28 @@
   "id": "1722",
   "col": 17,
   "row": 22,
-  "terrain": "swamp",
+  "terrain": "forest",
   "dist": 33.19
  },
  {
   "id": "1723",
   "col": 17,
   "row": 23,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 26.23
  },
  {
   "id": "1801",
   "col": 18,
   "row": 1,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 23.25
  },
  {
   "id": "1802",
   "col": 18,
   "row": 2,
-  "terrain": "water",
+  "terrain": "countryside",
   "dist": 17.5
  },
  {
@@ -2775,21 +2775,21 @@
   "id": "1806",
   "col": 18,
   "row": 6,
-  "terrain": "water",
+  "terrain": "farmland",
   "dist": 12.51
  },
  {
   "id": "1807",
   "col": 18,
   "row": 7,
-  "terrain": "desert",
+  "terrain": "countryside",
   "dist": 17.38
  },
  {
   "id": "1808",
   "col": 18,
   "row": 8,
-  "terrain": "badlands",
+  "terrain": "desert",
   "dist": 29.76
  },
  {
@@ -2803,21 +2803,21 @@
   "id": "1810",
   "col": 18,
   "row": 10,
-  "terrain": "water",
+  "terrain": "countryside",
   "dist": 27.39
  },
  {
   "id": "1811",
   "col": 18,
   "row": 11,
-  "terrain": "badlands",
+  "terrain": "countryside",
   "dist": 13.58
  },
  {
   "id": "1812",
   "col": 18,
   "row": 12,
-  "terrain": "mountains",
+  "terrain": "countryside",
   "dist": 19.93
  },
  {
@@ -2831,14 +2831,14 @@
   "id": "1814",
   "col": 18,
   "row": 14,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 12.37
  },
  {
   "id": "1815",
   "col": 18,
   "row": 15,
-  "terrain": "swamp",
+  "terrain": "farmland",
   "dist": 31.45
  },
  {
@@ -2859,14 +2859,14 @@
   "id": "1818",
   "col": 18,
   "row": 18,
-  "terrain": "countryside",
+  "terrain": "forest",
   "dist": 13.04
  },
  {
   "id": "1819",
   "col": 18,
   "row": 19,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 29.04
  },
  {
@@ -2894,7 +2894,7 @@
   "id": "1823",
   "col": 18,
   "row": 23,
-  "terrain": "forest",
+  "terrain": "swamp",
   "dist": 3.18
  },
  {
@@ -2908,14 +2908,14 @@
   "id": "1902",
   "col": 19,
   "row": 2,
-  "terrain": "farmland",
+  "terrain": "water",
   "dist": 23.34
  },
  {
   "id": "1903",
   "col": 19,
   "row": 3,
-  "terrain": "badlands",
+  "terrain": "farmland",
   "dist": 27.69
  },
  {
@@ -2936,7 +2936,7 @@
   "id": "1906",
   "col": 19,
   "row": 6,
-  "terrain": "water",
+  "terrain": "farmland",
   "dist": 22.79
  },
  {
@@ -2950,7 +2950,7 @@
   "id": "1908",
   "col": 19,
   "row": 8,
-  "terrain": "water",
+  "terrain": "mountains",
   "dist": 36.89
  },
  {
@@ -2971,7 +2971,7 @@
   "id": "1911",
   "col": 19,
   "row": 11,
-  "terrain": "mountains",
+  "terrain": "farmland",
   "dist": 34.64
  },
  {
@@ -2985,14 +2985,14 @@
   "id": "1913",
   "col": 19,
   "row": 13,
-  "terrain": "swamp",
+  "terrain": "mountains",
   "dist": 24.47
  },
  {
   "id": "1914",
   "col": 19,
   "row": 14,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 33.02
  },
  {
@@ -3020,7 +3020,7 @@
   "id": "1918",
   "col": 19,
   "row": 18,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 39.56
  },
  {
@@ -3034,7 +3034,7 @@
   "id": "1920",
   "col": 19,
   "row": 20,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 33.71
  },
  {
@@ -3055,28 +3055,28 @@
   "id": "1923",
   "col": 19,
   "row": 23,
-  "terrain": "countryside",
+  "terrain": "badlands",
   "dist": 20.4
  },
  {
   "id": "2001",
   "col": 20,
   "row": 1,
-  "terrain": "swamp",
+  "terrain": "countryside",
   "dist": 24.23
  },
  {
   "id": "2002",
   "col": 20,
   "row": 2,
-  "terrain": "water",
+  "terrain": "swamp",
   "dist": 21.48
  },
  {
   "id": "2003",
   "col": 20,
   "row": 3,
-  "terrain": "badlands",
+  "terrain": "farmland",
   "dist": 15.09
  },
  {
@@ -3104,21 +3104,21 @@
   "id": "2007",
   "col": 20,
   "row": 7,
-  "terrain": "farmland",
+  "terrain": "water",
   "dist": 13.87
  },
  {
   "id": "2008",
   "col": 20,
   "row": 8,
-  "terrain": "water",
+  "terrain": "farmland",
   "dist": 30.87
  },
  {
   "id": "2009",
   "col": 20,
   "row": 9,
-  "terrain": "mountains",
+  "terrain": "water",
   "dist": 25.74
  },
  {
@@ -3139,28 +3139,28 @@
   "id": "2012",
   "col": 20,
   "row": 12,
-  "terrain": "water",
+  "terrain": "countryside",
   "dist": 21.8
  },
  {
   "id": "2013",
   "col": 20,
   "row": 13,
-  "terrain": "countryside",
+  "terrain": "water",
   "dist": 28.98
  },
  {
   "id": "2014",
   "col": 20,
   "row": 14,
-  "terrain": "farmland",
+  "terrain": "forest",
   "dist": 44.1
  },
  {
   "id": "2015",
   "col": 20,
   "row": 15,
-  "terrain": "forest",
+  "terrain": "farmland",
   "dist": 18.49
  },
  {
@@ -3195,14 +3195,14 @@
   "id": "2020",
   "col": 20,
   "row": 20,
-  "terrain": "forest",
+  "terrain": "countryside",
   "dist": 24.21
  },
  {
   "id": "2021",
   "col": 20,
   "row": 21,
-  "terrain": "badlands",
+  "terrain": "countryside",
   "dist": 33.8
  },
  {
