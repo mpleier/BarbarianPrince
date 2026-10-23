@@ -55,6 +55,9 @@ with open(os.path.join(DATA, 'tables.json'), encoding='utf-8') as _f:
 RUINS = {int(k): v for k, v in _TABLES['ruins_search'].items()}
 RAFTING = {int(k): v for k, v in _TABLES['raft_travel_events'].items()}
 
+# r213: a raft covers three river hexsides a day (two going upriver).
+RAFT_SPEED = 3
+
 # An option cell ends with a booklet reference.  The OCR occasionally renders
 # 'r309' as 'i309', so that variant is accepted and normalised later.
 OPTION_REF_RE = re.compile(r'^[rcei]\d{3}$')
@@ -585,9 +588,14 @@ class Game:
     def start(self):
         self.party.append(Character('Cal Arath (the Prince)', 8, 9, 2,
                                     prince=True))
-        self.gold = 0
+        # r202: the Prince's wealth code is 2 - roll the Treasure Table (r226)
+        # for the coins he grabbed on the way out (0-4 gold).
+        gold, item, _event = self.treasure_roll(2)
+        self.gold = gold
         self.note(f'The Barbarian Prince begins his quest in hex {self.hex}. '
-                  f'Wit & wiles = {self.wit}.')
+                  f'Wit & wiles = {self.wit}; starting purse {gold} gold (r202).')
+        if item:
+            self.items.append(item)
 
     def place(self, hid):
         return self.features['places'].get(hid)
@@ -754,10 +762,40 @@ class Game:
                      '(mounted)' if self.speed() == 2 else '(on foot)'))
         self.choose_move()
 
+    def begin_raft(self):
+        """r213 - take to the raft and travel along the river hexsides.
+
+        A raft covers three hexsides a day.  The party is only offered river
+        sides to move along; getting lost is impossible on the water (r205b).
+        """
+        if not self.raft and not self.raft_available():
+            self.note('No raft here - the party is nowhere near a river (r213).')
+            return 'No raft available.'
+        self.raft = True
+        self.action = 'raft'
+        self.moves_left = RAFT_SPEED
+        self.note(f'The party takes to the raft: {RAFT_SPEED} river hexsides '
+                  f'today (r213).')
+        self.choose_move()
+        return 'Rafting.'
+
+    def raft_stop_check(self):
+        """r213 - after a day on the raft, a roll of 12 reaches a stop."""
+        roll = self.d2()
+        if roll == 12:
+            self.raft = False
+            self.note('The raft reaches a stopping point and is dismantled '
+                      '(r213).')
+        else:
+            self.note(f'The raft travels on (stop check {roll}, only a 12 stops '
+                      f'it - r213).')
+
     def choose_move(self):
         nbs = self.model.neighbors(self.hex)
         opts = []
         for d, hid in sorted(nbs.items()):
+            if self.raft and not self.is_river_move(self.hex, hid):
+                continue                     # a raft follows the river
             label = f'{d} -> {hid} ({self.model.travel_terrain(hid)})'
             if self.is_road_move(self.hex, hid):
                 label += ' [road]'
@@ -765,6 +803,11 @@ class Game:
                 label += ' [river]'
             opts.append({'label': label,
                          'handler': (lambda hid=hid: self.move(hid))})
+        if self.raft and not opts:
+            self.note('The river does not continue from this hex (r213).')
+            self.moves_left = 0
+            self.raft_stop_check()
+            return self.stop_travel()
         opts.append({'label': 'Stop travelling for the day',
                      'handler': (lambda: self.stop_travel())})
         self.push('choice', f'Move ({self.moves_left} hex(es) left)',
@@ -783,6 +826,20 @@ class Game:
         if dest not in self.model.neighbors(src).values():
             self.note(f'{dest} is not adjacent to {src}.')
             return False
+        if self.raft:
+            # r213: on the water the party follows river hexsides and can
+            # never get lost (r205b); the travel event is read under "Rafting".
+            if not self.is_river_move(src, dest):
+                self.note('A raft can only follow the river (r213).')
+                return False
+            self.hex = dest
+            self.moves_left -= 1
+            self.visited.add(dest)
+            self.note(f'Raft {src} -> {dest} (r213).')
+            self.travel_event(dest, rafting=True)
+            if self.moves_left <= 0:
+                self.raft_stop_check()
+            return True
         road = self.is_road_move(src, dest)
         river = self.is_river_move(src, dest)
         self.note(f'Travel {src} -> {dest}: {self.model.travel_terrain(src)} -> '
@@ -852,7 +909,11 @@ class Game:
                     self.daily_menu()
                 elif self.action == 'travel' and self.moves_left > 0:
                     self.choose_move()
+                elif self.action == 'raft' and self.moves_left > 0:
+                    self.choose_move()
                 else:
+                    if self.action == 'raft':
+                        self.raft_stop_check()
                     self.phase = 'endday'
                     self.food_done = False
                     self.end_day()
@@ -1670,7 +1731,7 @@ class Game:
         if action == 'cache':
             return self.recover_cache()
         if action == 'raft':
-            return self.raft_action()
+            return self.begin_raft()
         if action == 'follow':
             return self.do_follow()
         if action == 'explore':
@@ -1708,33 +1769,48 @@ class Game:
         return 'News gathered.'
 
     def search_ruins(self):
-        """r208 - search the ruins: 2 dice, +1 per follower with skill 6+."""
-        bonus = sum(1 for c in self.living() if c.skill >= 6)
+        """r208 - search the ruins: roll two dice on the ruins table."""
         dice = self.d2()
-        total = dice + bonus
-        self.note(f'Searching the ruins: rolled {dice} (bonus {bonus}).')
-        # The table stops at 12; a higher total is read as the 12 entry.
-        code = RUINS.get(min(12, max(2, total)), 'e133')
-        self.note(f'Ruins roll {total} -> {code}')
-        # e132: with a party, an organised search lets you try again the same day.
-        if code == 'e132' and len(self.living()) > 1 and self._ruins_retry < 3:
-            self._ruins_retry += 1
-            self.note('The organised search lets you keep looking today.')
-            return self.search_ruins()
+        code = RUINS.get(min(12, max(2, dice)), 'e133')
+        self.note(f'Searching the ruins: rolled {dice} -> {code} (r208).')
+        # r208 result 8 is e132 "Organized Search": alone the day is wasted;
+        # with a party, roll one die and only a roll below the party size lets
+        # the search continue immediately.
+        if code == 'e132' and len(self.living()) > 1 and self._ruins_retry < 40:
+            die = self.d1()
+            if die < len(self.living()):
+                self._ruins_retry += 1
+                self.note(f'Organised search: die {die} < party '
+                          f'{len(self.living())} - search again today (e132).')
+                return self.search_ruins()
+            self.note(f'Organised search: die {die} - the party finds nothing '
+                      f'more today (e132).')
+            self._ruins_retry = 0
+            return 'Ruins searched.'
         self._ruins_retry = 0
         self.encounter(code)
         return 'Ruins searched.'
 
     def recover_cache(self):
-        """r214 - recover a hidden cache buried in this hex."""
+        """r214 - find the cache again: 1-4 intact, 5 not found, 6 looted."""
         if self.hex not in self.caches:
             self.note('There is no cache hidden in this hex.')
             return 'No cache here.'
-        code, amount = self.caches.pop(self.hex)
-        gold, item, event = self.treasure_roll(code)
-        self.gain_treasure(gold, item, event)
-        self.note(f'Recovered the cache: {gold} gold' + (f' + {item}' if item else ''))
-        return 'Cache recovered.'
+        _code, amount = self.caches[self.hex]
+        die = self.d1()
+        self.note(f'Searching for the cache: die {die} (r214).')
+        if die <= 4:
+            self.caches.pop(self.hex)
+            self.gain_treasure(amount)
+            self.note(f'The cache is found intact: {amount} gold recovered.')
+            return 'Cache recovered.'
+        if die == 5:
+            self.note('The cache cannot be found - landmarks have gone, but it '
+                      'may be searched for again (r214).')
+            return 'Cache not found.'
+        self.caches.pop(self.hex)
+        self.note('The cache is found, but it has been looted (r214).')
+        return 'Cache looted.'
 
     def raft_action(self):
         """r213 - raft down the river: 2 dice, +1 per follower with skill 6+."""
@@ -1770,13 +1846,35 @@ class Game:
         return table.get('any Town' if kind in ('town', 'castle')
                          else 'any Temple', {}).get('rows', [])
 
+    def party_kinds(self):
+        """(has priest/monk, has magician/wizard/witch) among the followers."""
+        names = [c.name.lower() for c in self.living() if not c.prince]
+        priests = ('priest', 'priestess', 'monk', 'acolyte')
+        magicians = ('magician', 'wizard', 'witch', 'sorcerer')
+        return (any(any(w in n for w in priests) for n in names),
+                any(any(w in n for w in magicians) for n in names))
+
     def seek_audience(self):
-        """r211 - seek an audience: 2 dice, +1 per follower with skill 6+."""
+        """r211 - seek an audience: 2 dice on the local table.
+
+        At a temple the party's composition matters: priests and monks add one
+        (+1), while magicians, wizards and witches subtract two (-2) unless
+        they are dismissed first.
+        """
         kind = self.place_kind(self.hex)
         if kind not in ('town', 'castle', 'temple'):
             self.note('There is nobody here to grant an audience.')
             return 'No audience available.'
-        bonus = sum(1 for c in self.living() if c.skill >= 6)
+        bonus = 0
+        if kind == 'temple':
+            has_priest, has_magic = self.party_kinds()
+            if has_priest:
+                bonus += 1
+            if has_magic:
+                bonus -= 2
+                self.note('A magician in the party is unwelcome here (-2, r211).')
+            if bonus:
+                self.note(f'Temple audience modifier {bonus:+d} (r211).')
         total = self.d2() + bonus
         self.note(f'Seeking an audience in {kind} {self.hex}: rolled {total}.')
         row = self.model.roll_row(self.audience_rows(), total)
@@ -2041,9 +2139,20 @@ class Game:
         return self.starve(need)
 
     def hunt(self, need):
-        hunter = max(self.living(), key=lambda c: c.skill + c.remaining // 2)
+        living = self.living()
+        hunter = max(living, key=lambda c: c.skill + c.remaining // 2)
         total = hunter.skill + hunter.remaining // 2
-        total += sum(1 for c in self.living() if c.guide)
+        # r215b: a hunter who can act as a guide adds one, and after a day of
+        # rest the rest of the party may join - each extra hunter adds one,
+        # and each extra hunter who is a guide adds one more.
+        if hunter.guide:
+            total += 1
+        if self.action == 'rest':
+            extras = [c for c in living if c is not hunter]
+            if extras:
+                total += len(extras) + sum(1 for c in extras if c.guide)
+                self.note(f'{len(extras)} extra hunter(s) join the hunt after '
+                          f'the rest day (r215b).')
         dice = self.d2()
         gained = total - dice
         self.note(f'Hunting by {hunter.name}: {total} - {dice} = {gained} units.')
@@ -2053,9 +2162,10 @@ class Game:
             self.note(f'The hunter is hurt: {wounds} wounds '
                       f'({hunter.wounds}/{hunter.endurance})'
                       + (' -> dead' if hunter.dead else ''))
-            if hunter.dead:
-                hunter.alive = False
+            if hunter.dead or hunter.unconscious:
                 gained = 0
+                if hunter.dead and len(living) == 1:
+                    hunter.alive = False
         if self.model.terrain(self.hex) == 'farmland':
             die = self.d1()
             if die == 5:
