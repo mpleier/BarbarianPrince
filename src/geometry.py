@@ -6,7 +6,7 @@ Geometry calibrated from a single one-piece scan
   * hex id = CCRR  (column 01-20, row 01-23)
   * hex radius R = 79.5 px in the scans
   * column step DX = 1.5 * R, row step DY = sqrt(3) * R
-  * odd rows are offset by DY/2 (row-based zigzag)
+  * even columns sit half a row lower than odd columns (column zigzag)
   * SCAN_Y0 positioned so row 1 centre aligns near the top of image content
 
 Scan layout: the one-piece scan content starts at approximately x=1, y=5.
@@ -20,10 +20,13 @@ bounds.
 Board extents in the scan pixel frame:
   x    1.0 .. 2425.8   (left vertex of column 1 near x = 1;
                         right vertex of column 20 near x = 2426)
-  y    5.0 .. 3172.1   (top vertex of row 1 near y = 5;
-                         bottom row near y ~ 3172)
+  y    5.0 .. 3240.9   (top edge of row 1 in the odd columns near y = 5;
+                        row 23 in the even columns runs ~6 px past the
+                        bottom border of the photograph)
 
-Calibrated by _refs/calibrate_onepiece.py.
+The column zigzag is visible on the scan: the printed hex numbers sit half a
+row lower in every even column, and the traced roads only close up as hex
+sides under this parity.
 """
 import math
 
@@ -38,14 +41,13 @@ SCAN_X0 = 80.5
 SCAN_Y0 = 73.8490
 
 
-def _zigzag(row):
-    """Return True when the row's hex centres are offset by DY/2.
+def _column_offset(col):
+    """Vertical offset of a column's hex centres, in scan pixels.
 
-    Odd rows are offset in both halves to ensure that every adjacent
-    pair of rows has opposite zigzag states, including across the
-    row-12 / row-13 boundary.
+    Even columns sit half a row lower than odd ones, so every adjacent pair
+    of columns is half a hex out of step.
     """
-    return row % 2 == 1
+    return DY / 2 if col % 2 == 0 else 0.0
 
 
 # Map legend terrain -> terrain name used by the Travel Table (r207).
@@ -80,34 +82,28 @@ def in_grid(col, row):
 def centre(col, row):
     """Pixel centre of a hex in the single scan."""
     i = col - 1
-    return (SCAN_X0 + DX * i, SCAN_Y0 + DY * (row - 1))
+    return (SCAN_X0 + DX * i,
+            SCAN_Y0 + DY * (row - 1) + _column_offset(col))
 
 
 def neighbours(col, row):
     """Return {direction: hex_id} for the up to 6 adjacent hexes.
 
-    Rows are offset in a zigzag pattern (see _zigzag), so the east/west
-    neighbours shift by one row depending on whether the current row
-    is zigzagged or not.
+    Even columns sit half a row lower than odd ones, so the east/west
+    neighbours of an odd column are one row *above* those of the even column
+    beside it, and vice versa: the row offsets depend on column parity.
     """
-    i, j = col - 1, row - 1
-    z = _zigzag(row)
-    if z:
-        pairs = {'NE': (i + 1, j - 1), 'SE': (i + 1, j),
-                 'NW': (i - 1, j - 1), 'SW': (i - 1, j)}
-    else:
-        pairs = {'NE': (i + 1, j), 'SE': (i + 1, j + 1),
-                 'NW': (i - 1, j), 'SW': (i - 1, j + 1)}
-    pairs['N'] = (i, j - 1)
-    pairs['S'] = (i, j + 1)
+    if col % 2 == 1:                      # odd column: even neighbours sit lower
+        pairs = {'NE': (col + 1, row - 1), 'SE': (col + 1, row),
+                 'NW': (col - 1, row - 1), 'SW': (col - 1, row)}
+    else:                                 # even column: odd neighbours sit higher
+        pairs = {'NE': (col + 1, row), 'SE': (col + 1, row + 1),
+                 'NW': (col - 1, row), 'SW': (col - 1, row + 1)}
+    pairs['N'] = (col, row - 1)
+    pairs['S'] = (col, row + 1)
 
-    out = {}
-    for name, (ni, nj) in pairs.items():
-        ni += 1
-        nj += 1
-        if in_grid(ni, nj):
-            out[name] = hex_id(ni, nj)
-    return out
+    return {name: hex_id(nc, nr) for name, (nc, nr) in pairs.items()
+            if in_grid(nc, nr)}
 
 
 def hex_corners(col, row):

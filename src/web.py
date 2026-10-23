@@ -46,17 +46,18 @@ app = FastAPI(title="Barbarian Prince (web)")
 
 # ----------------------------------------------------------------- board data
 def board_scan_rect():
-    """Return (x, y, w, h) for the scan image. The SVG's image element
-    is placed at (0, -DY/2) with full original image dimensions so the
-    artwork lines up with the hex lattice (the scan is offset half a
-    row upward relative to the centre-grid). The SVG viewBox clips to
-    the board area so top/bottom margins are hidden automatically."""
+    """Return (x, y, w, h) for the scan image.
+
+    The scan is already in the geometry's pixel frame, so the image sits at
+    the origin: the hex lattice includes the column zigzag, which is what the
+    artwork shows.  The SVG viewBox clips to the board area so the margins
+    are hidden automatically."""
     from map_scan import SCAN_SOURCE
     if not os.path.exists(SCAN_SOURCE):
         return None
     img = Image.open(SCAN_SOURCE)
     w, h = img.size
-    return [0, DY / 2, w, h]
+    return [0, 0, w, h]
 
 
 def build_board():
