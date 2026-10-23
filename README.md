@@ -10,14 +10,16 @@ rule booklet, the events sheet, the errata sheet and the map scan.
 | 1 | `_refs/clean_rules.py`, `_refs/clean_tables.py`, `_refs/extract_events2.py` | `_refs/rules_clean.txt`, `_refs/tables_clean.txt`, `_refs/events_clean.txt` |
 | 2 | `_refs/map_model.py` | `_refs/hexes.json` — 460 hexes with terrain + classification distance |
 | 3 | `src/geometry.py` | (imported) authoritative hex geometry: centres, neighbours, terrain map |
-| 4 | `_refs/extract_tables.py` | `data/rules.json`, `data/tables.json` |
-| 5 | `_refs/extract_events2.py` | `data/events.json`, `data/event_options.json` |
-| 6 | `src/build_model.py` | `data/game_model.json`, `data/validation_report.txt` |
+| 4 | `src/features.py` | `data/features.json` — river/road sides traced from `_refs/BPMap.jpg` |
+| 5 | `_refs/extract_tables.py` | `data/rules.json`, `data/tables.json` |
+| 6 | `_refs/extract_events2.py` | `data/events.json`, `data/event_options.json` |
+| 7 | `src/build_model.py` | `data/game_model.json`, `data/validation_report.txt` |
 
 Run the whole thing with:
 
 ```powershell
 python _refs/extract_tables.py
+python src/features.py
 python src/build_model.py
 python -m unittest discover -s tests
 ```
@@ -53,12 +55,15 @@ Hex `colrow` is zero-padded, e.g. `1212` = column 12, row 12.
 With `i = col - 1`, `j = row - 1` and `R = 79.5 px`:
 
 ```
-centre(col, row) = (X0 + 1.5*R*i, Y0 + sqrt(3)*R*j)
+centre(col, row) = (X0 + 1.5*R*i, Y0 + sqrt(3)*R*j + (DY/2 if col is even))
 ```
 
-Even columns sit half a row higher than odd columns, so the east/west neighbours
-shift by one row depending on the parity of `i`. Adjacent hex centres are
-`sqrt(3) * R` apart, which is what the map scans confirm.
+Even columns sit half a row lower than odd columns, so the east/west neighbours
+of an odd column are one row higher than those of the even column beside it.
+Adjacent hex centres are `sqrt(3) * R` apart everywhere, which is what the map
+scan confirms: the printed hex numbers sit half a row lower in every even
+column, and the traced river/road sides only close up as hex sides under this
+parity.
 
 ## Model schema (`data/game_model.json`)
 
@@ -85,3 +90,9 @@ index           - reverse index of every rNNN/eNNN reference, hex->event map,
   `r119->r319`, `r143->r341`).
 * `r229` and `r282-r299` genuinely do not exist.
 * `e001`, `e119` and `e157` are never referenced by any other section.
+* River and road sides are traced from the scan by ink colour and shape, then
+  scored by how much of each hex edge the drawn line covers.  Every side in
+  `features.json` therefore joins two adjacent hexes (the earlier pixel-link
+  detector produced 39 river and 4 road sides between hexes that do not
+  touch).  The masks are not perfect: a few mountain ridges still register as
+  river sides, and short road stretches between long roads are missed.

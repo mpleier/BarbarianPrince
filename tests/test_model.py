@@ -25,22 +25,27 @@ class GeometryTests(unittest.TestCase):
         self.assertAlmostEqual(y, 73.8, delta=0.1)
 
     def test_column_and_row_steps(self):
-        """Row-based zigzag: hexes in the same row share the same y-coordinate."""
+        """Column zigzag: even columns sit half a row lower than odd ones."""
         x0, y0 = centre(1, 1)
         x1, y1 = centre(2, 1)
         self.assertAlmostEqual(x1 - x0, DX)
-        # Same row → same y in row-based zigzag
-        self.assertAlmostEqual(y1 - y0, 0)
-        x2, y2 = centre(1, 2)
-        self.assertAlmostEqual(y2 - y0, DY)
+        self.assertAlmostEqual(y1 - y0, DY / 2)
+        x2, y2 = centre(3, 1)
+        self.assertAlmostEqual(x2 - x0, 2 * DX)
+        self.assertAlmostEqual(y2 - y0, 0)
+        x3, y3 = centre(1, 2)
+        self.assertAlmostEqual(y3 - y0, DY)
 
-    def test_board_is_continuous(self):
-        """Row 12 and row 13 must meet at every column."""
+    def test_neighbours_are_one_row_step_apart(self):
+        """Every adjacent pair of centres is exactly sqrt(3)*R apart."""
         for col in range(1, NC + 1):
-            bottom = board_xy(col, 12)[1] + DY / 2
-            top = board_xy(col, 13)[1] - DY / 2
-            self.assertAlmostEqual(bottom, top, delta=1e-6,
-                                   msg=f'column {col} does not meet at row 12/13')
+            for row in range(1, NR + 1):
+                cx, cy = centre(col, row)
+                for n in neighbours(col, row).values():
+                    nx, ny = centre(*parse_hex(n))
+                    self.assertAlmostEqual(((nx - cx) ** 2 + (ny - cy) ** 2) ** 0.5,
+                                           DY, delta=1e-6,
+                                           msg=f'{hex_id(col, row)} -> {n}')
 
     def test_board_extents_match_the_printed_board(self):
         """Predicted board extents match the one-piece scan content bounds."""
@@ -48,13 +53,17 @@ class GeometryTests(unittest.TestCase):
         self.assertAlmostEqual(minx, 1.0, delta=1.0)
         self.assertAlmostEqual(miny, 5.0, delta=1.0)
         self.assertAlmostEqual(maxx, 2425.8, delta=2.0)
-        self.assertAlmostEqual(maxy, 3172.1, delta=10.0)
+        self.assertAlmostEqual(maxy, 3240.9, delta=2.0)
 
     def test_board_fits_the_scans(self):
-        """All hexes fall within the scanned image."""
+        """All hexes fall within the scanned image.
+
+        The photograph is cropped inside the printed border, so the bottom
+        row of the even (lower) columns runs a few pixels past the edge.
+        """
         maxx, maxy = board_bounds()[2], board_bounds()[3]
         self.assertLess(maxx, 2435)
-        self.assertLess(maxy, 3235)
+        self.assertLess(maxy, 3245)
 
     def test_radius_is_consistent(self):
         self.assertAlmostEqual(DX, 1.5 * R)
@@ -79,6 +88,18 @@ class ModelTests(unittest.TestCase):
         for col in range(1, NC + 1):
             for row in range(1, NR + 1):
                 self.assertIn(hex_id(col, row), self.m.grid)
+
+    def test_feature_sides_join_adjacent_hexes(self):
+        """Every traced river/road side must connect two touching hexes."""
+        import json
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            'data', 'features.json')
+        with open(path, encoding='utf-8') as f:
+            feats = json.load(f)
+        for kind in ('river_sides', 'road_sides'):
+            for a, b in feats[kind]:
+                self.assertIn(b, self.m.neighbors(a).values(),
+                              msg=f'{kind}: {a}-{b} are not adjacent')
 
     def test_terrain_is_known(self):
         for h in self.m.grid.values():

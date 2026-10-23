@@ -158,8 +158,8 @@ class EncounterResolutionTests(unittest.TestCase):
     def test_forest_bonus_shifts_the_die_roll(self):
         game = Game(model=self.model, seed=7)
         game.start()
-        game.hex = '0111'                      # a forest hex
-        self.assertEqual(game.model.terrain('0111'), 'forest')
+        game.hex = '0202'                      # a forest hex
+        self.assertEqual(game.model.terrain('0202'), 'forest')
         game.encounter('e007')
         game.d1 = lambda: 6
         game.roll_option(0)                    # 6 + 2 = 8 -> 'pass' r329
@@ -228,7 +228,7 @@ class DailyMenuTests(unittest.TestCase):
 
     def test_raft_is_not_offered_inland(self):
         game = Game(model=self.model, seed=21)
-        game.hex = '0101'                      # Ogon: no river hexside touches it
+        game.hex = '0320'                      # inland farmland, no river hexside
         self.assertFalse(game.raft_available())
         labels = self.menu_labels(game)
         self.assertFalse(any('raft' in label.lower() for label in labels))
@@ -243,7 +243,7 @@ class DailyMenuTests(unittest.TestCase):
     def test_raft_stays_available_while_afloat(self):
         game = Game(model=self.model, seed=23)
         game.raft = True
-        game.hex = '0101'
+        game.hex = '0320'
         self.assertTrue(game.raft_available())
         self.assertTrue(any('raft' in label.lower() for label in self.menu_labels(game)))
         game.begin_action('rest')              # any other action gets you off
@@ -252,7 +252,7 @@ class DailyMenuTests(unittest.TestCase):
 
     def test_raft_action_refuses_a_hex_with_no_river(self):
         game = Game(model=self.model, seed=24)
-        game.hex = '0101'
+        game.hex = '0320'
         self.assertEqual(game.begin_action('raft'), 'No raft available.')
         self.assertFalse(game.raft)
 
