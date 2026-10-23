@@ -23,11 +23,11 @@ from geometry import (R, RX, RY, DX, DY, SCAN_X0, SCAN_Y0, neighbours, parse_hex
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
 REFS = os.path.join(ROOT, '_refs')
-SCAN = os.path.join(REFS, 'BPMap.jpg')
+SCAN = os.path.join(REFS, 'BPMap_rectified.jpg')
 
-# The colour-corrected scan is stored with a wider page (map key on the left).
-# Its lattice is the BPMap one shifted by the content box and scaled by about
-# 0.4%:  (264 + (x-1)*1.00165, 9 + (y-5)*0.99567).
+# The colour-corrected scan is stored with a wider page (map key on the left)
+# and still carries the photograph's keystone, so it keeps its own lattice:
+# the unrectified BPMap frame shifted by the content box and scaled by ~0.4%.
 SCAN_REVC = os.path.join(REFS, 'barbarianprince_onepiecemap-revc.jpg')
 CALIB_REVC = (79.5, 343.6, 77.6)
 

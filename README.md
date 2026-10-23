@@ -9,15 +9,17 @@ rule booklet, the events sheet, the errata sheet and the map scan.
 |---|---|---|
 | 1 | `_refs/clean_rules.py`, `_refs/clean_tables.py`, `_refs/extract_events2.py` | `_refs/rules_clean.txt`, `_refs/tables_clean.txt`, `_refs/events_clean.txt` |
 | 2 | `_refs/map_model.py` | `_refs/hexes.json` — 460 hexes with terrain + classification distance |
-| 3 | `src/geometry.py` | (imported) authoritative hex geometry: centres, neighbours, terrain map |
-| 4 | `src/features.py` | `data/features.json` — river/road sides traced from `_refs/BPMap.jpg` |
-| 5 | `_refs/extract_tables.py` | `data/rules.json`, `data/tables.json` |
-| 6 | `_refs/extract_events2.py` | `data/events.json`, `data/event_options.json` |
-| 7 | `src/build_model.py` | `data/game_model.json`, `data/validation_report.txt` |
+| 3 | `_refs/rectify_scan.py` | `_refs/BPMap_rectified.jpg` — the photograph with its perspective removed |
+| 4 | `src/geometry.py` | (imported) authoritative hex geometry: centres, neighbours, terrain map |
+| 5 | `src/features.py` | `data/features.json` — river/road sides traced from the rectified scan |
+| 6 | `_refs/extract_tables.py` | `data/rules.json`, `data/tables.json` |
+| 7 | `_refs/extract_events2.py` | `data/events.json`, `data/event_options.json` |
+| 8 | `src/build_model.py` | `data/game_model.json`, `data/validation_report.txt` |
 
 Run the whole thing with:
 
 ```powershell
+python _refs/rectify_scan.py
 python _refs/extract_tables.py
 python src/features.py
 python src/build_model.py
@@ -52,22 +54,25 @@ node  _refs/js_smoke.mjs  http://127.0.0.1:8000   # app.js against a DOM shim
 The board is a 20-column x 23-row hex grid (460 hexes), **flat-top** hexes.
 Hex `colrow` is zero-padded, e.g. `1212` = column 12, row 12.
 
-With `i = col - 1`, `j = row - 1`, `RX = 79.1 px` and `RY = 80.4 px`:
+With `i = col - 1`, `j = row - 1` and `R = 79.05 px`:
 
 ```
-centre(col, row) = (X0 + 1.5*RX*i, Y0 + sqrt(3)*RY*j + (sqrt(3)*RY/2 if col is even))
-corners          = centre + (RX*cos(a), RY*sin(a))  for a in 0..300 step 60
+centre(col, row) = (X0 + 1.5*R*i, Y0 + sqrt(3)*R*j + (sqrt(3)*R/2 if col is even))
+corners          = centre + (R*cos(a), R*sin(a))  for a in 0..300 step 60
 ```
 
-The photograph is a little taller than the board's true proportions, so the
-printed grid is not perfectly regular; fitting the drawn borders as an
-anisotropic lattice (`RY > RX`) drops the mean distance from a lattice edge to
-the printed border from 7.5 px to 5.8 px.  Even columns sit half a row lower
-than odd columns, so the east/west neighbours of an odd column are one row
-higher than those of the even column beside it.  The scan is cropped just
-inside the printed border, so the fitted board runs ~5 px past the artwork at
-the top and ~40 px at the bottom; the web view clips to the scan, which is why
-the outer row looks cut just like the photograph.
+The lattice is calibrated on `_refs/BPMap_rectified.jpg`, the photograph with
+its keystone removed by `_refs/rectify_scan.py` (a homography fitted to the
+printed borders at 42 hexes).  On the raw photograph the printed grid drifts by
+up to 30 px across the image and has to be fitted as a 1.6 % taller-than-wide
+lattice; after rectification a regular lattice sits within **0.98 px** of the
+printed borders on average.
+
+Even columns sit half a row lower than odd columns, so the east/west neighbours
+of an odd column are one row higher than those of the even column beside it.
+The scan is cropped just inside the printed border, so the outer row runs a few
+pixels past the artwork; the web view clips to the scan, which is why the outer
+row looks cut just like the photograph.
 
 ## Model schema (`data/game_model.json`)
 
@@ -105,6 +110,6 @@ index           - reverse index of every rNNN/eNNN reference, hex->event map,
   sides, and short road stretches through hex interiors are likewise missing
   from `road_sides` (they are covered by `road_hexes`).
 * The colour-corrected scan (`_refs/barbarianprince_onepiecemap-revc.jpg`,
-  wider page with the map key) has its own lattice in `features.CALIB_REVC`;
-  tracing it agrees with `BPMap.jpg` on 120 of 121 river sides and 74 of 78
-  road sides, so `BPMap.jpg` stays the default.
+  wider page with the map key) is still the raw keystoned photograph, so it
+  keeps its own unrectified lattice in `features.CALIB_REVC`; the rectified
+  BPMap scan is the default for tracing.

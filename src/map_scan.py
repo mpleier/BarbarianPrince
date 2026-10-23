@@ -1,14 +1,14 @@
 """The original board artwork as a single 20x23 image.
 
-A scan of the full board is stored in `_refs/BPMap.jpg`
-and served at `/scan/board.jpg`.  ``scan_rect()`` returns the rectangle
-that image actually covers in pixel coordinates - the scan
-includes a white paper margin, so the rect is trimmed to the
-artwork rather than to the canvas, otherwise the map canvas would paint
-a white band over the bottom hex row.
+The board scan is `_refs/BPMap_rectified.jpg` - the photograph with its
+perspective removed by `_refs/rectify_scan.py` - and it is served at
+`/scan/board.jpg`.  ``scan_rect()`` returns the rectangle that image actually
+covers in pixel coordinates; the scan includes a white paper margin, so the
+rect is trimmed to the artwork rather than to the canvas, otherwise the map
+canvas would paint a white band over the bottom hex row.
 
-The hex-grid geometry (R=79.5, x0, y0, etc.) is stored in `geometry.py`
-and was calibrated specifically for this one-piece scan.
+The hex-grid geometry (R=79.05, x0, y0, etc.) is stored in `geometry.py` and
+was calibrated on this rectified scan.
 """
 import os
 
@@ -16,7 +16,7 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REFS = os.path.join(ROOT, '_refs')
-SCAN_SOURCE = os.path.join(REFS, 'BPMap.jpg')
+SCAN_SOURCE = os.path.join(REFS, 'BPMap_rectified.jpg')
 SCAN_PATH = os.path.join(REFS, 'board_scan.jpg')
 MAX_WIDTH = 1800
 WHITE = 248          # a pixel this bright counts as paper, not artwork

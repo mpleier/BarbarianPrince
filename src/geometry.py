@@ -1,24 +1,24 @@
 """Unified hex-grid model for the BarbarianPrince board.
 
-Geometry calibrated from a single one-piece scan
-(_refs/BPMap.jpg, 2435x3235):
+Geometry calibrated from the rectified board scan
+(_refs/BPMap_rectified.jpg, 2440x3237 - the photograph with its perspective
+removed, see _refs/rectify_scan.py):
   * flat-top hexes, 20 columns x 23 rows = 460 hexes
   * hex id = CCRR  (column 01-20, row 01-23)
-  * hex circumradius RX = 79.1 px horizontally, RY = 80.4 px vertically
-  * column step DX = 1.5 * RX, row step DY = sqrt(3) * RY
+  * hex circumradius R = 79.05 px
+  * column step DX = 1.5 * R, row step DY = sqrt(3) * R
   * even columns sit half a row lower than odd columns (column zigzag)
   * SCAN_Y0 positioned so row 1 centre aligns with the top of the artwork
 
-The photograph is a little taller than the board's true proportions, so the
-printed grid is not perfectly regular.  Fitting the drawn borders as an
-anisotropic lattice (RX != RY) instead of a regular one drops the mean
-distance from a lattice edge to the nearest printed border from 7.5 px to
-5.8 px, which is what makes the overlay line up across the whole board.
+Once the keystone of the photograph is removed the printed grid is regular, so
+the lattice is regular again: the mean distance from a lattice edge to the
+nearest printed border is 0.98 px (it was 5.8 px on the raw photograph, and
+the fit had to stretch y by 1.6% to get even that close).
 
 Board extents in the scan pixel frame:
-  x    4.3 .. 2416.9   (left vertex of column 1, right vertex of column 20)
-  y   -5.8 .. 3290.3   (the scan is cropped inside the printed border, so the
-                        top of row 1 and the bottom of row 23 are cut off)
+  x     5.4 .. 2418.6   (left vertex of column 1, right vertex of column 20)
+  y     6.7 .. 3237.0   (the photograph is cropped inside the printed border,
+                         so the top of row 1 and the bottom of row 23 are cut)
 
 The column zigzag is visible on the scan: the printed hex numbers sit half a
 row lower in every even column, and the traced roads only close up as hex
@@ -28,16 +28,16 @@ import math
 
 SQ3 = math.sqrt(3.0)
 
-RX = 79.1                      # horizontal circumradius
-RY = 80.4                      # vertical circumradius
-R = RX                         # historical alias: the horizontal radius
+RX = 79.05                     # circumradius (the lattice is regular)
+RY = RX                        # kept for callers that scale edges
+R = RX                         # historical alias
 DX = 1.5 * RX                  # column step
 DY = SQ3 * RY                  # row step
 NC, NR = 20, 23
 
 # Anchor: centre of column 1, row 1 in scan pixel coordinates.
-SCAN_X0 = 83.4
-SCAN_Y0 = 74.65
+SCAN_X0 = 84.5
+SCAN_Y0 = 75.5
 
 
 def _column_offset(col):

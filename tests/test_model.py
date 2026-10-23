@@ -21,8 +21,8 @@ class GeometryTests(unittest.TestCase):
 
     def test_first_hex_centre(self):
         x, y = centre(1, 1)
-        self.assertAlmostEqual(x, 83.4)
-        self.assertAlmostEqual(y, 74.65, delta=0.01)
+        self.assertAlmostEqual(x, 84.5)
+        self.assertAlmostEqual(y, 75.5, delta=0.01)
 
     def test_column_and_row_steps(self):
         """Column zigzag: even columns sit half a row lower than odd ones."""
@@ -56,22 +56,23 @@ class GeometryTests(unittest.TestCase):
     def test_board_extents_match_the_printed_board(self):
         """Predicted board extents cover the printed board on the scan."""
         minx, miny, maxx, maxy = board_bounds()
-        self.assertAlmostEqual(minx, 4.3, delta=2.0)
-        self.assertAlmostEqual(miny, 5.0, delta=2.0)
-        self.assertAlmostEqual(maxx, 2416.9, delta=2.0)
-        self.assertAlmostEqual(maxy, 3277.6, delta=2.0)
+        self.assertAlmostEqual(minx, 5.4, delta=2.0)
+        self.assertAlmostEqual(miny, 7.0, delta=2.0)
+        self.assertAlmostEqual(maxx, 2416.5, delta=2.0)
+        self.assertAlmostEqual(maxy, 3224.6, delta=2.0)
 
     def test_board_matches_the_scan_crop(self):
-        """The photograph is cropped just inside the printed border.
+        """The rectified scan is clipped just inside the printed border.
 
-        The fitted lattice therefore runs a few pixels past the artwork at the
-        top and bottom; the web view clips to the scan so this is invisible.
+        The photograph was cropped on the paper edge, so the outer row runs a
+        few pixels past the artwork; the web view clips to the scan, which is
+        why the outer row looks cut just like the photograph.
         """
         minx, miny, maxx, maxy = board_bounds()
-        self.assertLess(abs(minx), 10)
-        self.assertLess(abs(miny), 10)
-        self.assertLess(maxx, 2435)
-        self.assertLess(maxy - 3235, 60)
+        self.assertLess(minx, 10)
+        self.assertLess(miny, 10)
+        self.assertLess(maxx, 2440)
+        self.assertLess(maxy, 3237)
 
     def test_radius_is_consistent(self):
         self.assertAlmostEqual(DX, 1.5 * RX)
