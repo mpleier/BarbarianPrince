@@ -92,6 +92,15 @@ ROAD_MAX_MEAN_DIST = 16.0
 ROAD_MIN_COVERAGE = 0.20
 COVER_DIST = 12.0
 
+# A faint side that would join two traced pieces is accepted at these weaker
+# scores; a side with no neighbour at all has to be at least this strong.
+RIVER_FILL_MEAN = 16.0
+RIVER_FILL_COVERAGE = 0.25
+RIVER_KEEP_MEAN = 6.0
+ROAD_FILL_MEAN = 24.0
+ROAD_FILL_COVERAGE = 0.12
+ROAD_KEEP_MEAN = 8.0
+
 WATER_MIN_AREA = 300           # drop specks (mountain shading, ink noise)
 WATER_MAX_WIDTH = 16.0         # px; wider blobs are lakes, not rivers
 ROAD_MIN_SPAN = 100.0          # px; hatching strokes are short, roads are long
@@ -132,22 +141,35 @@ def _keep_roads(mask):
 
 
 def _masks(img):
-    """(river, road) boolean masks for an RGB scan."""
+    """(river, river_loose, road) boolean masks for an RGB scan.
+
+    ``river`` requires green well above red: river ink is cyan (g-r ~ 50)
+    while the blue-lavender shading that outlines mountain ridges is not
+    (g-r ~ 5), so the strict mask keeps ridges out.  ``river_loose`` keeps the
+    pale fills of the wide river stretches and is only used to bridge gaps.
+    """
     a = np.asarray(img, dtype=np.float32)
     r, g, b = a[:, :, 0], a[:, :, 1], a[:, :, 2]
     lum = (r + g + b) / 3.0
 
-    # Rivers are saturated blue-cyan ink; purple/blue mountain shading is
-    # rejected by requiring green above red.
-    water = (g > r + 2) & (b > g + 8) & (b - r > 25) & (b > 85) & (lum < 215)
+    base = (g > r + 2) & (b > g + 8) & (b - r > 25) & (b > 85) & (lum < 215)
+    strict = base & (g - r >= 25)
 
     # Roads are red-brown ink; desert stipple and badlands hatching sit close
     # to that colour, so they are separated by shape below.
     road = (r - g > 30) & (r - b > 40) & (g - b > 2) & (r > 100) & (g < 175)
 
-    water = ndimage.binary_dilation(_keep_rivers(water), iterations=2)
+    water = ndimage.binary_dilation(_keep_rivers(strict), iterations=2)
+    loose = ndimage.binary_dilation(_keep_rivers(base), iterations=2)
     road = ndimage.binary_dilation(_keep_roads(road), iterations=2)
-    return water, road
+    return water, loose, road
+
+
+def _hex_point(col, row, calib=None):
+    """Centre of a hex in the frame of the scan being traced."""
+    _radius, x0, y0 = calib or (R, SCAN_X0, SCAN_Y0)
+    dy = DY * (row - 1) + (DY / 2 if col % 2 == 0 else 0.0)
+    return np.array([x0 + DX * (col - 1), y0 + dy], dtype=float)
 
 
 def _sides(calib=None):
@@ -156,11 +178,10 @@ def _sides(calib=None):
     ``calib`` is (radius, x0, y0) for the scan being traced; it defaults to
     the geometry module's BPMap calibration.
     """
-    radius, x0, y0 = calib or (R, SCAN_X0, SCAN_Y0)
+    radius, _x0, _y0 = calib or (R, SCAN_X0, SCAN_Y0)
 
     def point(col, row):
-        dy = DY * (row - 1) + (DY / 2 if col % 2 == 0 else 0.0)
-        return np.array([x0 + DX * (col - 1), y0 + dy], dtype=float)
+        return _hex_point(col, row, calib)
 
     seen = set()
     out = []
@@ -198,28 +219,186 @@ def _profile(dmap, p1, p2, samples=23, along=0.44):
     return float(ds.mean()), float((ds <= COVER_DIST).mean())
 
 
+def _side_adjacency(sides):
+    """Map each side to the sides that share a vertex with it.
+
+    Two sides of the same hex touch when their outer hexes are neighbours
+    (consecutive edges of the hexagon).
+    """
+    index = set(sides)
+    graph = {s: set() for s in index}
+    for (a, b) in index:
+        for h, other in ((a, b), (b, a)):
+            for nb in neighbours(*parse_hex(h)).values():
+                if nb == other:
+                    continue
+                pair = tuple(sorted((h, nb)))
+                if pair in index:
+                    graph[(a, b)].add(pair)
+    return graph
+
+
+def _components(selected, graph):
+    """Label the connected pieces of the selected side set."""
+    label = {}
+    current = 0
+    for start in selected:
+        if start in label:
+            continue
+        current += 1
+        stack = [start]
+        label[start] = current
+        while stack:
+            cur = stack.pop()
+            for nb in graph[cur]:
+                if nb in selected and nb not in label:
+                    label[nb] = current
+                    stack.append(nb)
+    return label
+
+
+def _fill_gaps(scores, selected, graph, max_mean, min_cover, passes=3):
+    """Add weakly-scored sides that join two already-traced pieces.
+
+    Rivers and roads run across hex boundaries; where the ink is faint the
+    strict pass leaves a one-side hole.  A hole that would fuse two separate
+    pieces is filled when the ink is merely plausible rather than strong; a
+    hole that reaches the edge of the board is filled too, because that is
+    where a river or road is allowed to start or stop.
+    """
+    for _ in range(passes):
+        label = _components(selected, graph)
+        added = False
+        for side, (mean, cover) in scores.items():
+            if side in selected or mean > max_mean or cover < min_cover:
+                continue
+            touching = {label[nb] for nb in graph[side] if nb in label}
+            if len(touching) >= 2 or (touching and _on_board_edge(side)):
+                selected.add(side)
+                added = True
+        if not added:
+            break
+    return selected
+
+
+def _on_board_edge(side):
+    for h in side:
+        col, row = parse_hex(h)
+        if col in (1, NC) or row in (1, NR):
+            return True
+    return False
+
+
+def _prune_isolated(selected, graph, scores, keep_mean):
+    """Drop sides with no neighbour side unless the ink is very strong."""
+    changed = True
+    while changed:
+        changed = False
+        for side in sorted(selected):
+            if graph[side] & selected:
+                continue
+            if scores[side][0] > keep_mean:
+                selected.discard(side)
+                changed = True
+    return selected
+
+
+def _terrain():
+    """Hex terrain from _refs/hexes.json (empty when it is missing)."""
+    path = os.path.join(REFS, 'hexes.json')
+    if not os.path.exists(path):
+        return {}
+    return {h['id']: h['terrain'] for h in load(path)}
+
+
+def _veto_impossible(sides, scores, terrain):
+    """Drop sides the board cannot show as a river crossing.
+
+    Two water hexes share a lake shore, not a river, and a faint line between
+    two mountain hexes is usually ridge shading rather than water.
+    """
+    out = set()
+    for side in sides:
+        ta = terrain.get(side[0])
+        tb = terrain.get(side[1])
+        if ta == tb == 'water':
+            continue
+        if ta == tb == 'mountains' and scores[side][0] > RIVER_KEEP_MEAN:
+            continue
+        out.add(side)
+    return out
+
+
 def detect_sides(scan=SCAN, calib=None):
     """Trace river and road sides from the board scan."""
     img = Image.open(scan).convert('RGB')
-    water, road = _masks(img)
+    water, loose, road = _masks(img)
     dw = ndimage.distance_transform_edt(~water)
+    dl = ndimage.distance_transform_edt(~loose)
     dr = ndimage.distance_transform_edt(~road)
 
-    rivers, roads = [], []
-    for key, p1, p2 in _sides(calib):
-        mean, cover = _profile(dw, p1, p2)
-        if mean <= RIVER_MAX_MEAN_DIST and cover >= RIVER_MIN_COVERAGE:
-            rivers.append(key)
-            continue
-        mean, cover = _profile(dr, p1, p2)
-        if mean <= ROAD_MAX_MEAN_DIST and cover >= ROAD_MIN_COVERAGE:
-            roads.append(key)
+    sides = _sides(calib)
+    graph = _side_adjacency([key for key, _, _ in sides])
+
+    river_scores = {}          # strict ink, decides what is a river
+    river_bridge = {}          # loose ink, only used to close gaps
+    road_scores = {}
+    rivers, roads = set(), set()
+    for key, p1, p2 in sides:
+        river_scores[key] = _profile(dw, p1, p2)
+        river_bridge[key] = _profile(dl, p1, p2)
+        road_scores[key] = _profile(dr, p1, p2)
+        if (river_scores[key][0] <= RIVER_MAX_MEAN_DIST
+                and river_scores[key][1] >= RIVER_MIN_COVERAGE):
+            rivers.add(key)
+        elif (road_scores[key][0] <= ROAD_MAX_MEAN_DIST
+                and road_scores[key][1] >= ROAD_MIN_COVERAGE):
+            roads.add(key)
+
+    rivers = _fill_gaps(river_bridge, rivers, graph,
+                        RIVER_FILL_MEAN, RIVER_FILL_COVERAGE)
+    rivers = _veto_impossible(rivers, river_scores, _terrain())
+    rivers = _prune_isolated(rivers, graph, river_scores, RIVER_KEEP_MEAN)
+    roads = _fill_gaps(road_scores, roads, graph,
+                       ROAD_FILL_MEAN, ROAD_FILL_COVERAGE)
+    roads = _prune_isolated(roads, graph, road_scores, ROAD_KEEP_MEAN)
+    roads -= rivers                       # a side is one feature or the other
     return sorted(rivers), sorted(roads)
+
+
+def _road_hexes(road_sides, scan=SCAN, calib=None):
+    """Hexes a road passes through, including stretches drawn inside a hex.
+
+    Side tracing only sees roads that follow an edge; the board also draws
+    roads across hex interiors, so a hex counts as on-road when road ink
+    covers a fair share of its middle as well.
+    """
+    img = Image.open(scan).convert('RGB')
+    _water, _loose, road = _masks(img)
+    out = {h for pair in road_sides for h in pair}
+    radius = (calib or (R, SCAN_X0, SCAN_Y0))[0]
+    for col in range(1, NC + 1):
+        for row in range(1, NR + 1):
+            cx, cy = _hex_point(col, row, calib)
+            hits = 0
+            total = 0
+            for dy in range(-3, 4):
+                for dx in range(-3, 4):
+                    if dx * dx + dy * dy > 9:
+                        continue
+                    x = int(round(cx + dx * radius / 4.0))
+                    y = int(round(cy + dy * radius / 4.0))
+                    if 0 <= y < road.shape[0] and 0 <= x < road.shape[1]:
+                        hits += int(road[y, x])
+                        total += 1
+            if total and hits / total >= 0.10:
+                out.add(hex_id(col, row))
+    return sorted(out)
 
 
 def build_features():
     river_sides, road_sides = detect_sides()
-    road_hexes = sorted({h for pair in road_sides for h in pair})
+    road_hexes = _road_hexes(road_sides)
     return {
         'terrain_colors': TERRAIN_COLORS,
         'places': {hid: {'name': name, 'kind': kind} for hid, (name, kind) in PLACES.items()},

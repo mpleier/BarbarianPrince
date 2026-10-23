@@ -94,9 +94,13 @@ index           - reverse index of every rNNN/eNNN reference, hex->event map,
   scored by how much of each hex edge the drawn line covers.  Every side in
   `features.json` therefore joins two adjacent hexes (the earlier pixel-link
   detector produced 39 river and 4 road sides between hexes that do not
-  touch).  The masks are not perfect: a few mountain ridges still register as
-  river sides, and short road stretches between long roads are missed.
+  touch).  Faint sides that would join two pieces of the same feature, or
+  reach the edge of the board, are filled in afterwards, and isolated sides
+  are dropped unless the ink is strong; that removes most ridge-shading false
+  positives.  Rivers drawn across hex interiors still cannot be expressed as
+  sides, and short road stretches through hex interiors are likewise missing
+  from `road_sides` (they are covered by `road_hexes`).
 * The colour-corrected scan (`_refs/barbarianprince_onepiecemap-revc.jpg`,
   wider page with the map key) has its own lattice in `features.CALIB_REVC`;
-  tracing it agrees with `BPMap.jpg` on 133 of 138 river sides and 63 of 67
+  tracing it agrees with `BPMap.jpg` on 120 of 121 river sides and 74 of 78
   road sides, so `BPMap.jpg` stays the default.
