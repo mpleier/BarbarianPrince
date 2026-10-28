@@ -257,13 +257,13 @@ class DailyMenuTests(unittest.TestCase):
         self.assertFalse(game.raft)
 
     def test_rolling_12_ends_the_raft_trip(self):
+        """r213 - after a day on the raft, a stop check of 12 ends the trip and
+        dismantles the raft (the move-based design replaces the old dice table)."""
         game = Game(model=self.model, seed=25)
+        game.raft = True                   # the party is already afloat
         game.hex = '0102'
         game.d2 = lambda: 12
-        game.d1 = lambda: 1
-        result = game.begin_action('raft')
-        self.assertEqual(result, 'Rafting continues.')
-        self.assertEqual(game.raft_days, 1)
+        game.raft_stop_check()
         self.assertFalse(game.raft)
         self.assertTrue(any('stopping point' in line
                             for line in game.log if isinstance(line, str)))

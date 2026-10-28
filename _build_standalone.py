@@ -1,0 +1,129 @@
+"""Generate a standalone HTML file from the Barbarian Prince web frontend."""
+
+CSS_PATH = r'C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\web\style.css'
+JS_PATH = r'C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\web\app.js'
+OUT_PATH = r'C:\Users\mplei\OneDrive\Documents\GitHub\BarbarianPrince\web\standalone.html'
+
+with open(CSS_PATH, 'r', encoding='utf-8') as f:
+    css = f.read()
+
+with open(JS_PATH, 'r', encoding='utf-8') as f:
+    js = f.read()
+
+html = f'''<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barbarian Prince - web edition</title>
+  <style>
+{css}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="title">Barbarian Prince</span>
+      <span class="sub">1981 quest game &mdash; playable in the browser</span>
+    </div>
+    <div class="controls">
+      <input id="seed" type="number" min="0" placeholder="seed (optional)" title="Random seed">
+      <select id="strategy" title="Bot personality">
+        <option value="cautious">cautious</option>
+        <option value="balanced" selected>balanced</option>
+        <option value="aggressive">aggressive</option>
+      </select>
+      <select id="speed" title="Auto-play speed">
+        <option value="1">1 step/s</option>
+        <option value="4" selected>4 steps/s</option>
+        <option value="12">12 steps/s</option>
+        <option value="60">max</option>
+      </select>
+      <button id="btn-step" title="Let the bot answer the current prompt">Bot move</button>
+      <button id="btn-auto" title="Let the bot play the game for you">Auto-play</button>
+      <button id="btn-new" class="primary">New game</button>
+      <button id="btn-quit" title="Abandon this game">Quit</button>
+    </div>
+  </header>
+  
+  <main>
+    <section class="map-panel">
+      <div class="map-toolbar">
+        <span class="legend">
+          <b>Map</b>
+          <span class="key"><i class="sw sw-farmland"></i>farmland</span>
+          <span class="key"><i class="sw sw-countryside"></i>countryside</span>
+          <span class="key"><i class="sw sw-forest"></i>forest</span>
+          <span class="key"><i class="sw sw-hills"></i>hills</span>
+          <span class="key"><i class="sw sw-badlands"></i>badlands</span>
+          <span class="key"><i class="sw sw-mountains"></i>mountains</span>
+          <span class="key"><i class="sw sw-swamp"></i>swamp</span>
+          <span class="key"><i class="sw sw-desert"></i>desert</span>
+        </span>
+        <span class="zoom">
+          <button data-zoom="0.16">small</button>
+          <button data-zoom="0.24" class="on">medium</button>
+          <button data-zoom="0.34">large</button>
+        </span>
+        <label class="toggle"><input type="checkbox" id="show-ids" checked> hex ids</label>
+        <label class="toggle"><input type="checkbox" id="show-grid" checked> hex grid</label>
+        <label class="toggle"><input type="checkbox" id="show-traces" checked> rivers &amp; roads</label>
+        <select id="map-style" title="How the map is drawn">
+          <option value="vector" selected>terrain fills</option>
+          <option value="scan">original map scan</option>
+          <option value="blend">scan + terrain</option>
+        </select>
+      </div>
+      <div class="map-scroll">
+        <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <p class="help">
+        Pick an action from the prompt panel, or click a highlighted hex to move
+        there. Press <kbd>1</kbd>&ndash;<kbd>9</kbd> to choose an option, and click any
+        <b>rNNN</b> / <b>eNNN</b> reference to read the rule.  The option tagged
+        <b>bot</b> is the move the auto-play bot would make &mdash; click it to
+        hand over control, or use <b>Bot move</b> / <b>Auto-play</b> to let the
+        bot play the whole campaign.  Switch <b>Map style</b> to
+        <b>original map scan</b> to see the board artwork itself instead of the
+        flat terrain fills.
+      </p>
+    </section>
+    
+    <aside class="side-panel">
+      <div class="card" id="status-card">
+        <h2>Party</h2>
+        <div id="status"></div>
+      </div>
+      
+      <div class="card prompt-card" id="prompt-card">
+        <h2 id="prompt-title">Waiting for a game to start&hellip;</h2>
+        <div id="prompt-text"></div>
+        <div id="prompt-options"></div>
+      </div>
+      
+      <div class="card log-card">
+        <h2>Adventure log</h2>
+        <div id="log"></div>
+      </div>
+    </aside>
+  </main>
+  
+  <div id="ref-modal" class="modal hidden">
+    <div class="modal-box">
+      <button id="ref-close" class="modal-close">&times;</button>
+      <h3 id="ref-title"></h3>
+      <div id="ref-body"></div>
+    </div>
+  </div>
+  
+  <script>
+{js}
+  </script>
+</body>
+</html>
+'''
+
+with open(OUT_PATH, 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print(f'Created {OUT_PATH} ({len(html)} chars)')
