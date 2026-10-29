@@ -221,11 +221,14 @@ class GameGUI:
         self.delay = 250            # ms between bot answers (4 steps/s)
         self._after = None          # pending tick, so restart cannot double it
 
-        main = ttk.Frame(self.root)
+        # A horizontal paned window: drag the divider to give the board or the
+        # text column more room.
+        main = ttk.Panedwindow(self.root, orient='horizontal')
         main.pack(fill='both', expand=True)
+        self.panes = main
 
         left = ttk.Frame(main)
-        left.pack(side='left', fill='both', expand=True)
+        main.add(left, weight=3)
 
         bar = ttk.Frame(left)
         bar.pack(fill='x', padx=6, pady=4)
@@ -279,13 +282,16 @@ class GameGUI:
         self.map.show_traces = bool(self.show_traces.get())
         self.map.show_names = bool(self.show_names.get())
 
-        right = ttk.Frame(main, width=360)
-        right.pack(side='right', fill='both')
+        right = ttk.Frame(main)
+        main.add(right, weight=1)
 
-        self.status = tk.Text(right, height=10, font=('Arial', 10))
+        # Status keeps a fixed share of the height; the log takes the rest.
+        self.status = tk.Text(right, height=6, font=('Arial', 10),
+                              wrap='word', width=1)
         self.status.pack(fill='x')
 
-        self.log = tk.Text(right, height=22, font=('Arial', 9), wrap='word')
+        self.log = tk.Text(right, height=10, font=('Arial', 9), wrap='word',
+                           width=1)
         self.log.pack(fill='both', expand=True)
 
         # --- autoplay controls -------------------------------------------
@@ -315,17 +321,82 @@ class GameGUI:
 
         # Both wrap: a victory line, or a combat round's text, is long.
         self.prompt_title = tk.Label(right, font=('Arial', 12, 'bold'),
-                                     wraplength=340, justify='left')
-        self.prompt_title.pack(fill='x')
+                                     wraplength=340, justify='left',
+                                     anchor='w')
+        self.prompt_title.pack(fill='x', padx=4)
         self.prompt_body = tk.Label(right, font=('Arial', 9), wraplength=340,
                                     justify='left', anchor='w')
-        self.prompt_body.pack(fill='x')
-        self.buttons = ttk.Frame(right)
-        self.buttons.pack(fill='x')
+        self.prompt_body.pack(fill='x', padx=4)
+
+        # Fixed-height button area: a prompt with two options and one with ten
+        # no longer resize the log or shift the controls; the list scrolls.
+        self.buttons_box = ttk.Frame(right, height=200)
+        self.buttons_box.pack(fill='x')
+        self.buttons_box.pack_propagate(False)
+        self.buttons_canvas = tk.Canvas(self.buttons_box, height=200,
+                                        highlightthickness=0, borderwidth=0)
+        self.buttons_scroll = ttk.Scrollbar(self.buttons_box, orient='vertical',
+                                            command=self.buttons_canvas.yview)
+        self.buttons_canvas.configure(yscrollcommand=self.buttons_scroll.set)
+        self.buttons_scroll.pack(side='right', fill='y')
+        self.buttons_canvas.pack(side='left', fill='both', expand=True)
+        self.buttons = ttk.Frame(self.buttons_canvas)
+        self._buttons_window = self.buttons_canvas.create_window(
+            (0, 0), window=self.buttons, anchor='nw')
+        self.buttons.bind(
+            '<Configure>',
+            lambda _e: self.buttons_canvas.configure(
+                scrollregion=self.buttons_canvas.bbox('all')))
+        self.buttons_canvas.bind(
+            '<Configure>',
+            lambda e: (self.buttons_canvas.itemconfigure(
+                self._buttons_window, width=e.width),
+                self._wrap_labels(e.width)))
+        self.panes.bind(
+            '<Configure>',
+            lambda _e: self._wrap_labels(self.buttons_canvas.winfo_width()))
 
         self.map.draw(game)
         self.refresh_status()
         self.log_index = 0
+        # Start with a ~3:1 split; the player can drag the divider afterwards.
+        # The window has no real size until it is mapped, so wait for that.
+        self._sash_done = False
+        self.root.bind('<Configure>', self._first_configure)
+        self.root.after(60, self._init_sash)
+
+    def _first_configure(self, event):
+        # Move the sash outside the geometry pass: doing it from inside a
+        # <Configure> handler is ignored by ttk.
+        if event.widget is self.root and not self._sash_done:
+            self._sash_done = True
+            self.root.after(50, self._init_sash)
+
+    def _init_sash(self):
+        width = self.root.winfo_width()
+        if width < 400:                 # not mapped yet: try again later
+            self.root.after(120, self._init_sash)
+            return
+        target = max(320, width - 440)
+        try:
+            self.panes.sashpos(0, target)
+        except Exception:
+            self.root.after(120, self._init_sash)
+            return
+        if abs(self.panes.sashpos(0) - target) > 4:
+            self.root.after(150, self._init_sash)   # layout not ready yet
+        self._wrap_labels(self.buttons_canvas.winfo_width())
+
+    def _wrap_labels(self, width):
+        """Keep the wrapped text in step with the width of the text column."""
+        width = max(160, width - 24)
+        for label in (self.prompt_title, self.prompt_body):
+            label.configure(wraplength=width)
+        for button in self.buttons.winfo_children():
+            try:
+                button.configure(wraplength=width - 16)
+            except Exception:
+                pass
 
     def redraw(self):
         self.map.show_grid = bool(self.show_grid.get())
@@ -397,12 +468,15 @@ class GameGUI:
         self.prompt_body.configure(text=prompt['text'])
         for w in self.buttons.winfo_children():
             w.destroy()
+        width = max(180, self.buttons_canvas.winfo_width())
         for i, opt in enumerate(prompt['options']):
-            button = tk.Button(self.buttons, text=opt['label'],
+            button = tk.Button(self.buttons, text=opt['label'], anchor='w',
+                               justify='left', wraplength=max(120, width - 24),
                                command=lambda i=i: self.answer(i))
             if not enabled:
                 button.configure(state='disabled')
-            button.pack(fill='x')
+            button.pack(fill='x', padx=2, pady=1)
+        self.buttons_canvas.yview_moveto(0)
 
     def answer(self, index):
         if not self.game.prompts:
