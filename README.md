@@ -98,7 +98,7 @@ directory**: the exe loads its libraries and data from `_internal\` in place.
 
 | Launch | What happens |
 |---|---|
-| double-click | Tk window: board, party, log, prompts, bot controls |
+| double-click | Tk window: board (place names and four sizes), party, log, prompts, bot controls |
 | `BarbarianPrince.exe --web` | local server on a free port, browser tab opens, and a small window stays open with **Quit** |
 | `BarbarianPrince.exe --web --no-browser --port 8157` | headless server (for scripts) |
 | `BarbarianPrince.exe --auto --seed 42` | bot plays a campaign; output goes nowhere, so use the source for logs |

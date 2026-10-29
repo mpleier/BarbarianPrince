@@ -34,6 +34,10 @@ TERRAIN_COLORS = {
     'unknown': '#d8d8d8',
 }
 
+# Board scales: the canvas is bigger than the window at the larger settings
+# and scrolls inside its frame.
+ZOOM = {'small': 0.16, 'medium': 0.24, 'large': 0.34, 'huge': 0.45}
+
 PLACE_SYMBOL = {
     'town': 'o', 'village': 'o', 'fort': '*', 'castle': '*', 'tower': '*',
     'temple': '+', 'shrine': '+', 'ruin': 'x', 'mine': '#', 'farm': 'f',
@@ -62,6 +66,8 @@ class MapCanvas:
         self.show_grid = True
         self.show_ids = True
         self.show_traces = True
+        self.show_names = True
+        self.show_symbols = True
         self._scan_photo = None
         xs = [h['center'][0] for h in grid.values()]
         ys = [h['center'][1] for h in grid.values()]
@@ -103,6 +109,14 @@ class MapCanvas:
         self._scan_offset = self.px(sx, sy)
         return self._scan_photo
 
+    def set_scale(self, scale):
+        """Resize the board; the cached scan image is rebuilt at the new size."""
+        self.scale = scale
+        self.w = (self.maxx - self.minx) * scale
+        self.h = (self.maxy - self.miny) * scale
+        self._scan_photo = None
+        self.canvas.configure(width=self.w, height=self.h)
+
     def px(self, x, y):
         return ((x - self.minx) * self.scale, (y - self.miny) * self.scale)
 
@@ -116,6 +130,7 @@ class MapCanvas:
 
     def draw(self, game):
         self.canvas.delete('all')
+        self.canvas.configure(scrollregion=(0, 0, self.w, self.h))
         mode = self.mode
         if mode == 'scan':
             photo = self.scan_photo()
@@ -165,12 +180,18 @@ class MapCanvas:
         for hid, place in self.features['places'].items():
             if hid not in self.grid:
                 continue
+            if not (self.show_names or self.show_symbols):
+                continue
             cx, cy = self.px(self.grid[hid]['center'][0], self.grid[hid]['center'][1])
             sym = PLACE_SYMBOL.get(place['kind'], 'o')
-            self.canvas.create_text(cx, cy - 9, text=sym, font=('Arial', 9, 'bold'),
-                                    fill='#7a2f2f', tags='place')
-            self.canvas.create_text(cx, cy + 13, text=place['name'], font=('Arial', 7),
-                                    fill='#7a2f2f', tags='place')
+            if self.show_symbols:
+                self.canvas.create_text(cx, cy - 9, text=sym,
+                                        font=('Arial', 9, 'bold'),
+                                        fill='#7a2f2f', tags='place')
+            if self.show_names:
+                self.canvas.create_text(cx, cy + 13, text=place['name'],
+                                        font=('Arial', 7), fill='#7a2f2f',
+                                        tags='place')
 
         for hid in game.visited:
             if hid in self.grid:
@@ -225,14 +246,38 @@ class GameGUI:
         self.show_traces = tk.BooleanVar(value=False)
         ttk.Checkbutton(bar, text='rivers & roads', variable=self.show_traces,
                        command=self.redraw).pack(side='left')
+        self.show_names = tk.BooleanVar(value=True)
+        ttk.Checkbutton(bar, text='place names', variable=self.show_names,
+                       command=self.redraw).pack(side='left')
+        ttk.Label(bar, text='  size:').pack(side='left')
+        self.zoom = tk.StringVar(value='medium')
+        zoom = ttk.Combobox(bar, textvariable=self.zoom,
+                            values=['small', 'medium', 'large', 'huge'],
+                            state='readonly', width=8)
+        zoom.pack(side='left')
+        zoom.bind('<<ComboboxSelected>>', self.on_zoom)
 
-        self.map = MapCanvas(tk.Canvas(left, bg='#f4f1e8'),
-                            game.model.grid, self.features,
-                            mode=self.map_mode.get())
+        # The board is bigger than the window at the larger sizes, so it lives
+        # in a canvas with scrollbars rather than being squashed to fit.
+        wrap = ttk.Frame(left)
+        wrap.pack(fill='both', expand=True)
+        self.hbar = ttk.Scrollbar(wrap, orient='horizontal')
+        self.vbar = ttk.Scrollbar(wrap, orient='vertical')
+        self.map = MapCanvas(
+            tk.Canvas(wrap, bg='#f4f1e8',
+                      xscrollcommand=self.hbar.set,
+                      yscrollcommand=self.vbar.set),
+            game.model.grid, self.features,
+            mode=self.map_mode.get(), scale=ZOOM[self.zoom.get()])
+        self.hbar.configure(command=self.map.canvas.xview)
+        self.vbar.configure(command=self.map.canvas.yview)
+        self.vbar.pack(side='right', fill='y')
+        self.hbar.pack(side='bottom', fill='x')
+        self.map.canvas.pack(side='left', fill='both', expand=True)
         self.map.show_grid = bool(self.show_grid.get())
         self.map.show_ids = bool(self.show_ids.get())
         self.map.show_traces = bool(self.show_traces.get())
-        self.map.canvas.pack(fill='both', expand=True)
+        self.map.show_names = bool(self.show_names.get())
 
         right = ttk.Frame(main, width=360)
         right.pack(side='right', fill='both')
@@ -240,7 +285,7 @@ class GameGUI:
         self.status = tk.Text(right, height=10, font=('Arial', 10))
         self.status.pack(fill='x')
 
-        self.log = tk.Text(right, height=22, font=('Arial', 9))
+        self.log = tk.Text(right, height=22, font=('Arial', 9), wrap='word')
         self.log.pack(fill='both', expand=True)
 
         # --- autoplay controls -------------------------------------------
@@ -268,10 +313,13 @@ class GameGUI:
         speed.bind('<<ComboboxSelected>>', self.on_speed)
         ttk.Label(controls, text='steps/s').pack(side='left', padx=(2, 0))
 
-        self.prompt_title = tk.Label(right, font=('Arial', 12, 'bold'))
-        self.prompt_title.pack()
-        self.prompt_body = tk.Label(right, font=('Arial', 9), wraplength=340)
-        self.prompt_body.pack()
+        # Both wrap: a victory line, or a combat round's text, is long.
+        self.prompt_title = tk.Label(right, font=('Arial', 12, 'bold'),
+                                     wraplength=340, justify='left')
+        self.prompt_title.pack(fill='x')
+        self.prompt_body = tk.Label(right, font=('Arial', 9), wraplength=340,
+                                    justify='left', anchor='w')
+        self.prompt_body.pack(fill='x')
         self.buttons = ttk.Frame(right)
         self.buttons.pack(fill='x')
 
@@ -283,6 +331,12 @@ class GameGUI:
         self.map.show_grid = bool(self.show_grid.get())
         self.map.show_ids = bool(self.show_ids.get())
         self.map.show_traces = bool(self.show_traces.get())
+        self.map.show_names = bool(self.show_names.get())
+        self.map.draw(self.game)
+
+    def on_zoom(self, _event=None):
+        """Rescale the board (the canvas is scrolled by its container)."""
+        self.map.set_scale(ZOOM[self.zoom.get()])
         self.map.draw(self.game)
 
     def on_map_mode(self, _event=None):
@@ -332,15 +386,23 @@ class GameGUI:
         self.log.insert('end', text + '\n')
         self.log.see('end')
 
-    def ask(self, prompt):
-        """Draw the prompt's buttons; a click answers and resumes the loop."""
+    def ask(self, prompt, enabled=True):
+        """Draw the prompt (title, text, buttons); a click resumes the loop.
+
+        With ``enabled=False`` the buttons are shown but inert, which is what
+        the player watches while the bot is playing: the panel always describes
+        the prompt that is actually pending, never a stale one.
+        """
         self.prompt_title.configure(text=prompt['title'])
         self.prompt_body.configure(text=prompt['text'])
         for w in self.buttons.winfo_children():
             w.destroy()
         for i, opt in enumerate(prompt['options']):
-            tk.Button(self.buttons, text=opt['label'],
-                      command=lambda i=i: self.answer(i)).pack(fill='x')
+            button = tk.Button(self.buttons, text=opt['label'],
+                               command=lambda i=i: self.answer(i))
+            if not enabled:
+                button.configure(state='disabled')
+            button.pack(fill='x')
 
     def answer(self, index):
         if not self.game.prompts:
@@ -430,13 +492,15 @@ class GameGUI:
                 self.schedule(0)
                 return
             if self.auto:
+                # Show the prompt the bot is answering (greyed out), so the
+                # panel never keeps a previous prompt on screen.
+                self.ask(p, enabled=False)
                 # The bot plans a camp/mine route on its first decision and
                 # again when the plan is exhausted, which can take a second or
                 # two; say so instead of looking frozen.
                 self.prompt_title.configure(text='Bot: ' + p['title'])
                 self.root.update_idletasks()
                 choice = self.bot.choose(p)
-                self.prompt_title.configure(text=p['title'])
                 g.answer(choice)
                 self.schedule(self.delay)
                 return
@@ -449,8 +513,10 @@ class GameGUI:
         g = self.game
         self.drain_notes()
         self.log_line('*** ' + (g.reason or 'Game over'))
-        self.prompt_title.configure(text='Game over: ' + (g.reason or ''))
-        self.prompt_body.configure(text='')
+        reason = g.reason or 'Game over'
+        won = bool(getattr(g, 'won', False))
+        self.prompt_title.configure(text='Victory!' if won else 'Game over')
+        self.prompt_body.configure(text=reason)
         for w in self.buttons.winfo_children():
             w.destroy()
         tk.Button(self.buttons, text='Close',
