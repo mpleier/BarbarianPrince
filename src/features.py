@@ -436,9 +436,13 @@ def _river_flow(river_sides):
       * the Nesser (and the rest of the southern network) runs north to south.
 
     So the northern staircase (both hexes in rows 1-3) drains west, the separate
-    eastern block drains north-east, and everything else drains south.  The
-    Dienstal Branch, which the booklet says flows *into* the Nesser, cannot be
-    told apart from the Nesser traces and inherits the southward flow.
+    eastern block drains north-east, and everything else drains south.
+
+    The Dienstal Branch is the exception the booklet calls out: it "feeds into
+    the Nesser, flowing from the marsh into the Nesser", i.e. it runs *against*
+    the southern flow.  The map shows it leaving the lake at 1617, passing
+    1517-1518-1417-1418 and joining the Greater Nesser at 1318, so its sides are
+    oriented toward that junction.
     """
     components = _river_components(river_sides)
     largos = set()
@@ -448,11 +452,21 @@ def _river_flow(river_sides):
         if min(cols) >= 15 and min(rows) >= 10 and max(rows) <= 17:
             largos.update(chain)          # the eastern block: the Largos
 
+    dienstal = {'1517', '1518', '1417', '1418'}
+    dienstal_mouth = '1318'               # where the branch meets the Nesser
+
+    def distance_to_mouth(hex_id):
+        return (abs(int(hex_id[:2]) - int(dienstal_mouth[:2]))
+                + abs(int(hex_id[2:]) - int(dienstal_mouth[2:])))
+
     flow = {}
     for a, b in river_sides:
         ca, ra = int(a[:2]), int(a[2:])
         cb, rb = int(b[:2]), int(b[2:])
-        if a in largos and b in largos:
+        if a in dienstal and b in dienstal:
+            # r213: from the marsh into the Nesser
+            downstream = min((a, b), key=distance_to_mouth)
+        elif a in largos and b in largos:
             # r213: out of the marsh, to the north-east
             downstream = b if (cb, -rb) > (ca, -ra) else a
         elif max(ra, rb) <= 3:

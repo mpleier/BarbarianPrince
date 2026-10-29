@@ -111,16 +111,23 @@ audit script checks that no event option points at a section that is missing.
     against the booklet's "east to west" and "toward the north-east".  The flow
     map now recognises the northern staircase and the eastern block and orients
     them as the booklet describes.
+16. **r213 Dienstal** — the last wrong reach: the branch runs from the lake at
+    1617 into the Greater Nesser at 1318, against the general southward flow, so
+    it was going backwards.  Its four sides (1517-1518-1417-1418) are now
+    oriented toward that junction, matching "flowing from the marsh into the
+    Nesser".
 
 ## Known simplifications
 
-* **r213 river flow** — the booklet names the flow of each river, but the traces
-  carry no names, so `features.river_flow` derives the direction from the
-  layout: the northern staircase (both hexes in rows 1-3) drains **west** (the
-  Tragoth, 43/43 sides), the separate eastern block drains **north-east** (the
-  Largos, 12/12 sides), and everything else drains **south** (the Nesser and
-  the southern network).  This replaced a plain "top to bottom" rule that sent
-  six Tragoth sides east and six Largos sides south.
-  *Remaining gap:* the Dienstal Branch, which the booklet says flows *into* the
-  Nesser, cannot be told apart from the Nesser traces, so it inherits the
-  southward flow.
+* **r213 river flow** — the traces carry no names, so `features.river_flow`
+  derives every direction from the layout, matched to the booklet's four
+  statements: the northern staircase (both hexes in rows 1-3) drains **west**
+  (the Tragoth, 43/43 sides), the separate eastern block drains **north-east**
+  (the Largos, 12/12 sides), the Dienstal Branch (1517-1518-1417-1418) drains
+  **west into the Greater Nesser at 1318** as the rulebook says, and everything
+  else drains **south** (the Nesser and the southern network).
+  Where two rivers meet, a hex can end up with two outgoing sides; that is a
+  property of the drawing, not of the raft rule, and costs nothing because a
+  raft day is decided per hexside.
+  This replaced a plain "top to bottom" rule that sent six Tragoth sides east,
+  six Largos sides south and the Dienstal the wrong way.

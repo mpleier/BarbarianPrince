@@ -359,6 +359,19 @@ class RaftTests(unittest.TestCase):
             self.assertGreaterEqual(int(downstream[:2]), int(upstream[:2]),
                                     msg=f'{a}-{b} should flow eastward')
 
+    def test_the_dienstal_flows_from_the_marsh_into_the_nesser(self):
+        # r213: the Dienstal is the one tributary that runs against the general
+        # southern flow - it leaves the lake at 1617 and feeds the Greater
+        # Nesser at 1318.
+        g = game()
+        chain = [('1517', '1518'), ('1518', '1417'),
+                 ('1417', '1418'), ('1418', '1318')]
+        for upstream, downstream in chain:
+            self.assertEqual(g.river_flow[f'{upstream}|{downstream}'],
+                             downstream,
+                             msg=f'{upstream}-{downstream} should flow toward '
+                                 f'the Nesser')
+
     def test_every_river_side_has_a_flow_direction(self):
         # features.json carries "a|b" -> downstream for every traced side.
         g = game()
