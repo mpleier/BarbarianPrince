@@ -38,19 +38,30 @@ def main():
         gui.bot_move()                     # one bot answer while paused
         report['day_after_step'] = game.day
 
+    def restart():
+        # "New game" must throw the campaign away and keep the loop alive
+        report['day_before_restart'] = game.day
+        gui.restart()
+        report['day_after_restart'] = gui.game.day
+        report['restart_is_new_game'] = gui.game is not game
+        report['restart_auto_off'] = not gui.auto
+        report['restart_log'] = gui.log.get('1.0', 'end').strip()
+
     def manual_answer():
-        # a manual click path: answer whatever prompt is pending, if any
-        if game.prompts and not game.game_over:
-            p = game.current()
+        # a manual click path: answer whatever prompt is pending, if any.
+        # `gui.game` is a *new* object after the restart, so read it again.
+        g = gui.game
+        if g.prompts and not g.game_over:
+            p = g.current()
             if p['options']:
                 gui.answer(0)
                 report['manual_ok'] = True
-        report['day_final'] = game.day
-        report['over'] = game.game_over
+        report['day_final'] = g.day
+        report['over'] = g.game_over
         report['auto_flag'] = gui.auto
         # the end-of-game path must not raise
-        game.game_over = True
-        game.reason = 'smoke test stop'
+        g.game_over = True
+        g.reason = 'smoke test stop'
         gui.schedule(0)
         gui.root.after(300, check_finish)
 
@@ -62,7 +73,8 @@ def main():
     gui.schedule(1)
     gui.root.after(100, start_auto)
     gui.root.after(int(SECONDS * 1000), pause_and_step)
-    gui.root.after(int(SECONDS * 1000) + 400, manual_answer)
+    gui.root.after(int(SECONDS * 1000) + 300, restart)
+    gui.root.after(int(SECONDS * 1000) + 900, manual_answer)
     gui.root.mainloop()
 
     print('day at start      :', report.get('day_at_start'))
@@ -73,8 +85,13 @@ def main():
     print('day at close      :', report.get('day_final'), '| game over:', report.get('over'))
     ok = (report.get('day_after_auto', 0) >= (report.get('day_at_start') or 1)
           and (report.get('log_after_auto') or 0) > 10)
+    print('restart           : day', report.get('day_before_restart'),
+          '->', report.get('day_after_restart'),
+          '| new game:', report.get('restart_is_new_game'),
+          '| auto off:', report.get('restart_auto_off'))
     print('end screen        :', report.get('finished'), '|', report.get('close_button'))
     ok = ok and bool(report.get('finished')) and 'Close' in (report.get('close_button') or [])
+    ok = ok and report.get('day_after_restart') == 1 and report.get('restart_is_new_game')
     print('AUTOPLAY', 'OK' if ok else 'FAILED')
     return 0 if ok else 1
 

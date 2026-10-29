@@ -14,6 +14,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from autoplay import Bot, STRATEGIES
+from engine import Game
 from features import load_features
 from geometry import R
 from map_scan import stitch, scan_rect
@@ -197,6 +198,7 @@ class GameGUI:
         self.bot = Bot(game, 'balanced', variety=0.3)
         self.auto = False
         self.delay = 250            # ms between bot answers (4 steps/s)
+        self._after = None          # pending tick, so restart cannot double it
 
         main = ttk.Frame(self.root)
         main.pack(fill='both', expand=True)
@@ -244,9 +246,12 @@ class GameGUI:
         # --- autoplay controls -------------------------------------------
         controls = ttk.Frame(right)
         controls.pack(fill='x', pady=(4, 0))
+        self.btn_restart = ttk.Button(controls, text='New game',
+                                      command=self.restart, width=10)
+        self.btn_restart.pack(side='left')
         self.btn_bot = ttk.Button(controls, text='Bot move',
                                   command=self.bot_move, width=10)
-        self.btn_bot.pack(side='left')
+        self.btn_bot.pack(side='left', padx=4)
         self.btn_auto = ttk.Button(controls, text='Auto-play',
                                    command=self.toggle_auto, width=10)
         self.btn_auto.pack(side='left', padx=4)
@@ -379,10 +384,38 @@ class GameGUI:
         self.schedule(0)
 
     def schedule(self, ms):
-        self.root.after(max(1, ms), self.tick)
+        # One pending tick at a time: a restart or a click during the wait must
+        # not leave two loops running.
+        if self._after is not None:
+            try:
+                self.root.after_cancel(self._after)
+            except Exception:
+                pass
+        self._after = self.root.after(max(1, ms), self.tick)
+
+    def restart(self):
+        """Abandon this campaign and start a fresh one."""
+        self.auto = False
+        self.btn_auto.configure(text='Auto-play')
+        self.game = Game()
+        self.bot = Bot(self.game, self.strategy.get(), variety=0.3)
+        self.log.delete('1.0', 'end')
+        self.log_index = 0
+        self._drawn = None
+        self.prompt_title.configure(text='')
+        self.prompt_body.configure(text='')
+        for w in self.buttons.winfo_children():
+            w.destroy()
+        self.btn_auto.state(['!disabled'])
+        self.btn_bot.state(['!disabled'])
+        self.refresh_status()
+        self.map.draw(self.game)
+        self.log_line('*** New game - day 1 in hex ' + self.game.hex + '.')
+        self.schedule(1)
 
     def tick(self):
         """One unit of work: advance the day, or settle the current prompt."""
+        self._after = None
         g = self.game
         if g.game_over:
             self.finish()

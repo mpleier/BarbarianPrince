@@ -37,9 +37,10 @@ python -m unittest discover -s tests
 | Auto-play (no input) | `python src/main.py --auto --seed 42` |
 
 Both graphical front ends can hand the game to the bot: the Tk window has
-**Bot move** (answer the current prompt), **Auto-play** (play on, with a
-1/4/12/60 steps-per-second setting and a strategy picker), and the browser page
-has the same buttons in its toolbar.  `python _refs/gui_smoke.py 10` opens the
+**New game** (abandon the campaign and start a fresh one), **Bot move** (answer
+the current prompt) and **Auto-play** (play on, with a 1/4/12/60
+steps-per-second setting and a strategy picker), and the browser page has the
+same buttons in its toolbar.  `python _refs/gui_smoke.py 10` opens the
 Tk window, lets the bot play for ten seconds and checks the loop, the manual
 answers and the end screen.
 
