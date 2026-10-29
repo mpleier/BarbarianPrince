@@ -270,6 +270,9 @@ class Character:
 
     @property
     def effective_skill(self):
+        # r221b: an unconscious character is helpless - combat skill zero.
+        if self.unconscious:
+            return 0
         return max(0, self.skill - self.starved)
 
     @property
@@ -586,6 +589,10 @@ class Game:
 
 
     def start(self):
+        # __init__ already starts the game; calling start() again (as tests and
+        # the CLI do) must not add a second Prince.
+        if any(c.prince for c in self.party):
+            return
         self.party.append(Character('Cal Arath (the Prince)', 8, 9, 2,
                                     prince=True))
         # r202: the Prince's wealth code is 2 - roll the Treasure Table (r226)
@@ -636,8 +643,9 @@ class Game:
     def current_loads(self):
         """r206a - calculate the total loads currently carried by the party."""
         loads = self.food
-        # gold: every 100 gp or fraction thereof = 1 load
-        loads += max(1, self.gold // 100) if self.gold > 0 else 0
+        # gold: every 100 gp *or fraction thereof* counts as one load
+        if self.gold > 0:
+            loads += (self.gold + 99) // 100
         return loads
 
     def max_capacity(self):
@@ -1801,7 +1809,7 @@ class Game:
         self.note(f'Searching for the cache: die {die} (r214).')
         if die <= 4:
             self.caches.pop(self.hex)
-            self.gain_treasure(amount)
+            self.gain_treasure(amount, None, None)
             self.note(f'The cache is found intact: {amount} gold recovered.')
             return 'Cache recovered.'
         if die == 5:
@@ -1996,7 +2004,9 @@ class Game:
         if self.prompts:
             return 'Rest interrupted by an encounter.'
         for c in self.living():
-            if c.wounds > 0:
+            # r222: a poisoned wound never heals with rest, so the poisoned
+            # count is a floor on the wounds left behind.
+            if c.wounds > c.poisoned:
                 c.wounds -= 1
                 self.note(f'{c.name} heals a wound ({c.wounds}/{c.endurance}).')
         if combat_or_escape:
@@ -2186,6 +2196,11 @@ class Game:
         self.note(f'{shortfall} food unit(s) short - starvation (r216).')
         for c in self.living():
             if c.prince:
+                # r216b: the Prince cannot desert, but he still goes hungry -
+                # his loads halve and his combat skill drops by one per day.
+                c.starved += 1
+                self.note(f'The Prince starves (skill now {c.effective_skill}, '
+                          f'loads {c.load_capacity()}).')
                 continue
             die = self.d2() - self.wit
             if die >= 4:
@@ -2271,10 +2286,13 @@ class Game:
         kind = self.place_kind(self.hex)
         if kind not in ('town', 'castle', 'temple'):
             return 'Camp for the night in the open.'
-        special = sum(1 for c in self.living()
+        # r217: the Prince needs his own room, as does any priest, monk,
+        # magician, wizard or witch; every other follower shares, two a room.
+        followers = [c for c in self.living() if not c.prince]
+        special = sum(1 for c in followers
                       if any(w in c.name.lower() for w in
                              ('priest', 'monk', 'magician', 'wizard', 'witch')))
-        others = len(self.living()) - special
+        others = len(followers) - special
         rooms = 1 + special + (others + 1) // 2
         mounts = sum(1 for c in self.living() if c.mount != 'none')
         cost = rooms + mounts
@@ -2302,6 +2320,12 @@ class Game:
         self.note('No lodging purchased - rolling for desertion (r217).')
         for c in list(self.living()):
             if c.prince:
+                # r217: the Prince does not desert his own quest, but a mount
+                # left without a stable can still be stolen overnight.
+                if c.mount != 'none' and self.d1() >= 4:
+                    self.note('The Prince\'s mount is stolen during the night '
+                              '(r217).')
+                    c.mount = 'none'
                 continue
             die = self.d2() - self.wit
             if die >= 4:
