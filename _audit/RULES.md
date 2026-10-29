@@ -21,7 +21,7 @@ rule regression breaks a named test rather than quietly changing the game.
 | r212 | Offerings | `offering` — 2d6 +1 (10 gold) + omen + influence, 14+ wins the Staff, 5 arrests, 2 defiles | `test_rules.OfferingTests` |
 | r213 | Rafting | `begin_raft` / `move` — river hexsides only, 3 a day downriver / 2 upriver (flow from `features.river_flow`), no lost check, 12 stops the raft, events on the "Rafting" travel row | `test_rules.RaftTests` |
 | r214 | Cache | `cache`, `recover_cache` — 1-4 intact, 5 not found, 6 looted | `test_rules.CacheTests` |
-| r215 | Food | `food_need`, `feed_party`, `hunt` (skill + ½ endurance − 2d6, guide +1, rest-day helpers) | `test_rules.HuntingTests` |
+| r215 | Food | `food_need`, `feed_party`, `hunt` (skill + ½ endurance − 2d6, guide +1, rest-day helpers); farmland hunt event 1-4 nothing / 5 e017 / 6 e050 with **+2 on that die** | `test_rules.HuntingTests`, `FarmlandHuntTests` |
 | r216 | Starvation | `starve` — followers roll 2d6 − wit (4+ deserts), everyone else starves (−1 skill, half loads); the Prince never deserts | `test_rules.StarvationTests` |
 | r217 | Lodging | `lodging` (one room for the Prince and each priest/magician, two followers a room, one stable a mount), `sleep_rough` (desertion and mount theft) | `test_rules.LodgingTests` |
 | r218 | Escape & Hiding | `escape`, `hide` (r311-r320 option verbs) | `test_events` (escape/hide options resolve) |
@@ -90,6 +90,15 @@ audit script checks that no event option points at a section that is missing.
 11. **r222** — rest healed poison wounds; a poisoned wound is now a floor.
 12. **Game.start** — was not idempotent, so calling it twice (as the CLI and the
     old tests did) created two Princes.
+13. **r215c / e050** — the farmland hunt's constabulary event was a dead end:
+    `parse_options` only looked for "options are", so e050's matrix (which the
+    booklet introduces with "select your option") was never parsed and the
+    event arrived as plain text.  The parser now tries every "die roll" header
+    and keeps the one whose columns are option verbs, and it splits glued cells
+    such as `hider318`.  e050 now also enforces its own rules: it only fires
+    within three hexes of a town/castle/temple, Ogon and Weshor send e002
+    instead, the option die gets +2 for a place visited before and +1 for one
+    never visited, and the hunt itself adds the r215c +2.
 
 ## Known simplifications
 
@@ -101,5 +110,3 @@ audit script checks that no event option points at a section that is missing.
   hexsides and a day upriver two.
 * **r211 dismissal** — dismissing a wizard to please the Baron of Huldra (+1)
   is not modelled; the party simply takes the −2 at temples.
-* **r215c** — the farmland hunt event is a fixed 1d6 table rather than the
-  printed r207 terrain event.

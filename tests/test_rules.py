@@ -333,6 +333,79 @@ class HuntingTests(unittest.TestCase):
         self.assertEqual(g.food, 8)
 
 
+class FarmlandHuntTests(unittest.TestCase):
+    """r215c - hunting in farmland: 1-4 nothing, 5 e017, 6 e050 at +2."""
+
+    def hunt_with_event_die(self, hexid, die, visited=None):
+        g = game(hex=hexid)
+        if visited:
+            g.visited |= visited
+        g.d1 = lambda: die
+        g.hunt(1)
+        return g
+
+    def test_peasant_mob_on_a_five(self):
+        g = self.hunt_with_event_die('0102', 5)
+        self.assertEqual((g.pending_event or {}).get('code'), 'e017')
+
+    def test_constabulary_on_a_six_adds_two_to_the_die(self):
+        # 0108 is farmland within one hex of Angleae (0109), so e050 applies.
+        g = self.hunt_with_event_die('0108', 6)
+        self.assertEqual((g.pending_event or {}).get('code'), 'e050')
+        self.assertEqual(g.pending_event['bonus'], 2)
+        self.assertTrue(any('add two (+2)' in line for line in g.log))
+
+    def test_constabulary_is_ignored_far_from_civilisation(self):
+        g = self.hunt_with_event_die('2011', 6)   # 7 hexes from any place
+        self.assertIsNone(g.pending_event)
+
+    def test_ogon_and_weshor_send_e002_instead(self):
+        g = self.hunt_with_event_die('0102', 6, visited={'0101'})
+        self.assertEqual((g.pending_event or {}).get('code'), 'e002')
+
+    def test_no_event_die_outside_farmland(self):
+        g = self.hunt_with_event_die('0405', 6)   # countryside
+        self.assertIsNone(g.pending_event)
+
+    def test_four_or_less_is_quiet(self):
+        g = self.hunt_with_event_die('0108', 4)
+        self.assertIsNone(g.pending_event)
+
+
+class ConstabularyTests(unittest.TestCase):
+    """e050 - the option matrix and its visited/never-visited modifiers."""
+
+    def test_matrix_has_three_columns_and_eight_rows(self):
+        from engine import parse_options
+        model = GameModel.load()
+        headers, rows, note = parse_options(model.events['e050']['text'])
+        self.assertEqual([h.lower() for h in headers],
+                         ['negotiate', 'evade', 'fight'])
+        self.assertEqual([roll for roll, _ in rows], list(range(1, 9)))
+        self.assertEqual(rows[4][1][1], ('hide', 'r318'))
+        self.assertIn('mounts', note.lower())
+
+    def option_bonus(self, visited, escaped=()):
+        g = game(hex='0108')
+        g.visited |= set(visited)
+        g.escaped_from |= set(escaped)
+        g.encounter('e050')
+        return g.pending_event, g.option_bonus(g.pending_event)
+
+    def test_visited_place_gives_plus_two(self):
+        prompt, bonus = self.option_bonus({'0109'})
+        self.assertEqual(prompt['code'], 'e050')
+        self.assertEqual(bonus, 2)
+
+    def test_never_visited_gives_plus_one(self):
+        _prompt, bonus = self.option_bonus(set())
+        self.assertEqual(bonus, 1)
+
+    def test_escaping_from_the_place_cancels_the_bonus(self):
+        _prompt, bonus = self.option_bonus({'0109'}, {'0109'})
+        self.assertEqual(bonus, 0)
+
+
 class StarvationTests(unittest.TestCase):
     """r216 - the Prince starves too, but never deserts."""
 

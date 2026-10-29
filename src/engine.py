@@ -96,7 +96,19 @@ def _split_cells(tokens, n_headers):
     Each cell is a label followed by a reference.  When a row carries fewer
     references than headers (e002 roll 7, e130 roll 4) the booklet has left a
     cell without a reference, so a bare option verb starts a new cell.
+
+    The OCR sometimes glues a label to its reference ('hider318' in e050), so a
+    token ending in a reference is split in two first.
     """
+    expanded = []
+    for tok in tokens:
+        m = re.match(r'^([A-Za-z][A-Za-z-]*)([rceiRCei]\d{3})$', tok)
+        if m:
+            expanded.extend([m.group(1), m.group(2)])
+        else:
+            expanded.append(tok)
+    tokens = expanded
+
     split_on_verb = sum(1 for t in tokens if OPTION_REF_RE.match(t)) < n_headers
     cells = []
     label = []
@@ -145,20 +157,37 @@ def parse_options(text):
     end of the matrix - doing so silently dropped the evade/fight columns and
     left the player (or the bot) with a single 'talk' option.  A bare '*' or a
     'Note:' line *does* end the matrix: it is the footnote, not a row.
+
+    Some events (e050) put rules prose between the lead-in and the matrix, and
+    that prose mentions 'the die roll' itself, so every candidate header row is
+    tried and the one whose headers actually look like option verbs wins.
     """
-    m = re.search(r'options are', text, re.I)
+    m = re.search(r'(options are|select your option)', text, re.I)
     if not m:
         return None
-    tokens = text[m.end():].split()
-    # The matrix always begins with the 'die roll' header row; anything before
-    # it (e112 'listed below. If your party has ...') is prose, not a header.
+    best = None
+    best_score = None
+    for header in re.finditer(r'\bdie\s+roll\b', text[m.end():], re.I):
+        parsed = _option_matrix(text, m.end() + header.end())
+        if not parsed:
+            continue
+        headers, rows, note = parsed
+        if len(headers) < 2 or len(rows) < 2:
+            continue
+        verbs = sum(1 for h in headers
+                    if h.lower().strip('*-.,') in OPTION_VERBS)
+        # Prefer the candidate whose headers are *mostly* option verbs: a run of
+        # prose can contain several verbs by accident but is mostly filler.
+        score = (2 * verbs - len(headers), len(rows))
+        if best_score is None or score > best_score:
+            best, best_score = parsed, score
+    return best
+
+
+def _option_matrix(text, start):
+    """Parse the matrix whose header row ends at ``start``."""
+    tokens = text[start:].split()
     i = 0
-    while i + 1 < len(tokens) and not (tokens[i].strip('*').lower() == 'die'
-                                       and tokens[i + 1].strip('*').lower() == 'roll'):
-        i += 1
-    if i + 1 >= len(tokens):
-        return None
-    i += 2
     headers = []
     foot_col = None
     while i < len(tokens) and not tokens[i].isdigit():
@@ -469,6 +498,9 @@ class Game:
         self.food = 0
         self.caches = {}
         self.visited = {start_hex}
+        # r218/e050: a town the party escaped from is a place it is "wanted",
+        # so it no longer counts as a friendly visit.
+        self.escaped_from = set()
         self.items = []
         self.raft = False
         self.raft_days = 0
@@ -963,6 +995,18 @@ class Game:
         if not ev:
             self.note(f'(event {code} is not in the booklet - nothing happens)')
             return
+        if code == 'e050':
+            # e050: the constabulary only acts within three hexes of a town,
+            # castle or temple, and Ogon/Weshor send e002 instead.
+            place, dist = self.constabulary()
+            if place is None or dist > 3:
+                self.note('The local constabulary is too far away to act '
+                          '(e050) - nothing happens.')
+                return
+            if place in ('0101', '1501'):
+                self.note(f'Constabulary from {place} - see e002 instead (e050).')
+                code = 'e002'
+                ev = self.model.events.get(code) or ev
         if code in ('e060', 'e061', 'e062', 'e063'):
             self.enter_prison(code)
             return
@@ -1141,16 +1185,41 @@ class Game:
             return normalise_ref(mounted.group(1))
         return None
 
+    def constabulary(self):
+        """(hex, distance) of the nearest town, castle or temple (e050)."""
+        best, dist = None, 9999
+        for hid, place in self.features.get('places', {}).items():
+            if place.get('kind') not in ('town', 'castle', 'temple'):
+                continue
+            d = self.model.distance(self.hex, hid)
+            if d is not None and d < dist:
+                best, dist = hid, d
+        return best, dist
+
     def option_bonus(self, ev):
-        """Footnote bonuses to the option die: mounts (+1), forest (+2).
+        """Footnote bonuses to the option die: mounts (+1), forest (+2), e050.
 
         The booklet states the bonus explicitly, e.g. e002 'if your entire
         party has mounts, add one (+1) to die roll' and e007 'if the event
         occurs in a forest, add two (+2) to the die roll'.
+
+        e050 adds +2 when the nearest town/castle/temple has been visited
+        before (unless the party left it by an escape) and +1 when it has
+        never been visited at all.
         """
         note = ev.get('note') or ''
         party = self.living()
-        bonus = 0
+        bonus = int(ev.get('bonus', 0))
+        if ev.get('code') == 'e050':
+            place, _dist = self.constabulary()
+            if place:
+                if place in self.visited and place not in self.escaped_from:
+                    bonus += 2
+                    self.note(f'The nearest place, {place}, has been visited '
+                              f'before (+2, e050).')
+                elif place not in self.visited:
+                    bonus += 1
+                    self.note(f'Never visited {place} before (+1, e050).')
         for clause in re.split(r'[;,]', note):
             low = clause.lower()
             if 'add one (+1)' in low:
@@ -1413,6 +1482,7 @@ class Game:
     # ------------------------------------------------------------ escape & hide (r218)
     def escape_move(self):
         """Move randomly to an adjacent hex; rivers and off-map are re-rolled."""
+        origin = self.hex
         for _ in range(12):
             d = self.rng.choice(DIRECTIONS)
             hid = self.model.neighbors(self.hex).get(d)
@@ -1424,6 +1494,9 @@ class Game:
                 continue
             self.hex = hid
             self.visited.add(hid)
+            if origin in self.features.get('places', {}):
+                # e050: leaving a town by an escape makes the party "wanted"
+                self.escaped_from.add(origin)
             self.note(f'Escaped to hex {hid} ({self.model.travel_terrain(hid)}).')
             return hid
         self.note('No escape route available - the party stays put.')
@@ -2198,13 +2271,22 @@ class Game:
                 if hunter.dead and len(living) == 1:
                     hunter.alive = False
         if self.model.terrain(self.hex) == 'farmland':
+            # r215c: hunting in farmland risks an event after the hunt -
+            # 1-4 nothing, 5 peasant mob (e017), 6 constabulary (e050), and
+            # the hunt is what gets the party reported: +2 on that die roll.
             die = self.d1()
+            self.note(f'Farmland hunt: event die {die} (r215c).')
             if die == 5:
                 self.note('Peasant mob in pursuit (e017).')
                 self.encounter('e017')
             elif die == 6:
                 self.note('Pursued by constabulary (e050).')
                 self.encounter('e050')
+                if self.pending_event and self.pending_event.get('code') in ('e050', 'e002'):
+                    self.pending_event['bonus'] = \
+                        self.pending_event.get('bonus', 0) + 2
+                    self.note('The hunt is reported: add two (+2) to the '
+                              'constabulary die (r215c).')
         if gained > 0:
             self.food += gained
             self.note(f'Hunt yields {gained} food units.')
