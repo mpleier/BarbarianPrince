@@ -13,6 +13,7 @@ import tempfile
 import tkinter as tk
 from tkinter import ttk
 
+from autoplay import Bot, STRATEGIES
 from features import load_features
 from geometry import R
 from map_scan import stitch, scan_rect
@@ -174,6 +175,12 @@ class GameGUI:
         self.root.title('Barbarian Prince')
         self.root.geometry('1280x820')
 
+        # The bot plays through the same prompt queue the player does, so
+        # "Bot move" answers one prompt and "Auto-play" keeps going.
+        self.bot = Bot(game, 'balanced')
+        self.auto = False
+        self.delay = 250            # ms between bot answers (4 steps/s)
+
         main = ttk.Frame(self.root)
         main.pack(fill='both', expand=True)
 
@@ -210,6 +217,28 @@ class GameGUI:
 
         self.log = tk.Text(right, height=22, font=('Arial', 9))
         self.log.pack(fill='both', expand=True)
+
+        # --- autoplay controls -------------------------------------------
+        controls = ttk.Frame(right)
+        controls.pack(fill='x', pady=(4, 0))
+        self.btn_bot = ttk.Button(controls, text='Bot move',
+                                  command=self.bot_move, width=10)
+        self.btn_bot.pack(side='left')
+        self.btn_auto = ttk.Button(controls, text='Auto-play',
+                                   command=self.toggle_auto, width=10)
+        self.btn_auto.pack(side='left', padx=4)
+        self.strategy = tk.StringVar(value='balanced')
+        strat = ttk.Combobox(controls, textvariable=self.strategy,
+                             values=list(STRATEGIES), state='readonly', width=10)
+        strat.pack(side='left', padx=4)
+        strat.bind('<<ComboboxSelected>>', self.on_strategy)
+        self.speed = tk.StringVar(value='4')
+        speed = ttk.Combobox(controls, textvariable=self.speed,
+                             values=['1', '4', '12', '60'], state='readonly',
+                             width=3)
+        speed.pack(side='left')
+        speed.bind('<<ComboboxSelected>>', self.on_speed)
+        ttk.Label(controls, text='steps/s').pack(side='left', padx=(2, 0))
 
         self.prompt_title = tk.Label(right, font=('Arial', 12, 'bold'))
         self.prompt_title.pack()
@@ -259,7 +288,12 @@ class GameGUI:
                 f'{k} ({v})' for k, v in g.caches.items()))
         self.status.delete('1.0', 'end')
         self.status.insert('1.0', '\n'.join(lines))
-        self.map.draw(g)
+        # Redrawing 460 hexes on every prompt makes autoplay crawl; the map
+        # only changes when the party moves (or the day rolls over a new camp).
+        marker = (g.hex, getattr(g, 'raft', False), len(g.party))
+        if marker != getattr(self, '_drawn', None):
+            self.map.draw(g)
+            self._drawn = marker
 
     def drain_notes(self):
         for line in self.game.log[self.log_index:]:
@@ -271,42 +305,105 @@ class GameGUI:
         self.log.see('end')
 
     def ask(self, prompt):
+        """Draw the prompt's buttons; a click answers and resumes the loop."""
         self.prompt_title.configure(text=prompt['title'])
         self.prompt_body.configure(text=prompt['text'])
         for w in self.buttons.winfo_children():
             w.destroy()
-        chosen = tk.Variable()
         for i, opt in enumerate(prompt['options']):
             tk.Button(self.buttons, text=opt['label'],
-                      command=lambda i=i: chosen.set(i)).pack(fill='x')
-        self.root.wait_variable(chosen)
-        return chosen.get()
+                      command=lambda i=i: self.answer(i)).pack(fill='x')
 
-    def run(self):
+    def answer(self, index):
+        if not self.game.prompts:
+            return
+        self.game.answer(index)
+        self.schedule(0)
+
+    # ------------------------------------------------------------ autoplay
+    def on_strategy(self, _event=None):
+        self.bot = Bot(self.game, self.strategy.get())
+        self.log_line(f'Bot strategy: {self.strategy.get()}.')
+        self.schedule(0)
+
+    def on_speed(self, _event=None):
+        try:
+            steps = int(self.speed.get())
+        except ValueError:
+            steps = 4
+        self.delay = max(16, int(1000 / max(1, steps)))
+
+    def bot_move(self):
+        """Answer the current prompt with the bot's choice."""
         g = self.game
-        while not g.game_over:
-            self.drain_notes()
-            self.refresh_status()
+        if g.game_over:
+            return
+        if not g.prompts:
             g.advance()
-            while g.prompts and not g.game_over:
-                self.drain_notes()
-                self.refresh_status()
-                p = g.current()
-                if p['kind'] == 'info' or not p['options']:
-                    self.log_line('>> ' + p['title'] + ': ' + p['text'])
-                    g.answer(0)
-                    continue
-                choice = self.ask(p)
+        if g.prompts:
+            p = g.current()
+            if p['kind'] == 'info' or not p['options']:
+                self.log_line('>> ' + p['title'] + ': ' + p['text'])
+                g.answer(0)
+            else:
+                g.answer(self.bot.choose(p))
+        self.schedule(0)
+
+    def toggle_auto(self):
+        self.auto = not self.auto
+        self.btn_auto.configure(text='Pause' if self.auto else 'Auto-play')
+        self.log_line('Auto-play ' + ('on.' if self.auto else 'paused.'))
+        self.schedule(0)
+
+    def schedule(self, ms):
+        self.root.after(max(1, ms), self.tick)
+
+    def tick(self):
+        """One unit of work: advance the day, or settle the current prompt."""
+        g = self.game
+        if g.game_over:
+            self.finish()
+            return
+        self.drain_notes()
+        self.refresh_status()
+        if g.prompts:
+            p = g.current()
+            if p['kind'] == 'info' or not p['options']:
+                self.log_line('>> ' + p['title'] + ': ' + p['text'])
+                g.answer(0)
+                self.schedule(0)
+                return
+            if self.auto:
+                # The bot plans a camp/mine route on its first decision and
+                # again when the plan is exhausted, which can take a second or
+                # two; say so instead of looking frozen.
+                self.prompt_title.configure(text='Bot: ' + p['title'])
+                self.root.update_idletasks()
+                choice = self.bot.choose(p)
+                self.prompt_title.configure(text=p['title'])
                 g.answer(choice)
-            self.drain_notes()
-            self.refresh_status()
+                self.schedule(self.delay)
+                return
+            self.ask(p)                      # wait for the player's click
+            return
+        g.advance()
+        self.schedule(self.delay if self.auto else 1)
+
+    def finish(self):
+        g = self.game
         self.drain_notes()
         self.log_line('*** ' + (g.reason or 'Game over'))
         self.prompt_title.configure(text='Game over: ' + (g.reason or ''))
         self.prompt_body.configure(text='')
         for w in self.buttons.winfo_children():
             w.destroy()
-        tk.Button(self.buttons, text='Close', command=self.root.destroy).pack()
+        tk.Button(self.buttons, text='Close',
+                  command=self.root.destroy).pack(fill='x')
+        self.btn_auto.state(['disabled'])
+        self.btn_bot.state(['disabled'])
+
+    def run(self):
+        self.schedule(1)
         self.root.mainloop()
 
 
