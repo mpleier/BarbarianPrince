@@ -1,7 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec for a single self-contained BarbarianPrince.exe.
+"""PyInstaller spec: BarbarianPrince as a portable folder (no temp extraction).
 
-    pyinstaller --noconfirm --clean bp.spec
+    python build_exe.py            # dist/BarbarianPrince/
+    python build_exe.py --onefile  # dist/BarbarianPrince.exe (unpacks to %TEMP%)
+
+The folder build starts instantly and never writes to a temporary directory:
+the exe loads its DLLs and data from `_internal/` next to itself.  The single
+file build is kept for convenience, but it unpacks a copy to `%TEMP%` on every
+run.
 
 The game only needs data/ (the model) and web/ (the browser front end) at run
 time, plus the rectified board scan for the "original artwork" view.  scipy is
@@ -11,6 +17,7 @@ shipped game never does - it loads data/features.json.
 import os
 
 ROOT = os.path.abspath(os.getcwd())
+ONEFILE = os.environ.get('BP_ONEFILE') == '1'
 
 datas = [
     (os.path.join(ROOT, 'data', '*.json'), 'data'),
@@ -29,6 +36,8 @@ hiddenimports = [
     'uvicorn.protocols.http.auto', 'uvicorn.protocols.http.h11_impl',
     'uvicorn.protocols.websockets', 'uvicorn.protocols.websockets.auto',
     'uvicorn.lifespan', 'uvicorn.lifespan.on', 'uvicorn.lifespan.off',
+    # PIL's Tk bridge draws the board scan without writing a temp file
+    'PIL.ImageTk',
 ]
 
 a = Analysis(
@@ -46,16 +55,38 @@ a = Analysis(
 
 pyz = PYZ(a.pure)
 
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.datas,
-    [],
-    name='BarbarianPrince',
-    debug=False,
-    strip=False,
-    upx=False,
-    console=False,          # a double-click opens the Tk window, no console
-    icon=None,
-)
+if ONEFILE:
+    exe = EXE(
+        pyz,
+        a.scripts,
+        a.binaries,
+        a.datas,
+        [],
+        name='BarbarianPrince',
+        debug=False,
+        strip=False,
+        upx=False,
+        console=False,
+        icon=None,
+    )
+else:
+    exe = EXE(
+        pyz,
+        a.scripts,
+        [],
+        exclude_binaries=True,
+        name='BarbarianPrince',
+        debug=False,
+        strip=False,
+        upx=False,
+        console=False,
+        icon=None,
+    )
+    coll = COLLECT(
+        exe,
+        a.binaries,
+        a.datas,
+        strip=False,
+        upx=False,
+        name='BarbarianPrince',
+    )

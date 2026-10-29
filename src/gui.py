@@ -71,7 +71,11 @@ class MapCanvas:
         canvas.configure(width=self.w, height=self.h)
 
     def scan_photo(self):
-        """The stitched board scan scaled to the canvas, as a tk.PhotoImage."""
+        """The stitched board scan scaled to the canvas, as a tk.PhotoImage.
+
+        Built in memory: tk.PhotoImage cannot read a PNG from PIL directly, so
+        PIL's ImageTk does the conversion and nothing is written to disk.
+        """
         if self._scan_photo is not None:
             return self._scan_photo
         rect = scan_rect()
@@ -81,12 +85,20 @@ class MapCanvas:
         img = stitch(width=max(1, int(sw * self.scale)))
         if img is None:
             return None
-        path = os.path.join(tempfile.gettempdir(), 'bp_board_scan.png')
-        img.save(path)
         try:
-            self._scan_photo = tk.PhotoImage(file=path)
+            from PIL import ImageTk
+            self._scan_photo = ImageTk.PhotoImage(img)
         except Exception:
-            self._scan_photo = tk.PhotoImage(image=img)
+            # ImageTk unavailable: fall back to a temp file and remove it.
+            path = os.path.join(tempfile.gettempdir(), 'bp_board_scan.png')
+            img.save(path)
+            try:
+                self._scan_photo = tk.PhotoImage(file=path)
+            finally:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
         self._scan_offset = self.px(sx, sy)
         return self._scan_photo
 

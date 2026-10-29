@@ -57,25 +57,32 @@ python _refs/web_smoke.py --port 8000   # API: board, game start, answers
 node  _refs/js_smoke.mjs  http://127.0.0.1:8000   # app.js against a DOM shim
 ```
 
-## Windows executable
+## Windows build
 
-`python build_exe.py` builds **`dist\BarbarianPrince.exe`** — one file, no
-installer, no Python needed on the target machine.
+`python build_exe.py` builds **`dist\BarbarianPrince\`** — a portable folder with
+`BarbarianPrince.exe` and an `_internal\` directory.  Copy the folder anywhere
+and double-click the exe; no installer, no Python, and **no temporary
+directory**: the exe loads its libraries and data from `_internal\` in place.
 
 | Launch | What happens |
 |---|---|
-| double-click | Tk window: board, party, log, prompts |
+| double-click | Tk window: board, party, log, prompts, bot controls |
 | `BarbarianPrince.exe --web` | local server on a free port, browser tab opens, and a small window stays open with **Quit** |
 | `BarbarianPrince.exe --web --no-browser --port 8157` | headless server (for scripts) |
 | `BarbarianPrince.exe --auto --seed 42` | bot plays a campaign; output goes nowhere, so use the source for logs |
 
-The build is a PyInstaller one-file bundle of `src/main.py` (`bp.spec`), with
-`data/` (the model), `web/` (browser UI) and `_refs/BPMap_rectified.jpg` (the
-"original artwork" map view) as data.  scipy is excluded: it is only needed to
-re-trace rivers and roads from the scan, which the shipped game never does — it
-reads `data/features.json`.  `src/resource.py` resolves those paths for both a
-checkout and a frozen bundle, and `src/map_scan.py` keeps its downscaled scan
-cache under `%LOCALAPPDATA%\BarbarianPrince` when frozen.
+`python build_exe.py --onefile` still produces a single `dist\BarbarianPrince.exe`
+(~43 MB) for people who want one file to pass around — that variant unpacks
+itself into `%TEMP%` on every run, which the folder build avoids.
+
+`bp.spec` bundles `data/` (the model), `web/` (browser UI) and
+`_refs/BPMap_rectified.jpg` (the "original artwork" map view).  scipy is
+excluded: it is only needed to re-trace rivers and roads from the scan, which
+the shipped game never does — it reads `data/features.json`.  `src/resource.py`
+resolves those paths for both a checkout and a frozen bundle, and the board
+artwork is turned into a Tk image in memory (`PIL.ImageTk`), so nothing is
+written to disk at all; only the web view's downscaled scan cache lands under
+`%LOCALAPPDATA%\BarbarianPrince`.
 
 If `pip install pyinstaller` is unavailable, `python _fetch_pyinstaller.py`
 downloads the wheels from PyPI into `._vendor/`; then run
