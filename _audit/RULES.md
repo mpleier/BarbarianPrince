@@ -106,12 +106,21 @@ audit script checks that no event option points at a section that is missing.
     'priest') from the recruiting event, `party_kinds` reads it, r201's
     voluntary `dismiss` exists, and an audience at 1212 offers to give the
     wizard to the Baron for +1.
+15. **r213 flow** — the first version took "top to bottom" literally, which sent
+    six of the Tragoth's 43 sides east (and six of the Largos' twelve south),
+    against the booklet's "east to west" and "toward the north-east".  The flow
+    map now recognises the northern staircase and the eastern block and orients
+    them as the booklet describes.
 
 ## Known simplifications
 
-* **r213 river flow** — the booklet names the flow of each river (Tragoth east
-  to west, Nesser north to south, and so on).  The traces carry no names, so
-  `features.river_flow` assumes the water runs **top to bottom**: downstream is
-  the hex with the larger row, and a side joining two hexes on the same row
-  drains west.  Every side has a direction, so a day downriver gives three
-  hexsides and a day upriver two.
+* **r213 river flow** — the booklet names the flow of each river, but the traces
+  carry no names, so `features.river_flow` derives the direction from the
+  layout: the northern staircase (both hexes in rows 1-3) drains **west** (the
+  Tragoth, 43/43 sides), the separate eastern block drains **north-east** (the
+  Largos, 12/12 sides), and everything else drains **south** (the Nesser and
+  the southern network).  This replaced a plain "top to bottom" rule that sent
+  six Tragoth sides east and six Largos sides south.
+  *Remaining gap:* the Dienstal Branch, which the booklet says flows *into* the
+  Nesser, cannot be told apart from the Nesser traces, so it inherits the
+  southward flow.

@@ -318,21 +318,46 @@ class RaftTests(unittest.TestCase):
         g.answer(index)
 
     def test_downriver_day_allows_three_hexsides(self):
-        # r213: the water runs top to bottom, so 0101 -> 0102 is downstream.
-        g = game(hex='0101')
-        g.begin_action('raft')
-        g.d2 = lambda: 4
-        self.move_to(g, '0102')
-        self.assertEqual(g.raft_dir, 'down')
-        self.assertEqual(g.moves_left, 2)        # three moves minus this one
-
-    def test_upriver_day_allows_only_two_hexsides(self):
+        # r213: the Tragoth runs east to west, so 0102 -> 0101 is downstream.
         g = game(hex='0102')
         g.begin_action('raft')
         g.d2 = lambda: 4
         self.move_to(g, '0101')
+        self.assertEqual(g.raft_dir, 'down')
+        self.assertEqual(g.moves_left, 2)        # three moves minus this one
+
+    def test_upriver_day_allows_only_two_hexsides(self):
+        g = game(hex='0101')
+        g.begin_action('raft')
+        g.d2 = lambda: 4
+        self.move_to(g, '0102')
         self.assertEqual(g.raft_dir, 'up')
         self.assertEqual(g.moves_left, 1)        # two moves minus this one
+
+    def test_the_tragoth_flows_west_throughout(self):
+        # r213: "The Tragoth River flows from east to west" - no side of the
+        # northern staircase may flow the other way.
+        g = game()
+        band = [(a, b) for a, b in (tuple(p) for p in g.river_sides)
+                if max(int(a[2:]), int(b[2:])) <= 3]
+        self.assertGreater(len(band), 20)
+        for a, b in band:
+            downstream = g.river_flow[f'{a}|{b}']
+            self.assertEqual(int(downstream[:2]), min(int(a[:2]), int(b[:2])),
+                             msg=f'{a}-{b} should flow west')
+
+    def test_the_largos_flows_out_to_the_north_east(self):
+        g = game()
+        block = [(a, b) for a, b in (tuple(p) for p in g.river_sides)
+                 if min(int(a[:2]), int(b[:2])) >= 15
+                 and 10 <= min(int(a[2:]), int(b[2:])) <= 17]
+        self.assertGreater(len(block), 5)
+        for a, b in block:
+            downstream = g.river_flow[f'{a}|{b}']
+            upstream = a if downstream == b else b
+            # every step runs east (or straight north-east), never west
+            self.assertGreaterEqual(int(downstream[:2]), int(upstream[:2]),
+                                    msg=f'{a}-{b} should flow eastward')
 
     def test_every_river_side_has_a_flow_direction(self):
         # features.json carries "a|b" -> downstream for every traced side.

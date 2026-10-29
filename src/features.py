@@ -399,24 +399,70 @@ def _road_hexes(road_sides, scan=SCAN, calib=None):
     return sorted(out)
 
 
+def _river_components(river_sides):
+    """Connected river chains as lists of hexes."""
+    adj = {}
+    for a, b in river_sides:
+        adj.setdefault(a, set()).add(b)
+        adj.setdefault(b, set()).add(a)
+    seen = set()
+    components = []
+    for start in sorted(adj):
+        if start in seen:
+            continue
+        stack = [start]
+        seen.add(start)
+        chain = []
+        while stack:
+            h = stack.pop()
+            chain.append(h)
+            for nb in adj[h]:
+                if nb not in seen:
+                    seen.add(nb)
+                    stack.append(nb)
+        components.append(chain)
+    return components
+
+
 def _river_flow(river_sides):
-    """Downstream hex for every river side: the water runs north to south.
+    """Downstream hex for every river side.
 
     Raft travel is three hexsides a day downriver but only two upriver (r213),
-    so each side needs a direction.  The traces carry no flow data, so we take
-    the map's overall lay of the land: downstream is the hex with the larger
-    row, and a side that joins two hexes on the same row drains west (the
-    Tragoth runs east to west).
+    so each side needs a direction.  The traces carry no names, but the booklet
+    names the flows that matter:
+
+      * the Tragoth runs east to west along the top of the board,
+      * the Largos leaves the marsh toward the north-east off the map,
+      * the Nesser (and the rest of the southern network) runs north to south.
+
+    So the northern staircase (both hexes in rows 1-3) drains west, the separate
+    eastern block drains north-east, and everything else drains south.  The
+    Dienstal Branch, which the booklet says flows *into* the Nesser, cannot be
+    told apart from the Nesser traces and inherits the southward flow.
     """
+    components = _river_components(river_sides)
+    largos = set()
+    for chain in components:
+        cols = {int(h[:2]) for h in chain}
+        rows = {int(h[2:]) for h in chain}
+        if min(cols) >= 15 and min(rows) >= 10 and max(rows) <= 17:
+            largos.update(chain)          # the eastern block: the Largos
+
     flow = {}
     for a, b in river_sides:
-        ra, rb = int(a[2:]), int(b[2:])
-        if rb > ra:
-            downstream = b
-        elif ra > rb:
-            downstream = a
+        ca, ra = int(a[:2]), int(a[2:])
+        cb, rb = int(b[:2]), int(b[2:])
+        if a in largos and b in largos:
+            # r213: out of the marsh, to the north-east
+            downstream = b if (cb, -rb) > (ca, -ra) else a
+        elif max(ra, rb) <= 3:
+            # r213: the Tragoth runs east to west
+            downstream = b if cb < ca else a
+        elif rb != ra:
+            # the Nesser and the southern network run north to south
+            downstream = b if rb > ra else a
         else:
-            downstream = min(a, b)          # same row: east -> west
+            downstream = min(a, b)        # same row: east -> west
         flow[f'{a}|{b}'] = downstream
         flow[f'{b}|{a}'] = downstream
     return flow
