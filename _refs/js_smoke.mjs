@@ -60,7 +60,21 @@ const src = fs.readFileSync('web/app.js', 'utf8') +
   "      console.log('after move -> hex', state.status.hex, 'moves left', state.status.moves_left);\n" +
   "    }\n" +
   "  } catch (e) { console.log('answer error:', e.message); }\n" +
-  "}, 2500);\n";
+  "}, 2500);\n" +
+  "\nsetTimeout(async () => {\n" +
+  "  try {\n" +
+  "    await showRef('e050');\n" +
+  "    const body = document.getElementById('ref-body');\n" +
+  "    const wrapEl = body.children.find(c => c.className === 'ref-table-wrap');\n" +
+  "    console.log('ref-body children:', body.children.length);\n" +
+  "    if (wrapEl) {\n" +
+  "      const t = wrapEl.children[0];\n" +
+  "      console.log('ref-table rows:', t.children.length,\n" +
+  "                  '| columns:', t.children[0].children.length - 1,\n" +
+  "                  '| headers:', t.children[0].children.slice(1).map(x => x.textContent).join('/'));\n" +
+  "    } else { console.log('ref-table: MISSING'); }\n" +
+  "  } catch (e) { console.log('ref error:', e.message); }\n" +
+  "}, 4000);\n";
 console.log('app.js tail:', JSON.stringify(src.slice(-30)));
 
 try {

@@ -24,7 +24,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from PIL import Image
 
-from engine import Game
+from engine import Game, split_event
 from autoplay import Bot, STRATEGIES
 from features import load_features
 from game_model import GameModel
@@ -318,15 +318,47 @@ def api_auto(sid: str, req: Auto):
         return snapshot(sess)
 
 
+def _ref_options(code, text):
+    """The event's option matrix as a table, or None.
+
+    The curated table in data/event_options.json wins; otherwise the matrix is
+    pulled out of the printed text, so the reference window never shows a run-on
+    "... die roll Negotiate * evade fight 1 surprised r308 ..." paragraph.
+    """
+    curated = MODEL.event_options(code)
+    _prose, parsed = split_event(text)
+    if curated:
+        return {
+            "headers": curated["columns"],
+            "rolls": [row["roll"] for row in curated["rows"]],
+            "rows": [[{"label": cell.get("label", ""), "ref": cell.get("ref")}
+                      for cell in row["cells"]] for row in curated["rows"]],
+            "note": (parsed or {}).get("note", ""),
+        }
+    if parsed:
+        return {
+            "headers": parsed["headers"],
+            "rolls": [roll for roll, _cells in parsed["rows"]],
+            "rows": [[{"label": label, "ref": ref} for label, ref in cells]
+                     for _roll, cells in parsed["rows"]],
+            "note": parsed["note"],
+        }
+    return None
+
+
 @app.get("/api/ref/{ref}")
 def api_ref(ref: str):
     ref = ref.lower()
     if ref in MODEL.rules:
         r = MODEL.rules[ref]
-        return {"id": r["id"], "title": r.get("title", ""), "text": r.get("text", "")}
+        return {"id": r["id"], "title": r.get("title", ""), "text": r.get("text", ""),
+                "options": None}
     if ref in MODEL.events:
         e = MODEL.events[ref]
-        return {"id": e["id"], "title": e.get("title", ""), "text": e.get("text", "")}
+        text = e.get("text", "")
+        prose, _parsed = split_event(text)
+        return {"id": e.get("code", ref), "title": e.get("title", ""), "text": prose,
+                "options": _ref_options(ref, text)}
     raise HTTPException(status_code=404, detail=f"no rule or event {ref}")
 
 

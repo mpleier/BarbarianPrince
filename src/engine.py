@@ -161,26 +161,59 @@ def parse_options(text):
     that prose mentions 'the die roll' itself, so every candidate header row is
     tried and the one whose headers actually look like option verbs wins.
     """
+    best = _best_option_candidate(text)
+    return best[:3] if best else None
+
+
+def _best_option_candidate(text):
+    """(headers, rows, note, start) of the best matrix, or None.
+
+    ``start`` is the offset of the 'die roll' header inside ``text``, which is
+    what ``split_event`` needs to cut the prose away from the table.
+
+    Most entries introduce the matrix with "the options are" or "select your
+    option", but some (e006 "select one of the three options below", e071
+    "You have three options:") do not, so the lead-in is optional.  A candidate
+    must then look like a table: at most six columns, at least one option verb
+    among the headers, and two or more rows.
+    """
     m = re.search(r'(options are|select your option)', text, re.I)
-    if not m:
-        return None
+    start_from = m.end() if m else 0
     best = None
     best_score = None
-    for header in re.finditer(r'\bdie\s+roll\b', text[m.end():], re.I):
-        parsed = _option_matrix(text, m.end() + header.end())
+    for header in re.finditer(r'\bdie\s+roll\b', text[start_from:], re.I):
+        start = start_from + header.start()
+        parsed = _option_matrix(text, start_from + header.end())
         if not parsed:
             continue
         headers, rows, note = parsed
-        if len(headers) < 2 or len(rows) < 2:
+        if len(headers) < 2 or len(rows) < 2 or len(headers) > 6:
             continue
         verbs = sum(1 for h in headers
                     if h.lower().strip('*-.,') in OPTION_VERBS)
+        if verbs < 1:
+            continue
         # Prefer the candidate whose headers are *mostly* option verbs: a run of
         # prose can contain several verbs by accident but is mostly filler.
         score = (2 * verbs - len(headers), len(rows))
         if best_score is None or score > best_score:
-            best, best_score = parsed, score
+            best, best_score = (headers, rows, note, start), score
     return best
+
+
+def split_event(text):
+    """(prose, options) - an event text with its option matrix pulled out.
+
+    The booklet prints the matrix inside the entry, so the raw text reads
+    "... die roll Negotiate * evade fight 1 surprised r308 ..." when shown in a
+    reference window.  ``options`` is ``{'headers', 'rows', 'note'}`` or None.
+    """
+    best = _best_option_candidate(text)
+    if not best:
+        return text.strip(), None
+    headers, rows, note, start = best
+    prose = text[:start].rstrip()
+    return prose, {'headers': headers, 'rows': rows, 'note': note}
 
 
 def _option_matrix(text, start):

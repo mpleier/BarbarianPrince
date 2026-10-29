@@ -446,11 +446,72 @@ init().catch(err => {
     '(' + err.message + ')';
 });
 
+// The booklet prints each event's option matrix inside the entry, so the raw
+// text reads "... die roll Negotiate * evade fight 1 surprised r308 ...".  The
+// server splits that out; draw it as a table underneath the prose.
+function refTable(opts) {
+  const wrap = document.createElement('div');
+  wrap.className = 'ref-table-wrap';
+  const table = document.createElement('table');
+  table.className = 'ref-table';
+
+  const head = document.createElement('tr');
+  const corner = document.createElement('th');
+  corner.textContent = 'die';
+  head.appendChild(corner);
+  for (const h of opts.headers) {
+    const th = document.createElement('th');
+    th.textContent = h;
+    head.appendChild(th);
+  }
+  table.appendChild(head);
+
+  opts.rows.forEach((cells, i) => {
+    const tr = document.createElement('tr');
+    const roll = document.createElement('th');
+    roll.textContent = (opts.rolls && opts.rolls[i] !== undefined)
+      ? opts.rolls[i] : i + 1;
+    tr.appendChild(roll);
+    for (const cell of cells) {
+      const td = document.createElement('td');
+      if (cell.label) {
+        const label = document.createElement('span');
+        label.textContent = cell.label;
+        td.appendChild(label);
+      }
+      if (cell.ref) {
+        const a = document.createElement('a');
+        a.className = 'ref';
+        a.dataset.ref = cell.ref;
+        a.textContent = (cell.label ? ' ' : '') + cell.ref;
+        td.appendChild(a);
+      }
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  });
+
+  wrap.appendChild(table);
+  if (opts.note) {
+    const note = document.createElement('p');
+    note.className = 'ref-note';
+    note.textContent = opts.note;
+    wrap.appendChild(note);
+  }
+  return wrap;
+}
+
 async function showRef(ref) {
   try {
     const r = await api('/api/ref/' + ref);
     document.getElementById('ref-title').textContent = `${r.id} - ${r.title}`;
-    document.getElementById('ref-body').textContent = r.text.trim();
+    const body = document.getElementById('ref-body');
+    body.textContent = '';
+    const prose = document.createElement('p');
+    prose.className = 'ref-prose';
+    prose.textContent = (r.text || '').trim();
+    body.appendChild(prose);
+    if (r.options) body.appendChild(refTable(r.options));
     document.getElementById('ref-modal').classList.remove('hidden');
   } catch (err) {
     appendLog('(no entry for ' + ref + ')');
