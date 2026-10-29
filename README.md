@@ -31,6 +31,7 @@ python -m unittest discover -s tests
 | Interface | Command |
 |---|---|
 | Browser (web GUI) | `python src/web.py` then open http://127.0.0.1:8000 |
+| Browser, free port | `python src/main.py --web` (opens a tab) |
 | Tkinter desktop | `python src/main.py` |
 | Terminal | `python src/main.py --cli` |
 | Auto-play (no input) | `python src/main.py --auto --seed 42` |
@@ -47,6 +48,34 @@ several tabs can run independent games.  Two smoke tests drive it end to end:
 ```powershell
 python _refs/web_smoke.py --port 8000   # API: board, game start, answers
 node  _refs/js_smoke.mjs  http://127.0.0.1:8000   # app.js against a DOM shim
+```
+
+## Windows executable
+
+`python build_exe.py` builds **`dist\BarbarianPrince.exe`** — one file, no
+installer, no Python needed on the target machine.
+
+| Launch | What happens |
+|---|---|
+| double-click | Tk window: board, party, log, prompts |
+| `BarbarianPrince.exe --web` | local server on a free port, browser tab opens, and a small window stays open with **Quit** |
+| `BarbarianPrince.exe --web --no-browser --port 8157` | headless server (for scripts) |
+| `BarbarianPrince.exe --auto --seed 42` | bot plays a campaign; output goes nowhere, so use the source for logs |
+
+The build is a PyInstaller one-file bundle of `src/main.py` (`bp.spec`), with
+`data/` (the model), `web/` (browser UI) and `_refs/BPMap_rectified.jpg` (the
+"original artwork" map view) as data.  scipy is excluded: it is only needed to
+re-trace rivers and roads from the scan, which the shipped game never does — it
+reads `data/features.json`.  `src/resource.py` resolves those paths for both a
+checkout and a frozen bundle, and `src/map_scan.py` keeps its downscaled scan
+cache under `%LOCALAPPDATA%\BarbarianPrince` when frozen.
+
+If `pip install pyinstaller` is unavailable, `python _fetch_pyinstaller.py`
+downloads the wheels from PyPI into `._vendor/`; then run
+
+```powershell
+$env:PYTHONPATH = "$PWD\._vendor"
+python build_exe.py
 ```
 
 ## Geometry

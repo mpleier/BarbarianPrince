@@ -16,8 +16,7 @@ import re
 
 from game_model import GameModel
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA = os.path.join(ROOT, 'data')
+from resource import DATA  # bundled data/, frozen or from source
 
 GAME_DAYS = 70
 TARGET_GOLD = 500

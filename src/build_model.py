@@ -19,9 +19,7 @@ from collections import Counter, defaultdict
 from geometry import (NC, NR, R, DX, DY, TERRAIN_TO_TRAVEL,
                       MOVEMENT_MODES, board_xy, neighbours)
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA = os.path.join(ROOT, 'data')
-REFS = os.path.join(ROOT, '_refs')
+from resource import DATA, REFS
 
 
 def load(path):

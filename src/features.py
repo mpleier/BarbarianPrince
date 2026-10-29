@@ -15,15 +15,25 @@ import os
 
 import numpy as np
 from PIL import Image
-from scipy import ndimage
 
 from geometry import (R, RX, RY, DX, DY, SCAN_X0, SCAN_Y0, neighbours, parse_hex,
                       hex_id, NC, NR)
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA = os.path.join(ROOT, 'data')
-REFS = os.path.join(ROOT, '_refs')
+from resource import DATA, REFS  # bundled data/ and _refs/
 SCAN = os.path.join(REFS, 'BPMap_rectified.jpg')
+
+# scipy is only needed to re-trace the board from the scan, which the shipped
+# game never does (it loads data/features.json), so the import is deferred and
+# the packaged exe leaves scipy out.
+ndimage = None
+
+
+def _load_scipy():
+    global ndimage
+    if ndimage is None:
+        from scipy import ndimage as _ndimage
+        ndimage = _ndimage
+    return ndimage
 
 # The colour-corrected scan is stored with a wider page (map key on the left)
 # and still carries the photograph's keystone, so it keeps its own lattice:
@@ -113,6 +123,7 @@ def load(path):
 
 def _keep_rivers(mask):
     """Keep narrow, ink-sized components; lakes and big washes are dropped."""
+    _load_scipy()
     labels, count = ndimage.label(ndimage.binary_dilation(mask, iterations=1),
                                   structure=np.ones((3, 3)))
     if count == 0:
@@ -127,6 +138,7 @@ def _keep_rivers(mask):
 
 def _keep_roads(mask):
     """Keep elongated components; short hatching strokes are dropped."""
+    _load_scipy()
     labels, count = ndimage.label(ndimage.binary_dilation(mask, iterations=1),
                                   structure=np.ones((3, 3)))
     keep = []
@@ -148,6 +160,7 @@ def _masks(img):
     (g-r ~ 5), so the strict mask keeps ridges out.  ``river_loose`` keeps the
     pale fills of the wide river stretches and is only used to bridge gaps.
     """
+    _load_scipy()
     a = np.asarray(img, dtype=np.float32)
     r, g, b = a[:, :, 0], a[:, :, 1], a[:, :, 2]
     lum = (r + g + b) / 3.0
@@ -334,6 +347,7 @@ def _veto_impossible(sides, scores, terrain):
 
 def detect_sides(scan=SCAN, calib=None):
     """Trace river and road sides from the board scan."""
+    _load_scipy()
     img = Image.open(scan).convert('RGB')
     water, loose, road = _masks(img)
     dw = ndimage.distance_transform_edt(~water)

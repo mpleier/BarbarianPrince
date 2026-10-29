@@ -14,10 +14,21 @@ import os
 
 from PIL import Image
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REFS = os.path.join(ROOT, '_refs')
+from resource import REFS, FROZEN
 SCAN_SOURCE = os.path.join(REFS, 'BPMap_rectified.jpg')
+# The downscaled copy is a cache: keep it next to the source when running from
+# a checkout, but in a per-user folder when frozen (the one-file bundle is a
+# read-only temp directory that disappears with the process).
 SCAN_PATH = os.path.join(REFS, 'board_scan.jpg')
+
+
+def cache_path():
+    if not FROZEN:
+        return SCAN_PATH
+    base = os.environ.get('LOCALAPPDATA') or os.path.expanduser('~')
+    folder = os.path.join(base, 'BarbarianPrince')
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, 'board_scan.jpg')
 MAX_WIDTH = 1800
 WHITE = 248          # a pixel this bright counts as paper, not artwork
 
@@ -83,8 +94,9 @@ def stitch(width=None):
     return board
 
 
-def scan_image(path=SCAN_PATH, width=MAX_WIDTH):
+def scan_image(path=None, width=MAX_WIDTH):
     """Build (or reuse) the cached board scan and return its path."""
+    path = path or cache_path()
     if not os.path.exists(path):
         img = stitch(width)
         if img is None:

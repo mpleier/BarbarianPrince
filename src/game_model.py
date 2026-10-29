@@ -14,8 +14,9 @@ row spec such as "6,7,8" matches any of those totals.
 import json
 import os
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH = os.path.join(ROOT, 'data', 'game_model.json')
+from resource import DATA
+
+MODEL_PATH = os.path.join(DATA, 'game_model.json')
 
 
 class GameModel:

@@ -32,8 +32,9 @@ from geometry import (NC, NR, R, DX, DY, board_bounds, board_corners,
                       board_xy, hex_id)
 from map_scan import scan_image, scan_rect, original_scan_path
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WEB_DIR = os.path.join(ROOT, "web")
+from resource import WEB
+
+WEB_DIR = WEB
 
 MODEL = GameModel.load()
 FEATURES = load_features()
@@ -363,6 +364,82 @@ app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="ui")
 
 
 
+def serve(port=0, host="127.0.0.1", seed=None, open_browser=True, window=False):
+    """Run the web game, optionally on a free port, and open the browser.
+
+    Returns the port actually bound, which matters for the packaged exe: it
+    asks the OS for a free port so it does not collide with whatever else the
+    player is running.  ``window=True`` keeps a small Tk window open while the
+    server runs, so a windowed build has a visible "Quit" button.
+    """
+    import socket
+    import threading
+    import webbrowser
+
+    import uvicorn
+
+    if port == 0:
+        with socket.socket() as probe:
+            probe.bind((host, 0))
+            port = probe.getsockname()[1]
+    url = f"http://{host}:{port}/"
+    print(f"Barbarian Prince -> {url}  (seed {seed})", flush=True)
+    if open_browser:
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+
+    if window:
+        return _serve_with_window(url, host, port)
+
+    uvicorn.run(app, host=host, port=port, log_level="warning")
+    return port
+
+
+def _serve_with_window(url, host, port):
+    """Serve in a thread and show a tiny control window (packaged build)."""
+    import os
+    import threading
+    import webbrowser
+
+    import tkinter as tk
+
+    import uvicorn
+
+    server = uvicorn.Server(uvicorn.Config(app, host=host, port=port,
+                                           log_level="warning"))
+    threading.Thread(target=server.run, daemon=True).start()
+
+    root = tk.Tk()
+    root.title("Barbarian Prince")
+    root.resizable(False, False)
+    frame = tk.Frame(root, padx=18, pady=14)
+    frame.pack(fill="both", expand=True)
+    tk.Label(frame, text="The game is running in your browser:",
+             anchor="w").pack(fill="x")
+    link = tk.Label(frame, text=url, fg="#1a4f8a", cursor="hand2")
+    link.pack(anchor="w", pady=(2, 12))
+
+    def open_tab():
+        webbrowser.open(url)
+
+    link.bind("<Button-1>", lambda _e: open_tab())
+    buttons = tk.Frame(frame)
+    buttons.pack(fill="x")
+    tk.Button(buttons, text="Open browser", command=open_tab,
+              width=14).pack(side="left")
+    tk.Button(buttons, text="Quit", command=lambda: (server.should_exit,
+                                                     root.destroy()),
+              width=10).pack(side="right")
+
+    def on_close():
+        server.should_exit = True
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_close)
+    root.mainloop()
+    server.should_exit = True
+    return port
+
+
 def main():
     ap = argparse.ArgumentParser(description="Barbarian Prince web game")
     ap.add_argument("--port", type=int, default=8000)
@@ -370,9 +447,7 @@ def main():
     ap.add_argument("--seed", type=int, default=None)
     args = ap.parse_args()
 
-    import uvicorn
-    print(f"Barbarian Prince -> http://{args.host}:{args.port}  (seed {args.seed})")
-    uvicorn.run(app, host=args.host, port=args.port)
+    serve(port=args.port, host=args.host, seed=args.seed, open_browser=False)
 
 
 if __name__ == "__main__":
