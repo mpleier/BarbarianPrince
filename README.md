@@ -43,6 +43,37 @@ has the same buttons in its toolbar.  `python _refs/gui_smoke.py 10` opens the
 Tk window, lets the bot play for ten seconds and checks the loop, the manual
 answers and the end screen.
 
+## Autoplay personalities
+
+Eight personalities, all sharing one scoring engine — they differ only in
+appetites (travel, rest, news, hire, audience, ruins, raft, fight, flee, talk,
+caution, gold buffer, party size):
+
+| Strategy | Plays like |
+|---|---|
+| `cautious` | avoids fights, keeps a 30-gold buffer, rests when hurt |
+| `balanced` | the default: sensible travel, opportunistic fighting |
+| `aggressive` | seeks battle, hires a big party, spends freely |
+| `explorer` | covers ground, keeps the party small, loves the river |
+| `merchant` | mines ruins hard and hoards gold |
+| `zealot` | lives at the temples for audiences and offerings |
+| `daredevil` | fights everything, never flees, no gold buffer |
+| `wanderer` | drifts: travel first, little interest in hiring |
+
+`variety` (0 – 1) lets a run drift from its personality, so two campaigns with
+the same strategy do not play out identically: the weights wobble per campaign,
+near-equal options are taken at random, and above 0.5 the party may commit to a
+different ruin/temple route.  Measured over 60 seeds with `balanced`:
+
+| variety | wins | distinct ending hexes |
+|---|---|---|
+| 0.0 | 5/60 | 6 |
+| 0.3 (default) | 5/60 | 8 |
+| 0.6 | 2/60 | 11 |
+
+`--variety` sets it from the command line; `--variety 0` restores a fully
+deterministic run (same seed → same game).
+
 The web front-end (`src/web.py` + `web/`) needs FastAPI and uvicorn
 (`pip install fastapi uvicorn`).  It serves an SVG of the 20x23 board - terrain
 fills, roads, rivers, named places - plus the party status, the prompt panel

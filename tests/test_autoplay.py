@@ -11,7 +11,7 @@ SRC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
 sys.path.insert(0, SRC)
 
 from engine import Game, Character
-from autoplay import Bot, STRATEGIES
+from autoplay import Bot, PROFILE, STRATEGIES
 
 
 def choice(title, text, labels):
@@ -22,7 +22,11 @@ def choice(title, text, labels):
 
 class BotBasicsTests(unittest.TestCase):
     def test_strategies(self):
-        self.assertEqual(STRATEGIES, ('cautious', 'balanced', 'aggressive'))
+        self.assertEqual(STRATEGIES[:3],
+                         ('cautious', 'balanced', 'aggressive'))
+        # the variants reuse the same machinery
+        for extra in ('explorer', 'merchant', 'zealot', 'daredevil', 'wanderer'):
+            self.assertIn(extra, STRATEGIES)
 
     def test_unknown_strategy_falls_back_to_balanced(self):
         g = Game(seed=1)
@@ -337,3 +341,70 @@ class CampaignTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class VarietyTests(unittest.TestCase):
+    """`variety` lets a personality drift so two campaigns differ."""
+
+    def test_every_strategy_has_a_complete_profile(self):
+        base = set(PROFILE['balanced'])
+        for name in STRATEGIES:
+            self.assertEqual(set(PROFILE[name]), base, msg=name)
+
+    def test_wobble_is_deterministic_for_a_seed(self):
+        g = Game(seed=2)
+        a = Bot(g, 'balanced', variety=0.3, seed=11).p
+        b = Bot(g, 'balanced', variety=0.3, seed=11).p
+        c = Bot(g, 'balanced', variety=0.3, seed=12).p
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, c)
+
+    def test_wobble_keeps_the_weights_recognisable(self):
+        g = Game(seed=2)
+        base = PROFILE['balanced']
+        p = Bot(g, 'balanced', variety=0.3, seed=3).p
+        for key, value in base.items():
+            self.assertLessEqual(abs(p[key] - value), abs(value) * 0.3 + 1,
+                                 msg=key)
+
+    def test_zero_variety_is_the_plain_profile(self):
+        g = Game(seed=2)
+        self.assertEqual(Bot(g, 'balanced', variety=0.0).p, PROFILE['balanced'])
+
+    def test_pick_takes_the_best_when_variety_is_off(self):
+        g = Game(seed=2)
+        bot = Bot(g, 'balanced', variety=0.0, seed=1)
+        scored = [(5.0, 0), (9.0, 1), (7.0, 2)]
+        self.assertEqual(bot.pick(scored), 1)
+
+    def test_pick_stays_on_the_best_when_the_runner_up_is_far_behind(self):
+        g = Game(seed=2)
+        bot = Bot(g, 'balanced', variety=0.9, seed=1)
+        scored = [(20.0, 0), (2.0, 1), (1.0, 2)]
+        for _ in range(20):
+            self.assertEqual(bot.pick(scored), 0)
+
+    def test_pick_can_take_a_near_tie(self):
+        g = Game(seed=2)
+        bot = Bot(g, 'balanced', variety=1.0, seed=5)
+        scored = [(10.0, 0), (9.9, 1), (9.8, 2)]
+        picks = {bot.pick(scored) for _ in range(120)}
+        self.assertIn(0, picks)
+        self.assertTrue(len(picks) > 1, 'variety 1.0 never left the best option')
+
+    def test_variety_does_not_change_a_zero_variety_campaign(self):
+        # the same seed and strategy replay identically when variety is off
+        runs = []
+        for _ in range(2):
+            g = Game(seed=9)
+            bot = Bot(g, 'balanced', variety=0.0)
+            moves = []
+            g.advance()
+            for _ in range(60):
+                if not g.prompts or g.game_over:
+                    break
+                p = g.current()
+                moves.append(bot.choose(p, record=False))
+                g.answer(moves[-1])
+            runs.append(moves)
+        self.assertEqual(runs[0], runs[1])

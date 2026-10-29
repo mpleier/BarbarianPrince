@@ -28,13 +28,21 @@ from autoplay import Bot, STRATEGIES
 from resource import FROZEN
 
 
-def auto(seed=None, strategy='balanced', start='0101', naive=False, verbose=False):
-    """Run a whole campaign headlessly and report the outcome."""
+def auto(seed=None, strategy='balanced', start='0101', naive=False,
+         verbose=False, variety=0.3):
+    """Run a whole campaign headlessly and report the outcome.
+
+    ``variety`` lets the personality drift a little per campaign, so the same
+    seed and strategy do not always produce the same game; pass --variety 0
+    for a fully deterministic run.
+    """
     game = Game(seed=seed, start_hex=start)
-    chooser = None if naive else Bot(game, strategy).choose
+    chooser = None if naive else Bot(game, strategy, variety=variety,
+                                     seed=seed).choose
     steps = game.run_until_idle(max_steps=6000, chooser=chooser)
     status = game.status()
-    print('strategy:', 'naive' if naive else strategy, '| steps:', steps)
+    print('strategy:', 'naive' if naive else strategy,
+          f'| variety: {0 if naive else variety}', '| steps:', steps)
     print('day', status['day'], 'hex', status['hex'], 'gold', status['gold'],
           'food', status['food'], 'party', status['party'],
           'staff', status['staff'])
@@ -59,11 +67,15 @@ def main():
                     help='bot personality (default: balanced)')
     ap.add_argument('--naive', action='store_true',
                     help='with --auto, answer every prompt with the first option')
+    ap.add_argument('--variety', type=float, default=0.3,
+                    help='with --auto, how much the bot may drift from its '
+                         'strategy (0 = fully deterministic, 1 = loose)')
     ap.add_argument('--verbose', action='store_true', help='print the whole log')
     args = ap.parse_args()
 
     if args.auto:
-        auto(args.seed, args.strategy, args.start, args.naive, args.verbose)
+        auto(args.seed, args.strategy, args.start, args.naive, args.verbose,
+             variety=args.variety)
         return
     if args.web:
         from web import serve

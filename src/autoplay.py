@@ -20,6 +20,7 @@ Branwyn's Temple (13 days) because a southern camp runs out of days for the
 last march.
 """
 import heapq
+import random
 import re
 from collections import deque
 
@@ -27,7 +28,8 @@ from engine import parse_foes
 import camp_dp
 from camp_dp import camp_action, camp_value
 
-STRATEGIES = ('cautious', 'balanced', 'aggressive')
+STRATEGIES = ('cautious', 'balanced', 'aggressive',
+              'explorer', 'merchant', 'zealot', 'daredevil', 'wanderer')
 
 # r212: the Staff of Command needs a 14+ offering roll.  2d12 tops out at 12,
 # so the roll needs modifiers: +1 for a 10-gold sacrifice, +1 for the omen won
@@ -100,6 +102,19 @@ TERRAIN_RISK = {'Mountains': 4, 'Desert': 5, 'Swamp': 3, 'Forest': 2,
 DEALER_ODDS = 7 / 36.0
 
 # Personality weights: everything the bot cares about, in one table.
+#   travel   how eagerly it picks the travel action (the game's engine)
+#   rest     rest when wounded
+#   news     r209 news (the omen that helps the offering roll)
+#   hire     hired swords
+#   audience r211 audiences (gold, or a night in prison)
+#   ruins    r208 ruin searches (the main gold source)
+#   raft     r213 river travel
+#   fight    fighting instead of talking/evading
+#   flee     running away
+#   talk     negotiating
+#   caution  penalty for risky terrain
+#   buffer   gold it refuses to spend below
+#   min/max_party  how big a following it wants
 PROFILE = {
     'cautious':   dict(travel=9,  rest=12, news=6, hire=5,  audience=2,
                        ruins=3,  raft=4,  fight=-3, flee=7,  talk=6, caution=2,
@@ -110,6 +125,22 @@ PROFILE = {
     'aggressive': dict(travel=12, rest=6,  news=7, hire=11, audience=9,
                        ruins=12, raft=6,  fight=6,  flee=1,  talk=2, caution=0,
                        buffer=10, min_party=4, max_party=8),
+    # --- the variants: same machinery, different appetites --------------
+    'explorer':   dict(travel=14, rest=5,  news=4, hire=4,  audience=3,
+                       ruins=5,  raft=8,  fight=-1, flee=6,  talk=5, caution=0,
+                       buffer=15, min_party=1, max_party=3),
+    'merchant':   dict(travel=8,  rest=7,  news=9, hire=6,  audience=5,
+                       ruins=14, raft=5,  fight=0,  flee=6,  talk=7, caution=2,
+                       buffer=40, min_party=2, max_party=5),
+    'zealot':     dict(travel=9,  rest=7,  news=10, hire=5, audience=14,
+                       ruins=6,  raft=4,  fight=1,  flee=3,  talk=6, caution=1,
+                       buffer=5,  min_party=2, max_party=5),
+    'daredevil':  dict(travel=13, rest=3,  news=5, hire=9,  audience=8,
+                       ruins=13, raft=7,  fight=9,  flee=0,  talk=1, caution=0,
+                       buffer=0,  min_party=4, max_party=9),
+    'wanderer':   dict(travel=15, rest=6,  news=6, hire=3,  audience=4,
+                       ruins=7,  raft=7,  fight=0,  flee=5,  talk=3, caution=1,
+                       buffer=12, min_party=2, max_party=4),
 }
 
 # (action name, substring of the daily-menu label)
@@ -131,20 +162,69 @@ def _power(chars):
 
 
 class Bot:
-    """Pick the best option of the engine's current prompt."""
+    """Pick the best option of the engine's current prompt.
 
-    def __init__(self, game, strategy='balanced'):
+    ``variety`` (0..1) wobbles the personality weights per campaign, so two
+    games with the same strategy do not play out identically: at 0.2 every
+    weight can drift by a fifth, at 1 by everything or nothing.  The wobble is
+    deterministic for a given ``seed``, so a run stays reproducible.
+    """
+
+    def __init__(self, game, strategy='balanced', variety=0.0, seed=None):
         self.game = game
         self.strategy = strategy if strategy in STRATEGIES else 'balanced'
-        # risk: negative = risk-averse, positive = risk-hungry
-        self.p = PROFILE[self.strategy]
+        self.p = dict(PROFILE[self.strategy])
+        self.variety = max(0.0, min(1.0, float(variety)))
+        self.rng = random.Random(seed)
+        if self.variety:
+            self._wobble()
         self.path = [game.hex]
         self.tried = set()
         self.done = set()          # (hex, action) already attempted
         self.used = {}             # (hex, action) -> times attempted
         self.ruin_days = 0         # days spent searching ruins this campaign
+        self._preferred = None     # the ruin/temple pair this run committed to
         self._dist = {}
         self._travel = {}
+
+    def _wobble(self):
+        """Nudge every weight by up to ±variety, keeping whole numbers."""
+        for key, value in list(self.p.items()):
+            span = abs(value) * self.variety
+            self.p[key] = int(round(value + self.rng.uniform(-span, span)))
+
+    def jitter(self):
+        """Tiny random nudge that only decides near-ties, never real ones."""
+        return self.rng.uniform(0.0, 1e-3)
+
+    def pick(self, scored):
+        """Index of the option to take from [(score, index), ...].
+
+        With variety off this is the plain best option.  With variety on the
+        bot sometimes takes the runner-up (or the third choice) so two
+        campaigns with the same strategy do not follow the same script - the
+        further down the list, the less likely.
+        """
+        if not scored:
+            return 0
+        scored = sorted(scored, key=lambda pair: -pair[0])
+        if self.variety <= 0 or len(scored) == 1:
+            return scored[0][1]
+        # Only options that are nearly as good are candidates: the bot may take
+        # a different road to the same place, but it will not walk away from the
+        # gold mine or pick a fight it was avoiding.
+        top = scored[0][0]
+        margin = max(2.0, abs(top) * 0.25)
+        close = [pair for pair in scored if top - pair[0] <= margin]
+        if len(close) == 1:
+            return close[0][1]
+        r = self.rng.random()
+        # variety 0.3 -> ~11% second, ~4% third; 1.0 -> 50% second, 25% third
+        if r < self.variety * 0.15 and len(close) > 2:
+            return close[2][1]
+        if r < self.variety * 0.4 and len(close) > 1:
+            return close[1][1]
+        return close[0][1]
 
     # ------------------------------------------------------------ helpers
     def party(self):
@@ -366,9 +446,13 @@ class Bot:
         the most days at a temple, so the party never backtracks.  Distances
         are expected travel days, not hex counts: a longer road route can beat
         a shorter swamp route by several days.
+
+        With ``variety`` on, the campaign commits once to a pair from the
+        near-equal front-runners (and keeps it), so two runs do not always
+        march to the same ruin even when both plans are sound.
         """
         g = self.game
-        best = None
+        plans = []
         for r, p in g.features['places'].items():
             if p['kind'] != 'ruins':
                 continue
@@ -377,9 +461,23 @@ class Bot:
             # the north bank is worth more than a closer one in the south.
             camp = ((TOTAL_DAYS - g.day) - self.travel_days(r).get(g.hex, 999.0)
                     - td - NORTH_PENALTY * self.north_days(t))
-            if best is None or camp > best[0]:
-                best = (camp, r, t)
-        return best
+            plans.append((camp, r, t))
+        if not plans:
+            return None
+        plans.sort(key=lambda p: -p[0])
+        # Only a deliberately loose run (variety >= 0.5) trades a little
+        # strength for a different route; at the default 0.3 the plan stays
+        # optimal and the variety shows in the small decisions instead.
+        if self.variety >= 0.5 and self._preferred is None and len(plans) > 1:
+            top = plans[0][0]
+            close = [p for p in plans if top - p[0] <= max(3.0, abs(top) * 0.2)]
+            if len(close) > 1:
+                self._preferred = self.rng.choice(close)[1:]
+        if self._preferred is not None:
+            for p in plans:
+                if p[1:] == self._preferred:
+                    return p
+        return plans[0]
 
     def camping(self):
         """True when the party is parked at a temple farming r212.
@@ -591,7 +689,7 @@ class Bot:
         dgoal = self.travel_days(goal) if goal else {}
         here = dgoal.get(g.hex, 0.0)
         back = self.path[-2] if len(self.path) >= 2 else None
-        best, best_score = 0, None
+        scored = []
         for i, o in enumerate(opts):
             label = o['label']
             if 'Stop travelling' in label:
@@ -635,8 +733,8 @@ class Bot:
                             s += 14 * saved
                     s -= self.p['caution'] * TERRAIN_RISK.get(
                         g.model.travel_terrain(hid), 0)
-            if best_score is None or s > best_score:
-                best, best_score = i, s
+            scored.append((s, i))
+        best = self.pick(scored)
         m = HEX_RE.search(opts[best]['label'])
         if m and record:
             self.path.append(m.group(1))
@@ -666,7 +764,7 @@ class Bot:
                         self.used[(g.hex, act)] = self.used.get((g.hex, act), 0) + 1
                     return i
 
-        best, best_score = 0, None
+        scored = []
 
         for i, o in enumerate(prompt['options']):
             label = o['label'].lower()
@@ -754,8 +852,8 @@ class Bot:
             if act not in ('offering', 'ruins', 'travel'):
                 s -= 5 * self.used.get((g.hex, act), 0)   # diminishing returns
 
-            if best_score is None or s > best_score:
-                best, best_score = i, s
+            scored.append((s, i))
+        best = self.pick(scored)
         chosen = prompt['options'][best]['label'].lower()
         act = next((a for a, key in ACTION_KEYS if key in chosen), None)
         if act and record:
@@ -933,9 +1031,9 @@ class Bot:
         return 0
 
 
-def run(game, strategy='balanced', max_steps=6000):
+def run(game, strategy='balanced', max_steps=6000, variety=0.0, seed=None):
     """Play a whole campaign with the given personality. Returns steps taken."""
-    bot = Bot(game, strategy)
+    bot = Bot(game, strategy, variety=variety, seed=seed)
     return game.run_until_idle(max_steps=max_steps, chooser=bot.choose)
 
 

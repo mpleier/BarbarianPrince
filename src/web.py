@@ -25,6 +25,9 @@ from pydantic import BaseModel
 from PIL import Image
 
 from engine import Game, split_event
+
+# How much a campaign may drift from its personality (see autoplay.Bot).
+VARIETY = 0.3
 from autoplay import Bot, STRATEGIES
 from features import load_features
 from game_model import GameModel
@@ -235,7 +238,7 @@ def api_new_game(req: NewGame):
         strategy = req.strategy if req.strategy in STRATEGIES else "balanced"
         g = Game(seed=req.seed, start_hex=req.start)
         sess = {"id": uuid.uuid4().hex[:12], "game": g, "log_index": 0,
-                "strategy": strategy, "bot": Bot(g, strategy)}
+                "strategy": strategy, "bot": Bot(g, strategy, variety=VARIETY)}
         SESSIONS[sess["id"]] = sess
         return snapshot(sess)
 
@@ -273,7 +276,7 @@ def api_step(sid: str, req: Step):
         g = sess["game"]
         if req.strategy and req.strategy in STRATEGIES:
             sess["strategy"] = req.strategy
-            sess["bot"] = Bot(g, req.strategy)
+            sess["bot"] = Bot(g, req.strategy, variety=VARIETY)
         prompt = ensure_prompt(g)
         if prompt is None:
             return snapshot(sess)
@@ -296,7 +299,7 @@ def api_strategy(sid: str, req: Strategy):
                                 detail="strategy must be one of " +
                                        ", ".join(STRATEGIES))
         sess["strategy"] = req.strategy
-        sess["bot"] = Bot(sess["game"], req.strategy)
+        sess["bot"] = Bot(sess["game"], req.strategy, variety=VARIETY)
         return snapshot(sess)
 
 
@@ -312,7 +315,7 @@ def api_auto(sid: str, req: Auto):
         g = sess["game"]
         if req.strategy and req.strategy in STRATEGIES:
             sess["strategy"] = req.strategy
-            sess["bot"] = Bot(g, req.strategy)
+            sess["bot"] = Bot(g, req.strategy, variety=VARIETY)
         chooser = None if req.strategy == "naive" else sess["bot"].choose
         g.run_until_idle(max_steps=req.steps, chooser=chooser)
         return snapshot(sess)

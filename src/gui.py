@@ -194,7 +194,7 @@ class GameGUI:
 
         # The bot plays through the same prompt queue the player does, so
         # "Bot move" answers one prompt and "Auto-play" keeps going.
-        self.bot = Bot(game, 'balanced')
+        self.bot = Bot(game, 'balanced', variety=0.3)
         self.auto = False
         self.delay = 250            # ms between bot answers (4 steps/s)
 
@@ -345,7 +345,7 @@ class GameGUI:
 
     # ------------------------------------------------------------ autoplay
     def on_strategy(self, _event=None):
-        self.bot = Bot(self.game, self.strategy.get())
+        self.bot = Bot(self.game, self.strategy.get(), variety=0.3)
         self.log_line(f'Bot strategy: {self.strategy.get()}.')
         self.schedule(0)
 
