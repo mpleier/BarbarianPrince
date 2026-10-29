@@ -115,16 +115,21 @@ class MapCanvas:
 
     def draw(self, game):
         self.canvas.delete('all')
-        if self.mode == 'scan':
+        mode = self.mode
+        if mode == 'scan':
             photo = self.scan_photo()
             if photo:
                 ox, oy = self._scan_offset
                 self.canvas.create_image(ox, oy, image=photo, anchor='nw',
                                          tags='scan')
+            else:
+                # No board scan available (a checkout without _refs): fall back
+                # to the terrain fills rather than drawing an empty map.
+                mode = 'vector'
         for hid, h in self.grid.items():
             pts = self.hex_points(h)
-            color = '' if self.mode == 'scan' else TERRAIN_COLORS.get(h['terrain'], 'unknown')
-            outline = '' if not self.show_grid else ('#ffffff' if self.mode == 'scan' else '#555')
+            color = '' if mode == 'scan' else TERRAIN_COLORS.get(h['terrain'], 'unknown')
+            outline = '' if not self.show_grid else ('#ffffff' if mode == 'scan' else '#555')
             self.canvas.create_polygon(pts, fill=color, outline=outline,
                                        width=1, tags='hex')
             if self.show_ids:
@@ -202,23 +207,29 @@ class GameGUI:
         bar = ttk.Frame(left)
         bar.pack(fill='x', padx=6, pady=4)
         ttk.Label(bar, text='Map:').pack(side='left')
-        self.map_mode = tk.StringVar(value='vector')
+        # Default to the board artwork with the overlays off: the scanned map
+        # already draws the rivers, roads and hex ids of the original board.
+        self.map_mode = tk.StringVar(value='scan')
         box = ttk.Combobox(bar, textvariable=self.map_mode,
                            values=['vector', 'scan'], state='readonly', width=10)
         box.pack(side='left')
         box.bind('<<ComboboxSelected>>', self.on_map_mode)
-        self.show_grid = tk.BooleanVar(value=True)
+        self.show_grid = tk.BooleanVar(value=False)
         ttk.Checkbutton(bar, text='hex grid', variable=self.show_grid,
                         command=self.redraw).pack(side='left')
-        self.show_ids = tk.BooleanVar(value=True)
+        self.show_ids = tk.BooleanVar(value=False)
         ttk.Checkbutton(bar, text='hex ids', variable=self.show_ids,
                        command=self.redraw).pack(side='left')
-        self.show_traces = tk.BooleanVar(value=True)
+        self.show_traces = tk.BooleanVar(value=False)
         ttk.Checkbutton(bar, text='rivers & roads', variable=self.show_traces,
                        command=self.redraw).pack(side='left')
 
         self.map = MapCanvas(tk.Canvas(left, bg='#f4f1e8'),
-                            game.model.grid, self.features)
+                            game.model.grid, self.features,
+                            mode=self.map_mode.get())
+        self.map.show_grid = bool(self.show_grid.get())
+        self.map.show_ids = bool(self.show_ids.get())
+        self.map.show_traces = bool(self.show_traces.get())
         self.map.canvas.pack(fill='both', expand=True)
 
         right = ttk.Frame(main, width=360)
