@@ -19,7 +19,7 @@ rule regression breaks a named test rather than quietly changing the game.
 | r210 | Hiring | `seek_hire` — 2d6 (+1 with the local news bonus) on the hiring table | `test_events` (hire prompts) |
 | r211 | Audience | `seek_audience` — local table; temples +1 for a priest/monk, −2 for a magician/wizard/witch | `test_monk_adds_one_and_magician_subtracts_two` |
 | r212 | Offerings | `offering` — 2d6 +1 (10 gold) + omen + influence, 14+ wins the Staff, 5 arrests, 2 defiles | `test_rules.OfferingTests` |
-| r213 | Rafting | `begin_raft` / `move` — river hexsides only, 3 a day, no lost check, 12 stops the raft, events on the "Rafting" travel row | `test_rules.RaftTests` |
+| r213 | Rafting | `begin_raft` / `move` — river hexsides only, 3 a day downriver / 2 upriver (flow from `features.river_flow`), no lost check, 12 stops the raft, events on the "Rafting" travel row | `test_rules.RaftTests` |
 | r214 | Cache | `cache`, `recover_cache` — 1-4 intact, 5 not found, 6 looted | `test_rules.CacheTests` |
 | r215 | Food | `food_need`, `feed_party`, `hunt` (skill + ½ endurance − 2d6, guide +1, rest-day helpers) | `test_rules.HuntingTests` |
 | r216 | Starvation | `starve` — followers roll 2d6 − wit (4+ deserts), everyone else starves (−1 skill, half loads); the Prince never deserts | `test_rules.StarvationTests` |
@@ -93,9 +93,12 @@ audit script checks that no event option points at a section that is missing.
 
 ## Known simplifications
 
-* **r213 upriver speed** — the rules give three hexsides a day downriver but two
-  upriver.  The river traces carry no flow direction, so the raft always moves
-  three; adding flow direction to `features.json` would close this.
+* **r213 river flow** — the booklet names the flow of each river (Tragoth east
+  to west, Nesser north to south, and so on).  The traces carry no names, so
+  `features.river_flow` assumes the water runs **top to bottom**: downstream is
+  the hex with the larger row, and a side joining two hexes on the same row
+  drains west.  Every side has a direction, so a day downriver gives three
+  hexsides and a day upriver two.
 * **r211 dismissal** — dismissing a wizard to please the Baron of Huldra (+1)
   is not modelled; the party simply takes the −2 at temples.
 * **r215c** — the farmland hunt event is a fixed 1d6 table rather than the

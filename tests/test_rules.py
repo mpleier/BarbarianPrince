@@ -233,11 +233,13 @@ class RaftTests(unittest.TestCase):
                             for o in prompt['options']))
 
     def test_a_twelve_stops_the_raft(self):
-        g = game(hex='0102')
+        g = game(hex='0101')
         g.begin_action('raft')
-        g.moves_left = 1
+        g.d2 = lambda: 4
+        self.move_to(g, '0102')
+        g.moves_left = 1                         # last hexside of the day
         g.d2 = lambda: 12
-        g.current()['options'][0]['handler']()   # one river move, last of the day
+        self.move_to(g, '[river]')
         self.assertFalse(g.raft)
 
     def test_other_rolls_keep_the_raft(self):
@@ -245,8 +247,41 @@ class RaftTests(unittest.TestCase):
         g.begin_action('raft')
         g.moves_left = 1
         g.d2 = lambda: 10
-        g.current()['options'][0]['handler']()
+        self.move_to(g, '[river]')
         self.assertTrue(g.raft)
+
+    def move_to(self, g, needle):
+        """Answer the current move prompt, choosing `needle` in the label."""
+        prompt = g.current() or (g.advance() and g.current())
+        index = next(i for i, o in enumerate(prompt['options'])
+                     if needle in o['label'])
+        g.answer(index)
+
+    def test_downriver_day_allows_three_hexsides(self):
+        # r213: the water runs top to bottom, so 0101 -> 0102 is downstream.
+        g = game(hex='0101')
+        g.begin_action('raft')
+        g.d2 = lambda: 4
+        self.move_to(g, '0102')
+        self.assertEqual(g.raft_dir, 'down')
+        self.assertEqual(g.moves_left, 2)        # three moves minus this one
+
+    def test_upriver_day_allows_only_two_hexsides(self):
+        g = game(hex='0102')
+        g.begin_action('raft')
+        g.d2 = lambda: 4
+        self.move_to(g, '0101')
+        self.assertEqual(g.raft_dir, 'up')
+        self.assertEqual(g.moves_left, 1)        # two moves minus this one
+
+    def test_every_river_side_has_a_flow_direction(self):
+        # features.json carries "a|b" -> downstream for every traced side.
+        g = game()
+        self.assertTrue(g.river_flow)
+        for pair in g.river_sides:
+            a, b = sorted(pair)
+            self.assertIn(f'{a}|{b}', g.river_flow)
+            self.assertIn(g.river_flow[f'{a}|{b}'], (a, b))
 
 
 class CacheTests(unittest.TestCase):

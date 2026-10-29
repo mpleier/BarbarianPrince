@@ -399,6 +399,29 @@ def _road_hexes(road_sides, scan=SCAN, calib=None):
     return sorted(out)
 
 
+def _river_flow(river_sides):
+    """Downstream hex for every river side: the water runs north to south.
+
+    Raft travel is three hexsides a day downriver but only two upriver (r213),
+    so each side needs a direction.  The traces carry no flow data, so we take
+    the map's overall lay of the land: downstream is the hex with the larger
+    row, and a side that joins two hexes on the same row drains west (the
+    Tragoth runs east to west).
+    """
+    flow = {}
+    for a, b in river_sides:
+        ra, rb = int(a[2:]), int(b[2:])
+        if rb > ra:
+            downstream = b
+        elif ra > rb:
+            downstream = a
+        else:
+            downstream = min(a, b)          # same row: east -> west
+        flow[f'{a}|{b}'] = downstream
+        flow[f'{b}|{a}'] = downstream
+    return flow
+
+
 def build_features():
     river_sides, road_sides = detect_sides()
     road_hexes = _road_hexes(road_sides)
@@ -408,6 +431,7 @@ def build_features():
         'regions': REGION_LABELS,
         'road_hexes': road_hexes,
         'river_sides': [list(p) for p in river_sides],
+        'river_flow': _river_flow(river_sides),
         'road_sides': [list(p) for p in road_sides],
     }
 

@@ -55,8 +55,9 @@ with open(os.path.join(DATA, 'tables.json'), encoding='utf-8') as _f:
 RUINS = {int(k): v for k, v in _TABLES['ruins_search'].items()}
 RAFTING = {int(k): v for k, v in _TABLES['raft_travel_events'].items()}
 
-# r213: a raft covers three river hexsides a day (two going upriver).
+# r213: a raft covers three river hexsides a day downriver, two upriver.
 RAFT_SPEED = 3
+RAFT_UPSTREAM = 2
 
 # An option cell ends with a booklet reference.  The OCR occasionally renders
 # 'r309' as 'i309', so that variant is accepted and normalised later.
@@ -457,6 +458,8 @@ class Game:
         # JSON stores hexside pairs as lists; keep frozenset copies for O(1) tests.
         self.road_sides = {frozenset(p) for p in features.get('road_sides', ())}
         self.river_sides = {frozenset(p) for p in features.get('river_sides', ())}
+        # r213: "a|b" -> the hex the water flows to (top to bottom on the map)
+        self.river_flow = dict(features.get('river_flow', {}))
         self.rng = random.Random(seed)
         self.log = []
         self.prompts = []
@@ -469,6 +472,7 @@ class Game:
         self.items = []
         self.raft = False
         self.raft_days = 0
+        self.raft_dir = None        # r213: 'down' or 'up' for the current day
         self.news_bonus = {}
         self.offering_bonus = 0     # r209 result 4: permanent +1 at the temple
         self.omen_bonus = 0         # r212 result 7: +1 on the next offering
@@ -773,19 +777,28 @@ class Game:
     def begin_raft(self):
         """r213 - take to the raft and travel along the river hexsides.
 
-        A raft covers three hexsides a day.  The party is only offered river
-        sides to move along; getting lost is impossible on the water (r205b).
+        The raft covers three hexsides a day going downriver but only two
+        going up, so the day's allowance is fixed by the first move (the water
+        runs top to bottom on the map).  The party is only offered river sides;
+        getting lost is impossible on the water (r205b).
         """
         if not self.raft and not self.raft_available():
             self.note('No raft here - the party is nowhere near a river (r213).')
             return 'No raft available.'
         self.raft = True
         self.action = 'raft'
+        self.raft_dir = None
         self.moves_left = RAFT_SPEED
-        self.note(f'The party takes to the raft: {RAFT_SPEED} river hexsides '
-                  f'today (r213).')
+        self.note('The party takes to the raft (r213).')
         self.choose_move()
         return 'Rafting.'
+
+    def raft_direction(self, src, dest):
+        """Is this river move downriver or upriver? (r213)"""
+        downstream = self.river_flow.get(f'{src}|{dest}')
+        if downstream is None:                   # no data: fall back to the row
+            downstream = dest if int(dest[2:]) > int(src[2:]) else src
+        return 'down' if downstream == dest else 'up'
 
     def raft_stop_check(self):
         """r213 - after a day on the raft, a roll of 12 reaches a stop."""
@@ -840,6 +853,14 @@ class Game:
             if not self.is_river_move(src, dest):
                 self.note('A raft can only follow the river (r213).')
                 return False
+            if self.raft_dir is None:
+                # r213: three hexsides a day downriver, two upriver - the
+                # first move of the day settles which it is.
+                self.raft_dir = self.raft_direction(src, dest)
+                self.moves_left = (RAFT_SPEED if self.raft_dir == 'down'
+                                   else RAFT_UPSTREAM)
+                self.note(f'The raft sets off {self.raft_dir}river: '
+                          f'{self.moves_left} hexsides today (r213).')
             self.hex = dest
             self.moves_left -= 1
             self.visited.add(dest)
