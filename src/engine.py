@@ -282,7 +282,7 @@ class Character:
     """Any character: the Prince, followers, or encountered foes."""
 
     def __init__(self, name, skill, endurance, wealth=0, mount='none',
-                 guide=False, pay=0, prince=False):
+                 guide=False, pay=0, prince=False, kind=''):
         self.name = name
         self.skill = skill
         self.endurance = endurance
@@ -292,6 +292,11 @@ class Character:
         self.guide = guide
         self.pay = pay
         self.prince = prince
+        # r211: 'priest' or 'magician' - the calling decides how temples and
+        # the Baron of Huldra treat the party.  Names alone are unreliable once
+        # a character joins as "Hired 1", so the event that recruits them
+        # records the calling here.
+        self.kind = kind
         self.alive = True
         self.starved = 0
         self.poisoned = 0
@@ -1637,14 +1642,28 @@ class Game:
             self.note('You cannot pay today\'s wages - they refuse.')
             return 'Hiring fails.'
         self.gold -= bonus
+        ev = self.pending_event or {}
+        calling = self.calling(ev.get('title', '') + ' ' + ev.get('text', ''))
         for f in foes:
             f.pay = pay
             f.unreliable = unreliable
             f.town_leaver = town_leaver
             f.name = f.name.replace('Foe', 'Hired')
+            if calling:
+                f.kind = calling
         self.party.extend(foes)
         self.note(f'{len(foes)} character(s) join the party at {pay} gold/day each.')
         return 'Followers acquired.'
+
+    @staticmethod
+    def calling(text):
+        """'magician' or 'priest' if the text describes one, else ''."""
+        low = text.lower()
+        if any(w in low for w in ('wizard', 'magician', 'witch', 'sorcerer')):
+            return 'magician'
+        if any(w in low for w in ('priest', 'priestess', 'monk', 'acolyte')):
+            return 'priest'
+        return ''
 
     def refuse_roll(self, ev, mapping):
         die = self.d1()
@@ -1949,12 +1968,27 @@ class Game:
                          else 'any Temple', {}).get('rows', [])
 
     def party_kinds(self):
-        """(has priest/monk, has magician/wizard/witch) among the followers."""
-        names = [c.name.lower() for c in self.living() if not c.prince]
+        """(has priest/monk, has magician/wizard/witch) among the followers.
+
+        A follower's calling comes from the event that recruited them; the name
+        is only a fallback, because recruits join as "Hired 1" and the like.
+        """
+        followers = [c for c in self.living() if not c.prince]
         priests = ('priest', 'priestess', 'monk', 'acolyte')
         magicians = ('magician', 'wizard', 'witch', 'sorcerer')
-        return (any(any(w in n for w in priests) for n in names),
-                any(any(w in n for w in magicians) for n in names))
+
+        def kind_of(c):
+            if getattr(c, 'kind', ''):
+                return c.kind
+            low = c.name.lower()
+            if any(w in low for w in magicians):
+                return 'magician'
+            if any(w in low for w in priests):
+                return 'priest'
+            return ''
+
+        kinds = {kind_of(c) for c in followers}
+        return 'priest' in kinds, 'magician' in kinds
 
     def seek_audience(self):
         """r211 - seek an audience: 2 dice on the local table.
@@ -1962,6 +1996,9 @@ class Game:
         At a temple the party's composition matters: priests and monks add one
         (+1), while magicians, wizards and witches subtract two (-2) unless
         they are dismissed first.
+
+        At Huldra Castle (1212) the Baron will take a wizard, magician or witch
+        into his own service, which adds one (+1) to the audience roll.
         """
         kind = self.place_kind(self.hex)
         if kind not in ('town', 'castle', 'temple'):
@@ -1977,6 +2014,42 @@ class Game:
                 self.note('A magician in the party is unwelcome here (-2, r211).')
             if bonus:
                 self.note(f'Temple audience modifier {bonus:+d} (r211).')
+        if self.hex == '1212':
+            wizard = next((c for c in self.living()
+                           if not c.prince and c.kind == 'magician'), None)
+            if wizard is not None:
+                self.push(
+                    'choice', 'Audience at Huldra Castle (r211)',
+                    f'{wizard.name} could take service with the Baron instead '
+                    f'of staying in the party, which adds one (+1) to the '
+                    f'audience roll.',
+                    [{'label': f'Dismiss {wizard.name} to the Baron (+1)',
+                      'handler': (lambda w=wizard, b=bonus:
+                                  self.baron_dismiss(w, b))},
+                     {'label': 'Keep the party as it is',
+                      'handler': (lambda b=bonus: self.audience_roll(b))}])
+                return 'Audience decision pending.'
+        return self.audience_roll(bonus)
+
+    def baron_dismiss(self, who, bonus):
+        """r211 - give a wizard to the Baron of Huldra for +1 on the roll."""
+        self.dismiss(who)
+        self.note(f'{who.name} enters the Baron\'s service (+1, r211).')
+        return self.audience_roll(bonus + 1)
+
+    def dismiss(self, who):
+        """r201 - voluntarily dismiss a follower from the party."""
+        if who is None or getattr(who, 'prince', False):
+            return False
+        if who in self.party:
+            self.party.remove(who)
+            self.note(f'{who.name} is dismissed from the party (r201).')
+            return True
+        return False
+
+    def audience_roll(self, bonus):
+        """Roll the local audience table with `bonus` added."""
+        kind = self.place_kind(self.hex)
         total = self.d2() + bonus
         self.note(f'Seeking an audience in {kind} {self.hex}: rolled {total}.')
         row = self.model.roll_row(self.audience_rows(), total)

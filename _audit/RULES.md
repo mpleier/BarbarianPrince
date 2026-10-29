@@ -17,7 +17,7 @@ rule regression breaks a named test rather than quietly changing the game.
 | r208 | Searching a Ruins | `search_ruins` — 2d6 straight on the ruins table; `e132` organised-search reroll when the die is under the party size | `test_roll_maps_straight_to_the_table`, `test_no_bonus_for_strong_followers` |
 | r209 | News | `seek_news` — 2d6, +1 for 5 gold, +1 for wit 5+ | `test_bonuses_and_cost` |
 | r210 | Hiring | `seek_hire` — 2d6 (+1 with the local news bonus) on the hiring table | `test_events` (hire prompts) |
-| r211 | Audience | `seek_audience` — local table; temples +1 for a priest/monk, −2 for a magician/wizard/witch | `test_monk_adds_one_and_magician_subtracts_two` |
+| r211 | Audience | `seek_audience` — local table; temples +1 for a priest/monk, −2 for a magician/wizard/witch; at Huldra (1212) a dismissed wizard adds +1, and `dismiss` implements r201's voluntary dismissal | `test_rules.AudienceTests`, `HuldraAudienceTests` |
 | r212 | Offerings | `offering` — 2d6 +1 (10 gold) + omen + influence, 14+ wins the Staff, 5 arrests, 2 defiles | `test_rules.OfferingTests` |
 | r213 | Rafting | `begin_raft` / `move` — river hexsides only, 3 a day downriver / 2 upriver (flow from `features.river_flow`), no lost check, 12 stops the raft, events on the "Rafting" travel row | `test_rules.RaftTests` |
 | r214 | Cache | `cache`, `recover_cache` — 1-4 intact, 5 not found, 6 looted | `test_rules.CacheTests` |
@@ -99,6 +99,13 @@ audit script checks that no event option points at a section that is missing.
     within three hexes of a town/castle/temple, Ogon and Weshor send e002
     instead, the option die gets +2 for a place visited before and +1 for one
     never visited, and the hunt itself adds the r215c +2.
+14. **r211 Huldra bonus** — the data carried the Baron's note ("+1 if you
+    dismiss any wizard, magician or witch") but nothing implemented it, and
+    recruits arrived as "Hired 1" with no calling, so even the temple ±modifiers
+    could never fire.  `Character` now records a `kind` ('magician' or
+    'priest') from the recruiting event, `party_kinds` reads it, r201's
+    voluntary `dismiss` exists, and an audience at 1212 offers to give the
+    wizard to the Baron for +1.
 
 ## Known simplifications
 
@@ -108,5 +115,3 @@ audit script checks that no event option points at a section that is missing.
   the hex with the larger row, and a side joining two hexes on the same row
   drains west.  Every side has a direction, so a day downriver gives three
   hexsides and a day upriver two.
-* **r211 dismissal** — dismissing a wizard to please the Baron of Huldra (+1)
-  is not modelled; the party simply takes the −2 at temples.

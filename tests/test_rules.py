@@ -219,6 +219,66 @@ class OfferingTests(unittest.TestCase):
         self.assertEqual(g.gold, 0)
 
 
+class HuldraAudienceTests(unittest.TestCase):
+    """r211 - the Baron of Huldra takes a wizard for +1 on the audience die."""
+
+    def wizard(self, kind='magician', name='Hired 1'):
+        return Character(name, 4, 4, kind=kind)
+
+    def test_dismissing_a_wizard_adds_one(self):
+        g = game(hex='1212')
+        g.party.append(self.wizard())
+        g.seek_audience()                        # asks first
+        prompt = g.current()
+        self.assertIn('dismiss', prompt['options'][0]['label'].lower())
+        g.d2 = lambda: 7
+        g.answer(0)                              # dismiss, then roll
+        self.assertFalse(any(c.kind == 'magician' for c in g.party))
+        self.assertTrue(any('Baron' in line for line in g.log))
+        # 7 + 1 = 8: the Baron's Master of the Household (e153)
+        self.assertTrue(any('Audience roll 8' in line for line in g.log))
+
+    def test_keeping_the_wizard_gives_no_bonus(self):
+        g = game(hex='1212')
+        g.party.append(self.wizard())
+        g.seek_audience()
+        g.d2 = lambda: 7
+        g.answer(1)                              # keep, roll unmodified
+        self.assertTrue(any(c.kind == 'magician' for c in g.party))
+        self.assertTrue(any('Audience roll 7' in line for line in g.log))
+
+    def test_no_question_without_a_wizard(self):
+        g = game(hex='1212')
+        g.d2 = lambda: 7
+        g.seek_audience()
+        prompt = g.current()
+        self.assertNotIn('choose whether', (prompt.get('text') or '').lower())
+
+    def test_priest_in_the_party_does_not_earn_the_bonus(self):
+        g = game(hex='1212')
+        g.party.append(self.wizard(kind='priest', name='Hired 2'))
+        g.d2 = lambda: 7
+        g.seek_audience()
+        self.assertNotIn('Baron', ' '.join(g.log))
+        self.assertTrue(any('Audience roll 7' in line for line in g.log))
+
+    def test_dismiss_never_removes_the_prince(self):
+        g = game(hex='1212')
+        self.assertFalse(g.dismiss(g.prince()))
+        self.assertTrue(g.prince() in g.party)
+
+    def test_recruits_record_their_calling(self):
+        self.assertEqual(Game.calling('A Wizard offers his aid'), 'magician')
+        self.assertEqual(Game.calling('A Warrior Monk joins'), 'priest')
+        self.assertEqual(Game.calling('A mercenary joins'), '')
+        # the temple rule reads the calling, not the "Hired 1" name
+        g = game(hex='0611')
+        g.party.append(self.wizard())
+        g.d2 = lambda: 5
+        g.seek_audience()
+        self.assertTrue(any('-2' in line for line in g.log))
+
+
 class RaftTests(unittest.TestCase):
     """r213 - raft travel follows river hexsides, three a day."""
 
