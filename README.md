@@ -63,8 +63,15 @@ caution, gold buffer, party size):
 
 `variety` (0 – 1) lets a run drift from its personality, so two campaigns with
 the same strategy do not play out identically: the weights wobble per campaign,
-near-equal options are taken at random, and above 0.5 the party may commit to a
-different ruin/temple route.  Measured over 60 seeds with `balanced`:
+near-equal options are taken at random, and from 0.2 the party commits to a
+different ruin/temple route whenever two are within a whisker of each other (the
+board has three ruins, and the top two are often one day apart).  The bot also
+stops flogging a dead mine: a ruin that pays nothing for four days is abandoned
+for another, and the daily action scores decay with repetition, so an autoplay
+campaign alternates mining, travel, rest and markets instead of searching the
+same ruins for the whole game.  Measured over 40 seeds with `balanced` at 0.3:
+ruin target **0307 on 17 campaigns, 0801 on 23**, mean 23 distinct hexes per
+campaign, longest same-action run down from 29 days to 17.
 
 | variety | wins | distinct ending hexes |
 |---|---|---|

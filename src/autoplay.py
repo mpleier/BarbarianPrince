@@ -63,6 +63,8 @@ NORTH_PENALTY = 1.6
 # engine: 0.56 -> 0.167 wins, 1.0 -> 0.225.  The time budget is therefore only a
 # safety net; the real limit is `ruins_cap`.
 RUIN_RATIO = 1.0
+# After this many fruitless days at one ruin the bot looks for another.
+DRY_RUIN_DAYS = 4
 
 # r205 "getting lost": 2d6 against the terrain of the hex you are *leaving*.
 # Roads are exempt, so a road step always costs exactly one day, while a swamp
@@ -184,6 +186,8 @@ class Bot:
         self.done = set()          # (hex, action) already attempted
         self.used = {}             # (hex, action) -> times attempted
         self.ruin_days = 0         # days spent searching ruins this campaign
+        self.dry = {}              # hex -> consecutive fruitless ruin days
+        self._last = None          # (hex, action, gold) at the last decision
         self._preferred = None     # the ruin/temple pair this run committed to
         self._dist = {}
         self._travel = {}
@@ -465,13 +469,18 @@ class Bot:
             plans.append((camp, r, t))
         if not plans:
             return None
+        # A ruin that has produced nothing for days is worth abandoning.
+        fresh = [p for p in plans if self.dry.get(p[1], 0) < DRY_RUIN_DAYS]
+        if fresh:
+            plans = fresh
         plans.sort(key=lambda p: -p[0])
-        # Only a deliberately loose run (variety >= 0.5) trades a little
-        # strength for a different route; at the default 0.3 the plan stays
-        # optimal and the variety shows in the small decisions instead.
-        if self.variety >= 0.5 and self._preferred is None and len(plans) > 1:
+        # The campaign commits once to a ruin/temple pair.  When two pairs are
+        # within a whisker of each other the choice is made at random, so two
+        # auto-play runs are not a carbon copy of one another; the margin is
+        # deliberately tight (a bad target costs far more than it looks).
+        if self.variety >= 0.2 and self._preferred is None and len(plans) > 1:
             top = plans[0][0]
-            close = [p for p in plans if top - p[0] <= max(3.0, abs(top) * 0.2)]
+            close = [p for p in plans if top - p[0] <= max(2.0, abs(top) * 0.08)]
             if len(close) > 1:
                 self._preferred = self.rng.choice(close)[1:]
         if self._preferred is not None:
@@ -744,8 +753,20 @@ class Bot:
         return best
 
     # ---- daily action (r203)
+    def _note_dry(self):
+        """Remember whether the last ruins day at this hex paid anything."""
+        g = self.game
+        if self._last is not None:
+            hex_id, action, gold = self._last
+            if action == 'ruins' and hex_id == g.hex:
+                if g.gold > gold:
+                    self.dry[hex_id] = 0       # it paid: keep digging
+                else:
+                    self.dry[hex_id] = self.dry.get(hex_id, 0) + 1
+
     def _action(self, prompt, record=True):
         g = self.game
+        self._note_dry()
         party = self.party()
         wounds = sum(c.wounds for c in party)
         wounded = wounds > 0
@@ -832,8 +853,12 @@ class Bot:
                 # 4 (3/36) opens e136 (500 gold), and the search can be repeated
                 # every day.  The ruin phase is bounded by _refs/campaign_dp.py:
                 # once the time budget is spent the days are worth more at the
-                # temple, even if the gold target was never reached.
+                # temple, even if the gold target was never reached.  A mine
+                # that has stopped paying loses its appeal, so a long dry spell
+                # sends the party looking for a better one.
                 s = self.p['ruins']
+                s -= 3 * self.dry.get(g.hex, 0)
+                s -= self.used.get((g.hex, 'ruins'), 0)
                 if self.mining():
                     s += 22
                 else:
@@ -870,6 +895,7 @@ class Bot:
         chosen = prompt['options'][best]['label'].lower()
         act = next((a for a, key in ACTION_KEYS if key in chosen), None)
         if act and record:
+            self._last = (g.hex, act, g.gold)
             self.done.add((g.hex, act))
             self.used[(g.hex, act)] = self.used.get((g.hex, act), 0) + 1
             if act == 'ruins':

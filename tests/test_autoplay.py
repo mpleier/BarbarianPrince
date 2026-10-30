@@ -408,3 +408,51 @@ class VarietyTests(unittest.TestCase):
                 g.answer(moves[-1])
             runs.append(moves)
         self.assertEqual(runs[0], runs[1])
+
+
+class StagnationTests(unittest.TestCase):
+    """A mine that stops paying should lose the bot's interest."""
+
+    def test_dry_days_accumulate_and_reset(self):
+        g = Game(seed=3)
+        bot = Bot(g, 'balanced', variety=0.0)
+        bot._last = ('0307', 'ruins', 40)
+        g.hex, g.gold = '0307', 40
+        bot._note_dry()
+        self.assertEqual(bot.dry['0307'], 1)
+        bot._last = ('0307', 'ruins', 40)
+        bot._note_dry()
+        self.assertEqual(bot.dry['0307'], 2)
+        g.gold = 90                        # a find: the mine is alive again
+        bot._last = ('0307', 'ruins', 40)
+        bot._note_dry()
+        self.assertEqual(bot.dry['0307'], 0)
+
+    def test_a_dry_ruin_is_abandoned_for_another(self):
+        g = Game(seed=1)
+        g.start()
+        bot = Bot(g, 'balanced', variety=0.0)
+        first = bot.plan()
+        bot.dry[first[1]] = 10
+        bot._preferred = None
+        self.assertNotEqual(bot.plan()[1], first[1])
+
+    def test_the_plan_is_not_the_same_every_campaign(self):
+        targets = set()
+        for seed in range(1, 25):
+            g = Game(seed=seed)
+            bot = Bot(g, 'balanced', variety=0.3, seed=seed)
+            g.start()
+            targets.add(bot.plan()[1])
+        self.assertGreater(len(targets), 1, 'every campaign marched to the same ruin')
+
+    def test_variety_zero_always_takes_the_best_plan(self):
+        best = None
+        for seed in range(1, 12):
+            g = Game(seed=seed)
+            bot = Bot(g, 'balanced', variety=0.0, seed=seed)
+            g.start()
+            plan = bot.plan()[1]
+            if best is None:
+                best = plan
+            self.assertEqual(plan, best)
