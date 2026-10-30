@@ -337,3 +337,67 @@ class AltarVictoryTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class WinConditionTests(unittest.TestCase):
+    """The booklet offers five ways to win; each must end the game."""
+
+    def test_staff_of_command_north_of_the_tragoth(self):
+        from engine import Game
+        g = Game(seed=1); g.start()
+        g.staff = True
+        g.hex = next(iter(g.NORTH_OF_TRAGOTH))
+        g.finish_day()
+        self.assertTrue(g.won)
+
+    def test_royal_helm_returned_to_ogon_or_weshor(self):
+        from engine import Game
+        g = Game(seed=1); g.start()
+        g.helm = True
+        g.hex = '1501'
+        g.finish_day()
+        self.assertTrue(g.won)
+
+    def test_high_altar_blessing_within_thirty_days(self):
+        from engine import Game
+        g = Game(seed=1); g.start()
+        g.altar_blessed_day = g.day
+        g.hex = next(iter(g.NORTH_OF_TRAGOTH))
+        g.finish_day()
+        self.assertTrue(g.won)
+
+    def test_noble_ally_wins_at_once(self):
+        from engine import Game
+        g = Game(seed=1); g.start()
+        g.encounter('e152')
+        self.assertTrue(g.won)
+        self.assertTrue(g.game_over)
+
+    def test_huldra_heir_quest_ends_with_the_audience(self):
+        from engine import Game
+        g = Game(seed=1); g.start()
+        g.huldra_quest = True
+        g.hex = g.HULDRA_HEIR_HEX
+        g.d1 = lambda: 1                 # four guards
+        g.rescue_heir()
+        g.combat.foes = []
+        g.combat.result = 'party wins'
+        g.combat.over = True
+        g.finish_combat()
+        self.assertTrue(g.heir)
+        g.hex = g.HULDRA_CASTLE
+        g.d2 = lambda: 12
+        g.seek_audience()
+        self.assertTrue(g.won)
+
+    def test_huldra_night_attack_also_wins(self):
+        from engine import Game
+        g = Game(seed=1); g.start()
+        g.heir = True
+        g.hex = g.HULDRA_CASTLE
+        g.night_attack()
+        self.assertEqual(len(g.combat.foes), 7)      # six guards and the Baron
+        g.combat.foes = []
+        g.combat.result = 'party wins'
+        g.combat.over = True
+        g.finish_combat()
+        self.assertTrue(g.won)

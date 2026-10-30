@@ -180,3 +180,18 @@ through the South Pass, 1921-2020); three more - the Zhor pass trail from 1803
 through 1804 and 1905 to the temple at 1906 - are listed by hand because their
 ink is too pale for the mask.  Re-running the audit now reports no untraced road
 ink.
+
+## Ways to win (five, per the booklet)
+
+| # | Where | Condition |
+|---|---|---|
+| 1 | r212 | carry the Staff of Command into any hex north of the Tragoth River |
+| 2 | e044 roll 6 | the High Altar's god pledges support: return alive north of the Tragoth within 30 days |
+| 3 | e194 | the Royal Helm of the Northlands: return to Ogon (0101) or Weshor (1501) with it |
+| 4 | e152 | a noble lord joins the cause outright: the game is won on the spot |
+| 5 | e144 | rescue the true heir of Huldra from 1611, then install him at Huldra Castle - by an audience of 10+ or by killing the Baron and his six bodyguards |
+
+All five are implemented and tested (	est_win_loss.WinConditionTests).  The
+e144 chain is the longest: the secret (from e041 or e162) opens a rescue action
+at 1611, the heir then travels with the party, and either audience route or the
+night attack ends the game.

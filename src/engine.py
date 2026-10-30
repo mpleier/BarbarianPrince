@@ -509,6 +509,8 @@ class Game:
         ('Recover a hidden cache (r214)', 'cache'),
         ('Raft down the river (r213)', 'raft'),
     ('Buy food stores (r215e)', 'buyfood'),
+    ('Rescue the true heir (e144)', 'rescue'),
+    ('Attack the Baron by night (e144)', 'baron'),
         ('Follow encountered characters (r219)', 'follow'),
     ]
 
@@ -524,6 +526,11 @@ class Game:
     # The Royal Helm of the Northlands (e194) wins the game when the Prince
     # returns to either of these towns with it.
     HELM_WIN_HEXES = frozenset({'0101', '1501'})
+
+    # e144: the true heir of Huldra is held here, and Huldra Castle is where
+    # he can be installed.
+    HULDRA_HEIR_HEX = '1611'
+    HULDRA_CASTLE = '1212'
 
     # Days the High Altar blessing (e044 roll 6) lasts before it fades.
     ALTAR_BLESSING_DAYS = 30
@@ -569,6 +576,8 @@ class Game:
         self.free_lodging = False
         self.staff = False
         self.helm = False
+        self.huldra_quest = False   # e144: the heir's whereabouts are known
+        self.heir = False           # e144: the true heir travels with the party
         self.altar_blessed_day = None    # day the e044 roll-6 blessing was won
         self.imprisoned = None      # None | 'e061' | 'e062' | 'e063'
         self.prison_days = 0
@@ -901,6 +910,42 @@ class Game:
         self.choose_move()
         return 'Travelling.'
 
+    def rescue_heir(self):
+        """e144 - storm the hill tribe holding the heir at 1611."""
+        if not (self.huldra_quest and self.hex == self.HULDRA_HEIR_HEX):
+            return 'Nothing to rescue here.'
+        count = self.d1() + self.d1() + self.d1() + 1
+        foes = [Character(f'Hill Tribesman {i + 1}', 4, 5, 0)
+                for i in range(count)]
+        self.action = 'rescue'
+        self.moves_left = 0
+        self.note(f'The hill tribe has {count} guards (e144).')
+        return self.start_combat(None, 0, foes=foes)
+
+    def night_attack(self):
+        """e144 - surprise the Baron of Huldra in his castle."""
+        if not (self.heir and self.hex == self.HULDRA_CASTLE):
+            return 'The Baron is not here.'
+        foes = [Character(f'Bodyguard {i + 1}', 6, 6, 0) for i in range(6)]
+        foes.append(Character('The Baron of Huldra', 6, 8, 0))
+        self.action = 'baron'
+        self.moves_left = 0
+        self.event_kind = 'combat'
+        self.combat = Combat(self.living(), foes, self.rng, False,
+                             'The Baron of Huldra', 'foes', self.note)
+        self.note('Six bodyguards and the Baron himself, who strikes first '
+                  '(e144).')
+        self.push_combat()
+        return 'Combat begins.'
+
+    # r212/e044/e144/e152/e194 - a win is a win
+    def declare_win(self, reason):
+        self.won = True
+        self.game_over = True
+        self.reason = reason
+        self.note(reason)
+        return 'Victory.'
+
     def begin_raft(self):
         """r213 - take to the raft and travel along the river hexsides.
 
@@ -1146,6 +1191,24 @@ class Game:
             # The High Altar's die table is written with ". " separators, which
             # the generic parser cannot read, so it is resolved by hand.
             return self.high_altar()
+        if code == 'e144':
+            # The secret of Baron Huldra: the true heir is held in 1611.
+            if not self.huldra_quest:
+                self.huldra_quest = True
+                self.note('The true heir of Huldra is a prisoner of the hill '
+                          'tribe in hex 1611 (e144).')
+            self.push('info', ev['title'], ev['text'],
+                      [{'label': 'Continue', 'handler': (lambda: 'Noted.')}])
+            return 'Noted.'
+        if code == 'e152':
+            # "The Lord decides to support your cause fully ... You have
+            # fulfilled your quest and won the game!"
+            self.won = True
+            self.game_over = True
+            self.reason = ('A noble lord marches his army to the Northlands '
+                           'with you - you regain your throne. Victory! (e152)')
+            self.note(self.reason)
+            return 'Victory.'
         # A chain of booklet cross-references can loop back on itself (e130
         # audience notes).  Refuse to re-enter an event already on the queue.
         chain = {p.get('code') for p in self.prompts if p.get('code')}
@@ -1519,13 +1582,14 @@ class Game:
         self.note(f'{ref}: they surprise your party.')
         return False, 'foes'
 
-    def start_combat(self, ev=None, modifier=0):
+    def start_combat(self, ev=None, modifier=0, foes=None):
         self.event_kind = 'combat'
         total = self.d2() + modifier
         ref = BATTLE_REFERENCE.get(min(12, max(2, total)), 'r306')
         self.note(f'Battle reference: rolled {total} -> {ref}')
         first, surprise = self.battle_situation(ref)
-        foes = parse_foes(ev['text'] if ev else '', self.rng)
+        if foes is None:
+            foes = parse_foes(ev['text'] if ev else '', self.rng)
         if not foes:
             foes = [Character('Foe 1', 4, 5, 0)]
         self.combat = Combat(self.living(), foes, self.rng, first,
@@ -1568,6 +1632,15 @@ class Game:
         if c.result in ('party wins', 'foes routed'):
             self.event_kind = 'combat_won'
             self.note('The fight is over - the party can travel on (r204f).')
+            if self.action == 'rescue':
+                self.heir = True
+                self.party.append(Character('True Heir of Huldra', 5, 7, 0))
+                self.note('The true heir is freed and joins the party - take '
+                          'him to Huldra Castle (e144).')
+            elif self.action == 'baron':
+                self.declare_win('The Baron falls; the true heir takes the '
+                                 'throne of Huldra and marches his army north '
+                                 'with you. Victory! (e144)')
         if c.result in ('party wins', 'foes routed'):
             # r225: "Whenever you kill all characters encountered, your party
             # may take their wealth" - the defeated band, not whoever is still
@@ -2189,6 +2262,11 @@ class Game:
         kind = self.place_kind(self.hex)
         total = self.d2() + bonus
         self.note(f'Seeking an audience in {kind} {self.hex}: rolled {total}.')
+        if self.hex == self.HULDRA_CASTLE and self.heir and total >= 10:
+            return self.declare_win(
+                'You present the true heir before the Baron of Huldra and the '
+                'court rises against the impostor. The new Baron marches his '
+                'army north with you. Victory! (e144)')
         row = self.model.roll_row(self.audience_rows(), total)
         text = (row['text'] if row else 'The audience is refused - try again tomorrow.')
         self.note(f'Audience roll {total} -> {text}')
@@ -2862,6 +2940,10 @@ class Game:
         self.items = []
         self.staff = False
         self.helm = False
+        if self.heir:
+            self.note('The true heir is lost in the confusion (e144).')
+        self.huldra_quest = False   # e144: start the search again
+        self.heir = False
         for c in self.living():
             if c.mount != 'none':
                 c.mount = 'none'
@@ -2978,6 +3060,11 @@ class Game:
             if act == 'cache' and self.hex not in self.caches:
                 continue
             if act == 'raft' and not self.raft_available():
+                continue
+            if act == 'rescue' and not (self.huldra_quest
+                                        and self.hex == self.HULDRA_HEIR_HEX):
+                continue
+            if act == 'baron' and not (self.heir and self.hex == self.HULDRA_CASTLE):
                 continue
             # r215e: stores are sold for 1 gold a unit in a town, castle or
             # village, but only to a party that spends the whole day there.
