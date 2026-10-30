@@ -11,8 +11,8 @@ rule regression breaks a named test rather than quietly changing the game.
 | r201 | Characters | `Character` (skill, endurance, wealth, mounts, wounds, poison) | `test_rules.CharacterTests` |
 | r202 | Your Character | `Game.start` — skill 8, endurance 9, wealth 2, wit 1d6 (1→2), purse from the Treasure Table | `test_prince_starts_with_skill_8_endurance_9`, `test_starting_gold_comes_from_the_wealth_2_treasure_row` |
 | r203 | Daily Actions | `daily_menu` — actions filtered by hex kind | `test_rules.DailyActionTests` |
-| r204 | Travel | `begin_travel`, `speed` (1 / 2 / 3), `move`, road and river sides | `test_speed_on_foot_mounted_and_winged`, `test_no_lost_check_on_a_road` |
-| r205 | Lost | `check_lost` (2d6 vs terrain, guide −1, no check on roads or a raft), `move` (airborne drift) | `test_guide_subtracts_one_from_the_lost_roll` |
+| r204 | Travel | `begin_travel` / `start_travel` (airborne or short-hop), `speed` (1 / 2 / 3), `move`, road and river sides; a travel event ends the day (r204f) | `test_speed_on_foot_mounted_and_winged`, `test_no_lost_check_on_a_road` |
+| r205 | Lost | `check_lost` (2d6 vs terrain, guide −1 and r205a desertion on 4+), two-stage river crossing (r205d) with the `across_river` carry-over, `move` (airborne drift) | `test_guide_subtracts_one_from_the_lost_roll` |
 | r206 | Transport | `current_loads` (food 1, gold ceil/100), `max_capacity` (10 on foot, 10 net for a mount) | `test_load_weights`, `test_capacity_of_a_man_and_a_mount` |
 | r208 | Searching a Ruins | `search_ruins` — 2d6 straight on the ruins table; `e132` organised-search reroll when the die is under the party size | `test_roll_maps_straight_to_the_table`, `test_no_bonus_for_strong_followers` |
 | r209 | News | `seek_news` — 2d6, +1 for 5 gold, +1 for wit 5+ | `test_bonuses_and_cost` |
@@ -21,17 +21,17 @@ rule regression breaks a named test rather than quietly changing the game.
 | r212 | Offerings | `offering` — 2d6 +1 (10 gold) + omen + influence, 14+ wins the Staff, 5 arrests, 2 defiles | `test_rules.OfferingTests` |
 | r213 | Rafting | `begin_raft` / `move` — river hexsides only, 3 a day downriver / 2 upriver (flow from `features.river_flow`), no lost check, 12 stops the raft, events on the "Rafting" travel row | `test_rules.RaftTests` |
 | r214 | Cache | `cache`, `recover_cache` — 1-4 intact, 5 not found, 6 looted | `test_rules.CacheTests` |
-| r215 | Food | `food_need`, `feed_party`, `hunt` (skill + ½ endurance − 2d6, guide +1, rest-day helpers); farmland hunt event 1-4 nothing / 5 e017 / 6 e050 with **+2 on that die** | `test_rules.HuntingTests`, `FarmlandHuntTests` |
+| r215 | Food | `food_need` (units) and `meal_gold` (r215d: 1 gold a character, 1 a mount), `feed_party`, `buy_food` (r215e, 1 gold a unit), `hunt` (skill + ½ endurance − 2d6, guide +1, rest-day helpers); farmland hunt event 1-4 nothing / 5 e017 / 6 e050 with **+2 on that die** | `test_rules.HuntingTests`, `FarmlandHuntTests` |
 | r216 | Starvation | `starve` — followers roll 2d6 − wit (4+ deserts), everyone else starves (−1 skill, half loads); the Prince never deserts | `test_rules.StarvationTests` |
 | r217 | Lodging | `lodging` (one room for the Prince and each priest/magician, two followers a room, one stable a mount), `sleep_rough` (desertion and mount theft) | `test_rules.LodgingTests` |
-| r218 | Escape & Hiding | `escape`, `hide` (r311-r320 option verbs) | `test_events` (escape/hide options resolve) |
+| r218 | Escape & Hiding | `escape` (random hex, no river, no new event), `hide` (day spent, no hunting while hidden) | `test_rules.TrapAndHidingTests` |
 | r219 | Following | `do_follow` | `test_events` |
 | r220 | Combat | `Combat.strike` (skill difference + 2d6 + modifiers), `pairing_of`, round order | `test_rules.CombatTests` |
 | r221 | Wounds & Endurance | `Character.serious / unconscious / dead`, unconscious skill 0, Prince-down follower roll | `test_wound_thresholds` |
 | r222 | Rest | `rest` — heals one wound per character unless disturbed; poison wounds never heal | `test_rules.RestTests` |
 | r225 | Acquiring Treasure | `gain_treasure`, `loot` from defeated characters via the Treasure Table | `test_events` (treasure events) |
 | r226 | Treasure Table | `treasure_roll` — wealth code row, one die, letter codes for special possessions | `test_starting_gold_comes_from_the_wealth_2_treasure_row` |
-| r227 | Trap Locks | `do_trap_lock` — one die per trap, poison needle/gas | `test_events` (trap events) |
+| r227 | Trap Locks | `do_trap_lock` — poison needle, acid, poison gas, plague dust (daily `sickness_step` until a 4+ recovery), spikes, malfunction | `test_events`, `test_rules.TrapAndHidingTests` (trap events) |
 | r228 | True Love | event text only (e158/r228) | `test_events` |
 
 ## Combat and encounter tables (r300-r343)
@@ -131,3 +131,21 @@ audit script checks that no event option points at a section that is missing.
   raft day is decided per hexside.
   This replaced a plain "top to bottom" rule that sent six Tragoth sides east,
   six Largos sides south and the Dienstal the wrong way.
+
+16. **r205a / r204f / r204a / r205d** — four travel clauses were missing: a guide
+    that loses the party now rolls 4+ to desert; a travel event ends the day's
+    movement (except a won combat or a brief pass/inquiry, as r204f allows); an
+    all-winged party can choose to fly (3 hexes, airborne line) or short-hop
+    (2 hexes, ground rules); and a river crossing is checked twice - the
+    "Cross River" line first, then the far hex's terrain - with `across_river`
+    remembering a party that crossed but got lost, as r205d describes.
+17. **r215d** — a bought meal charged 1 gold per food *unit*, which billed 2
+    extra gold per mount; the rule is 1 gold a character and 1 gold an animal
+    at the stables (`meal_gold`).  Units still price stabling from stores.
+18. **r227** — plague dust set a sickness marker that nothing ever read; the
+    daily wounds and the 4+ recovery roll now run in `sickness_step`.
+19. **r218b** — the party could hunt while hiding; hunting is now withheld and
+    the day's meal falls back to stores.
+20. **r341** — the conversation table text says the talk "takes a good deal of
+    time, you cannot travel any further today", which the engine already did;
+    it is no longer counted among r204f's quick "talk" exceptions.

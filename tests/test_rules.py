@@ -700,3 +700,102 @@ class CombatEdgeCaseTests(unittest.TestCase):
         self.assertEqual(c.pairing_of(c.party, c.foes), [])
         c2 = Combat([], [Character('F', 4, 4)], random.Random(1))
         self.assertEqual(c2.pairing_of(c2.party, c2.foes), [])
+
+
+class TravelDetailTests(unittest.TestCase):
+    """r204a/d, r204f, r205a/d - the fiddly corners of travel."""
+
+    def test_winged_party_may_fly_or_short_hop(self):
+        g = game()
+        g.prince().mount = 'winged'
+        g.begin_action('travel')
+        prompt = g.current()
+        self.assertIn('winged', prompt['title'].lower())
+        labels = [o['label'].lower() for o in prompt['options']]
+        self.assertTrue(any('fly' in l for l in labels))
+        self.assertTrue(any('short' in l for l in labels))
+        g.answer(1)                          # short-hop
+        self.assertEqual(g.moves_left, 2)
+        self.assertFalse(g.flying)
+
+    def test_flying_uses_the_airborne_line(self):
+        g = game()
+        g.prince().mount = 'winged'
+        g.begin_action('travel')
+        g.answer(0)                          # fly
+        self.assertEqual(g.moves_left, 3)
+        self.assertTrue(g.flying)
+
+    def test_a_guide_who_fails_may_desert(self):
+        g = game(hex='0303')
+        g.party.append(Character('Guide', 2, 3, guide=True))
+        g.d2 = lambda: 12                    # lost even with the -1
+        g.d1 = lambda: 4                     # guide roll: 4 = he leaves
+        self.assertTrue(g.check_lost('Forest'))
+        self.assertEqual([c.name for c in g.party], ['Cal Arath (the Prince)'])
+
+    def test_a_lucky_guide_stays(self):
+        g = game(hex='0303')
+        g.party.append(Character('Guide', 2, 3, guide=True))
+        g.d2 = lambda: 12
+        g.d1 = lambda: 3
+        self.assertTrue(g.check_lost('Forest'))
+        self.assertEqual(len([c for c in g.party if c.guide]), 1)
+
+    def test_river_crossing_is_checked_twice(self):
+        g = game()
+        river = next(iter(g.river_sides))
+        a, b = sorted(river)
+        g.hex, g.moves_left = a, 1
+        rolls = [4, 12]                      # crossing fine, then lost entering
+        g.d2 = lambda: rolls.pop(0) if rolls else 4
+        g.move(b)
+        self.assertEqual(g.hex, a)           # still on the bank
+        self.assertEqual(g.across_river, b)
+        self.assertEqual(g.moves_left, 0)
+
+    def test_no_crossing_found_stops_the_day(self):
+        g = game()
+        river = next(iter(g.river_sides))
+        a, b = sorted(river)
+        g.hex, g.moves_left = a, 1
+        g.d2 = lambda: 12
+        g.move(b)
+        self.assertEqual(g.hex, a)
+        self.assertIsNone(g.across_river)
+
+    def test_travel_event_ends_the_day(self):
+        g = game(hex='0303')
+        g.begin_action('travel')
+        option = next(o for o in g.current()['options'] if '->' in o['label'])
+        rolls = [5, 12]                      # not lost, then an event
+        g.d2 = lambda: rolls.pop(0) if rolls else 5
+        g.d1 = lambda: 3
+        option['handler']()
+        self.assertEqual(g.moves_left, 0)
+
+
+class TrapAndHidingTests(unittest.TestCase):
+    """r227 plague progression and r218b hiding."""
+
+    def test_plague_wounds_each_day_until_recovered(self):
+        g = game()
+        p = g.prince()
+        p._sickness = 2
+        p.wounds = 0
+        g.d1 = lambda: 3                     # recovery roll fails
+        g.sickness_step()
+        self.assertEqual(p.wounds, 2)
+        self.assertEqual(p._sickness, 2)     # still sick
+        g.d1 = lambda: 5
+        g.sickness_step()
+        self.assertEqual(p.wounds, 4)
+        self.assertEqual(p._sickness, 0)     # recovered
+
+    def test_hiding_blocks_hunting(self):
+        g = game(hex='0405')
+        g.action = 'hide'
+        g.food = 0
+        g.feed_party()
+        labels = [o['label'].lower() for o in g.current()['options']]
+        self.assertFalse(any('hunt' in l for l in labels))

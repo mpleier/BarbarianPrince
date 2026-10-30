@@ -570,6 +570,8 @@ class Game:
         self.party = []
         self.combat = None
         self.pending_event = None
+        self.event_kind = None      # r204f: 'talk' / 'combat' allow travelling on
+        self.across_river = None    # r205d: far hex reached but the move failed
         self.action = None
         self.phase = 'action'
         self.moves_left = 0
@@ -818,15 +820,28 @@ class Game:
                    for hid in self.model.neighbors(self.hex).values())
 
     def check_lost(self, terrain):
-        """r205 - roll 2 dice vs the terrain threshold; a guide subtracts 1."""
+        """r205 - roll 2 dice vs the terrain threshold; a guide subtracts 1.
+
+        r205a: if the party is lost anyway, roll one die - on a 4 or more the
+        guide deserts, mortified by the failure.
+        """
         row = self.model.travel_row(terrain)
         thr = threshold(row['lost']) if row else None
         if thr is None:
             return False
-        r = self.d2() - (1 if self.has_guide() else 0)
+        guide = next((c for c in self.living() if c.guide), None)
+        r = self.d2() - (1 if guide else 0)
+        lost = r >= thr
         self.note(f'Getting lost check [{terrain}]: rolled {r} vs {thr}+ '
-                  + ('-> LOST' if r >= thr else '-> ok'))
-        return r >= thr
+                  + ('-> LOST' if lost else '-> ok'))
+        if lost and guide is not None:
+            die = self.d1()
+            self.note(f'The guide failed: die {die} (a 4+ and he leaves, r205a).')
+            if die >= 4:
+                guide.alive = False
+                self.party = [c for c in self.party if c.alive]
+                self.note(f'{guide.name} deserts out of shame (r205a).')
+        return lost
 
     def travel_event(self, hid, road=False, flying=False, rafting=False):
         terrain = ('Rafting' if rafting else 'On Road' if road
@@ -844,17 +859,37 @@ class Game:
             self.note(f'Travel event [{terrain}]: rolled {r} (needs {thr}+), '
                       f'die {die} -> {ref} -> {code}')
             self.encounter(code)
+            if self.event_kind in (None, 'other', 'combat'):
+                if self.moves_left > 0:
+                    self.moves_left = 0
+                    self.note('The encounter takes the rest of the day (r204f).')
         else:
             self.note(f'No travel event [{terrain}]: rolled {r} (needs {thr}+).')
 
     def begin_travel(self):
+        """r204a - start the day's travel, choosing air or ground if winged."""
+        if self.speed() == 3:
+            self.push('choice', 'Winged mounts (r204a)',
+                      'The whole party is on winged mounts: fly for the whole '
+                      'day (three hexes, airborne events), or short-hop on the '
+                      'ground (two hexes, like ordinary mounts)?',
+                      [{'label': 'Fly (3 hexes, airborne)',
+                        'handler': (lambda: self.start_travel(3, True))},
+                       {'label': 'Short-hop (2 hexes, on the ground)',
+                        'handler': (lambda: self.start_travel(2, False))}])
+            return 'Choose how to travel.'
+        self.start_travel(self.speed(), False)
+        return 'Travelling.'
+
+    def start_travel(self, moves, flying):
         self.action = 'travel'
-        self.moves_left = self.speed()
-        self.flying = self.speed() == 3
-        self.note(f'Travel action: the party moves {self.moves_left} hex/day '
-                  + ('(airborne)' if self.flying else
-                     '(mounted)' if self.speed() == 2 else '(on foot)'))
+        self.moves_left = moves
+        self.flying = flying
+        self.note(f'Travel action: the party moves {moves} hex/day '
+                  + ('(airborne)' if flying else
+                     '(mounted)' if moves == 2 else '(on foot)'))
         self.choose_move()
+        return 'Travelling.'
 
     def begin_raft(self):
         """r213 - take to the raft and travel along the river hexsides.
@@ -958,14 +993,36 @@ class Game:
                   + (' [road]' if road else '') + (' [river]' if river else ''))
         # r205: getting lost is checked for every hex entered, using the terrain
         # of the hex the party is leaving (roads are exempt).
+        crossed = False
+        if not road and river and not self.flying:
+            # r205d: first the crossing itself, on the "Cross River" line.
+            if self.across_river == dest:
+                self.note('The party is already over the river here (r205d).')
+                self.across_river = None
+            elif self.check_lost('Cross River'):
+                self.moves_left = 0
+                self.note('No crossing found - the day is spent on the bank '
+                          '(r205d). No travel event.')
+                return False
+            else:
+                crossed = True
         if not road:
-            lost = self.check_lost('Airborne' if self.flying
-                                   else self.model.travel_terrain(src))
+            if crossed:
+                # ... then the ordinary check for entering the far hex.
+                lost = self.check_lost(self.model.travel_terrain(dest))
+            else:
+                lost = self.check_lost('Airborne' if self.flying
+                                       else self.model.travel_terrain(src))
             if lost:
                 self.moves_left = 0
-                if river:
-                    self.note('Lost crossing the river - no crossing found, the day '
-                              'is spent on the bank (r205d). No travel event.')
+                if crossed:
+                    # "You count as across the river, but are still in the hex
+                    # where you started the move" - tomorrow the far hex can be
+                    # entered without crossing again.
+                    self.across_river = dest
+                    self.note(f'Across the river but lost on the far side: the '
+                              f'party stays in {src}; {dest} can be entered '
+                              f'tomorrow (r205d). No travel event.')
                     return False
                 if self.flying:
                     if self.d1() >= 4:
@@ -1070,6 +1127,7 @@ class Game:
         if code in chain:
             self.note(f'(event {code} repeats itself - nothing further happens)')
             return
+        self.event_kind = 'other'
         opts = parse_options(ev['text'])
         self.pending_event = {'code': code, 'title': ev['title'], 'text': ev['text'],
                               'headers': [], 'rows': [], 'note': '', 'setup': None}
@@ -1437,6 +1495,7 @@ class Game:
         return False, 'foes'
 
     def start_combat(self, ev=None, modifier=0):
+        self.event_kind = 'combat'
         total = self.d2() + modifier
         ref = BATTLE_REFERENCE.get(min(12, max(2, total)), 'r306')
         self.note(f'Battle reference: rolled {total} -> {ref}')
@@ -1481,6 +1540,9 @@ class Game:
     def finish_combat(self):
         c = self.combat
         self.note(f'Combat ends: {c.result}.')
+        if c.result in ('party wins', 'foes routed'):
+            self.event_kind = 'combat_won'
+            self.note('The fight is over - the party can travel on (r204f).')
         if c.result in ('party wins', 'foes routed'):
             # r225: "Whenever you kill all characters encountered, your party
             # may take their wealth" - the defeated band, not whoever is still
@@ -1800,6 +1862,7 @@ class Game:
 
     # ------------------------------------------------------------ conversation (r341, r342)
     def conversation(self, ev):
+        self.event_kind = 'other'     # r341: the talk takes the rest of the day
         self.note('Conversation (r341) takes the whole day - no further travel.')
         self.moves_left = 0
         self.action = 'conversation'
@@ -1838,6 +1901,10 @@ class Game:
 
     # ------------------------------------------------------------ reference resolver
     def resolve_ref(self, ref, ev=None, label=''):
+        if ref in ('r325', 'r326', 'r327', 'r328', 'r342'):
+            # a brief word does not end the day (r204f); r341 conversation
+            # explicitly does, and sets its own state
+            self.event_kind = 'talk'
         if not ref:
             return 'Nothing happens.'
         ref = self.model.index.get('reference_fixes', {}).get(ref, ref)
@@ -2320,6 +2387,15 @@ class Game:
         t = self.model.terrain(self.hex)
         return t in ('farmland', 'countryside', 'forest', 'hills')
 
+    def meal_gold(self):
+        """r215d - a bought meal is 1 gold a character, 1 gold a mount.
+
+        (Animals are fed at the stable for one gold a day, or stabled with two
+        food units each - see `food_need`, which is the *unit* price.)
+        """
+        return len(self.living()) + sum(1 for c in self.living()
+                                        if c.mount != 'none')
+
     def food_need(self):
         need = len(self.living())
         if not self.foraging_ok():
@@ -2378,15 +2454,21 @@ class Game:
                                   f'undoes two days of starvation)',
                          'handler': (lambda: self.eat_stores(need, 2))})
         if kind in ('town', 'castle', 'temple'):
-            opts.append({'label': f'Buy meals ({need} gold)',
-                         'handler': (lambda: self.buy_meals(need))})
-            if self.gold >= 2 * need:
-                opts.append({'label': f'Buy a double meal ({2 * need} gold, '
+            gold = self.meal_gold()
+            opts.append({'label': f'Buy meals ({gold} gold)',
+                         'handler': (lambda: self.buy_meals(gold, 1, gold))})
+            if self.gold >= 2 * gold:
+                opts.append({'label': f'Buy a double meal ({2 * gold} gold, '
                                       f'undoes two days of starvation)',
-                             'handler': (lambda: self.buy_meals(need, 2))})
+                             'handler': (lambda: self.buy_meals(gold, 2,
+                                                                2 * gold))})
         if not (kind in ('town', 'castle', 'temple')):
-            opts.append({'label': 'Go hunting (r215b)',
-                         'handler': (lambda: self.hunt(need))})
+            if self.action == 'hide':
+                # r218b: hiding means no hunting (mounts may still forage)
+                self.note('The party is hiding; hunting is impossible (r218b).')
+            else:
+                opts.append({'label': 'Go hunting (r215b)',
+                             'handler': (lambda: self.hunt(need))})
         opts.append({'label': 'Go hungry (r216)',
                      'handler': (lambda: self.starve(need))})
         self.push('choice', f'Evening meal - need {need} food units',
@@ -2411,8 +2493,8 @@ class Game:
         self.feed_effect(portions)
         return 'Fed.'
 
-    def buy_meals(self, need, portions=1):
-        cost = need * portions
+    def buy_meals(self, need, portions=1, cost=None):
+        cost = cost if cost is not None else need * portions
         if self.gold >= cost:
             self.gold -= cost
             self.note(f'Bought meals for {cost} gold'
@@ -2650,11 +2732,34 @@ class Game:
         self.feed_party()
         return 'End-of-day routines started.'
 
+    def sickness_step(self):
+        """r227 - plague dust keeps biting each evening until it is shaken."""
+        for c in self.living():
+            n = getattr(c, '_sickness', 0)
+            if not n:
+                continue
+            c.wounds += n
+            self.note(f'{c.name} suffers {n} sickness wound(s) '
+                      f'({c.wounds}/{c.endurance}) - plague dust (r227).')
+            rec = self.d1()
+            if rec >= 4:
+                c._sickness = 0
+                self.note(f'Recovery roll {rec}: the sickness passes (r227).')
+            else:
+                self.note(f'Recovery roll {rec}: the sickness continues '
+                          f'({n} a day, r227).')
+            if c.dead and c.prince:
+                self.game_over = True
+                self.reason = 'The Prince dies of the trap\'s plague (r227).'
+
     def finish_day(self):
         """Called after food/lodging prompts are answered."""
         self.peak_gold = max(self.peak_gold, self.gold)
+        self.sickness_step()
         self.action = None
         self.pending_event = None
+        self.event_kind = None      # r204f: 'talk' / 'combat' allow travelling on
+        self.across_river = None    # r205d: far hex reached but the move failed
         # --- altar-blessing victory must be checked BEFORE the day increments ---
         # so that a blessing received on day N still counts day N + 30 as valid
         # (e.g., blessed on day 5, reach north on day 35: 35-5 = 30 ≤ 30 ✓)
