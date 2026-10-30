@@ -504,3 +504,39 @@ class WinRouteTests(unittest.TestCase):
         prompt = g.current()
         index = bot.choose(prompt)
         self.assertIn('audience', prompt['options'][index]['label'].lower())
+
+
+class EventRouteTests(unittest.TestCase):
+    """Some campaigns farm the event tables instead of the Staff."""
+
+    def test_explicit_route_is_honoured(self):
+        g = Game(seed=3); g.start()
+        self.assertEqual(Bot(g, 'balanced', route='events').win_route, 'events')
+        self.assertEqual(Bot(g, 'balanced', route='staff').win_route, 'staff')
+
+    def test_event_route_parks_at_huldra_castle(self):
+        g = Game(seed=3); g.start()
+        bot = Bot(g, 'balanced', route='events')
+        self.assertEqual(bot.goal_hex(), g.HULDRA_CASTLE)
+
+    def test_event_route_prefers_audiences(self):
+        g = Game(seed=3); g.start()
+        g.hex = g.HULDRA_CASTLE
+        bot = Bot(g, 'balanced', variety=0.0, route='events')
+        g.daily_menu()
+        prompt = g.current()
+        index = bot.choose(prompt)
+        self.assertIn('audience', prompt['options'][index]['label'].lower())
+
+    def test_staff_route_keeps_mining(self):
+        g = Game(seed=3); g.start()
+        g.hex = '1611'
+        bot = Bot(g, 'balanced', route='staff')
+        self.assertNotEqual(bot.goal_hex(), g.HULDRA_CASTLE)
+
+    def test_variety_mixes_the_routes(self):
+        routes = set()
+        for seed in range(1, 30):
+            g = Game(seed=seed); g.start()
+            routes.add(Bot(g, 'balanced', variety=0.3, seed=seed).win_route)
+        self.assertEqual(routes, {'staff', 'events'})

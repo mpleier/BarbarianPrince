@@ -61,6 +61,15 @@ caution, gold buffer, party size):
 | `daredevil` | fights everything, never flees, no gold buffer |
 | `wanderer` | drifts: travel first, little interest in hiring |
 
+Some campaigns do not chase the Staff at all.  With `variety` above zero about a
+third of them pick the **event route**: they travel to Huldra Castle and farm its
+audience table (r211), whose low rows are harmless and whose `13+` row is
+"Noble Ally" e152 - the one out-of-the-blue victory.  That needs 13 on 2d6, so
+it is a 1-in-36 gamble taken by giving the Baron a magician to dismiss (+1),
+and it lands roughly once in sixty campaigns; the rest of the route's value is
+gold, favour and the safety of the castle table.  `Bot(route='staff'|'events')`
+pins a campaign to one route for testing.
+
 Every personality goes for whichever win condition is live, not just the Staff:
 the helm sends it to Ogon or Weshor, the High Altar blessing sends it north of
 the Tragoth inside the 30-day window, a known Huldra secret sends it to 1611,

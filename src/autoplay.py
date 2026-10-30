@@ -63,6 +63,13 @@ NORTH_PENALTY = 1.6
 # engine: 0.56 -> 0.167 wins, 1.0 -> 0.225.  The time budget is therefore only a
 # safety net; the real limit is `ruins_cap`.
 RUIN_RATIO = 1.0
+
+# Two ways to play a campaign.  'staff' is the tuned plan: mine, camp, carry the
+# Staff north.  'events' farms the event tables instead - audiences (r211, which
+# can reach e130 -> e152 for an outright win), news (r209) and the odd ruin
+# (r208, whose treasure lines can turn up the Royal Helm e194 or an altar e044).
+ROUTES = ('staff', 'events')
+EVENT_ROUTE_CHANCE = 0.35
 # After this many fruitless days at one ruin the bot looks for another.
 DRY_RUIN_DAYS = 4
 
@@ -173,7 +180,8 @@ class Bot:
     deterministic for a given ``seed``, so a run stays reproducible.
     """
 
-    def __init__(self, game, strategy='balanced', variety=0.0, seed=None):
+    def __init__(self, game, strategy='balanced', variety=0.0, seed=None,
+                 route=None):
         self.game = game
         self.strategy = strategy if strategy in STRATEGIES else 'balanced'
         self.p = dict(PROFILE[self.strategy])
@@ -181,6 +189,13 @@ class Bot:
         self.rng = random.Random(seed)
         if self.variety:
             self._wobble()
+        # Some campaigns go hunting for the win-by-event instead of the Staff.
+        if route in ROUTES:
+            self.win_route = route
+        elif self.variety > 0 and self.rng.random() < EVENT_ROUTE_CHANCE:
+            self.win_route = 'events'
+        else:
+            self.win_route = 'staff'
         self.path = [game.hex]
         self.tried = set()
         self.done = set()          # (hex, action) already attempted
@@ -571,6 +586,11 @@ class Bot:
             # e144 is the other live route: rescue the heir at 1611.  It is
             # worth more than another week of digging.
             return g.HULDRA_HEIR_HEX
+        if self.win_route == 'events' and not (g.staff or g.helm or g.heir):
+            # Huldra Castle is the only audience table that can produce e152
+            # ("Baron becomes your Noble ally", 13+), and its low rows are
+            # harmless - unlike a town's, which arrest the Prince.
+            return g.HULDRA_CASTLE
         if self.camping() or self.farming_ruins():
             return g.hex                      # hold position and work
         plan = self.plan()
@@ -902,7 +922,21 @@ class Bot:
             if act == 'cache' and (g.hex, act) in self.done:
                 s -= 12                              # one-off per hex
             if act not in ('offering', 'ruins', 'travel'):
-                s -= 5 * self.used.get((g.hex, act), 0)   # diminishing returns
+                # The event route wants to keep pulling the same lever, so it
+                # does not tire of audiences and news.
+                if not (self.win_route == 'events' and act in ('audience', 'news')):
+                    s -= 5 * self.used.get((g.hex, act), 0)
+            # The event route lives on audiences and news; the Staff route has
+            # no use for them beyond the omen.
+            if self.win_route == 'events':
+                if act == 'audience':
+                    s += 12
+                elif act == 'news':
+                    s += 10
+                elif act == 'ruins':
+                    s += 2
+                elif act == 'offering':
+                    s -= 12
 
             scored.append((s, i))
         best = self.pick(scored)
