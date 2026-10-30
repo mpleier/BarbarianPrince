@@ -564,6 +564,13 @@ class Bot:
             # The Royal Helm (e194) wins by returning to Ogon or Weshor.
             return min(g.HELM_WIN_HEXES,
                        key=lambda h: (self.travel_days(h).get(g.hex, 999.0), h))
+        if getattr(g, 'heir', False):
+            # e144: the true heir must be installed at Huldra Castle.
+            return g.HULDRA_CASTLE
+        if getattr(g, 'huldra_quest', False) and not g.staff:
+            # e144 is the other live route: rescue the heir at 1611.  It is
+            # worth more than another week of digging.
+            return g.HULDRA_HEIR_HEX
         if self.camping() or self.farming_ruins():
             return g.hex                      # hold position and work
         plan = self.plan()
@@ -828,6 +835,13 @@ class Bot:
                     s = max(s, self.p['travel'] + 12 + 14 * saved)
             elif 'audience' in label:
                 s = self.p['audience']             # r211 - gold or trouble
+                if g.hex == g.HULDRA_CASTLE and getattr(g, 'heir', False):
+                    s = 40                         # e144: 10+ wins outright
+            elif 'rescue the true heir' in label:
+                s = 45 if getattr(g, 'huldra_quest', False) else -20
+            elif 'attack the baron' in label:
+                # e144's other ending: risky, but it is a win
+                s = 25 if getattr(g, 'heir', False) else -20
             elif 'offering' in label:
                 # r212 is the win condition.  With no modifiers 2d6 can never
                 # reach 14, so an offering is really a lottery ticket for the

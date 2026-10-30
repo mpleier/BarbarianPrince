@@ -456,3 +456,51 @@ class StagnationTests(unittest.TestCase):
             if best is None:
                 best = plan
             self.assertEqual(plan, best)
+
+
+class WinRouteTests(unittest.TestCase):
+    """The bot must go for whichever win condition is live."""
+
+    def bot(self, **kw):
+        g = Game(seed=3)
+        g.start()
+        for key, value in kw.items():
+            setattr(g, key, value)
+        return g, Bot(g, 'balanced', variety=0.0, seed=1)
+
+    def test_goal_follows_the_staff(self):
+        g, bot = self.bot()
+        g.staff = True
+        self.assertIn(bot.goal_hex(), g.NORTH_OF_TRAGOTH)
+
+    def test_goal_follows_the_helm(self):
+        g, bot = self.bot(helm=True)
+        self.assertIn(bot.goal_hex(), g.HELM_WIN_HEXES)
+
+    def test_goal_follows_the_altar_blessing(self):
+        g, bot = self.bot()
+        g.altar_blessed_day = g.day
+        self.assertIn(bot.goal_hex(), g.NORTH_OF_TRAGOTH)
+
+    def test_goal_follows_the_huldra_quest(self):
+        g, bot = self.bot(huldra_quest=True)
+        self.assertEqual(bot.goal_hex(), g.HULDRA_HEIR_HEX)
+        g.heir = True
+        self.assertEqual(bot.goal_hex(), g.HULDRA_CASTLE)
+
+    def test_rescue_is_chosen_at_the_tribe(self):
+        g, bot = self.bot(huldra_quest=True)
+        g.hex = g.HULDRA_HEIR_HEX
+        g.daily_menu()
+        prompt = g.current()
+        labels = [o['label'].lower() for o in prompt['options']]
+        index = bot.choose(prompt)
+        self.assertIn('rescue', labels[index])
+
+    def test_audience_is_chosen_at_the_castle_with_the_heir(self):
+        g, bot = self.bot(heir=True)
+        g.hex = g.HULDRA_CASTLE
+        g.daily_menu()
+        prompt = g.current()
+        index = bot.choose(prompt)
+        self.assertIn('audience', prompt['options'][index]['label'].lower())

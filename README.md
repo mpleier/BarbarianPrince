@@ -61,6 +61,12 @@ caution, gold buffer, party size):
 | `daredevil` | fights everything, never flees, no gold buffer |
 | `wanderer` | drifts: travel first, little interest in hiring |
 
+Every personality goes for whichever win condition is live, not just the Staff:
+the helm sends it to Ogon or Weshor, the High Altar blessing sends it north of
+the Tragoth inside the 30-day window, a known Huldra secret sends it to 1611,
+and once the true heir is in the party it heads for Huldra Castle, where it
+seeks the winning audience (and falls back on the night attack if it has to).
+
 `variety` (0 – 1) lets a run drift from its personality, so two campaigns with
 the same strategy do not play out identically: the weights wobble per campaign,
 near-equal options are taken at random, and from 0.2 the party commits to a
