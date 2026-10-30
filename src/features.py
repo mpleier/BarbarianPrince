@@ -12,6 +12,7 @@ Writes data/features.json
 """
 import json
 import os
+from collections import deque
 
 import numpy as np
 from PIL import Image
@@ -413,6 +414,41 @@ def _road_hexes(road_sides, scan=SCAN, calib=None):
     return sorted(out)
 
 
+# r213 names the rivers and says which way each one runs:
+#   "The Tragoth River flows from east to west.  The Nesser River flows from
+#    north to south, and the Dienstal Branch feeds into it, flowing from the
+#    marsh into the Nesser.  The Largos River flows out of the marsh toward the
+#    northeast off the mapboard."
+# The traces carry no lettering, so each side is assigned to the river it lies
+# on (the board lettering puts the Tragoth along the top edge, the Nesser down
+# the west and centre, the Greater Nesser in the south, the Largos in the east
+# and the Dienstal branch feeding the Greater Nesser at 1318).
+RIVER_DIRECTIONS = {
+    'Tragoth': 'west',
+    'Nesser': 'south',
+    'Dienstal': 'into the Nesser',   # the branch runs north-west to 1318
+    'Largos': 'north-east',
+}
+
+# The Dienstal Branch, as traced from the lake at 1617 to the Greater Nesser.
+DIENSTAL_SIDES = {('1517', '1518'), ('1417', '1518'), ('1417', '1418'),
+                  ('1318', '1418')}
+DIENSTAL_MOUTH = '1318'
+
+
+def _river_name(a, b):
+    """Which r213 river this traced hexside belongs to."""
+    ca, ra = int(a[:2]), int(a[2:])
+    cb, rb = int(b[:2]), int(b[2:])
+    if frozenset((a, b)) in {frozenset(p) for p in DIENSTAL_SIDES}:
+        return 'Dienstal'
+    if max(ra, rb) <= 3:
+        return 'Tragoth'                      # the northern staircase
+    if min(ca, cb) >= 15 and 10 <= min(ra, rb) <= 17:
+        return 'Largos'                       # the eastern block
+    return 'Nesser'                           # everything else, incl. Greater
+
+
 def _river_components(river_sides):
     """Connected river chains as lists of hexes."""
     adj = {}
@@ -439,61 +475,36 @@ def _river_components(river_sides):
 
 
 def _river_flow(river_sides):
-    """Downstream hex for every river side.
+    """Downstream hex for every river side, from the r213 river directions.
 
-    Raft travel is three hexsides a day downriver but only two upriver (r213),
-    so each side needs a direction.  The traces carry no names, but the booklet
-    names the flows that matter:
-
-      * the Tragoth runs east to west along the top of the board,
-      * the Largos leaves the marsh toward the north-east off the map,
-      * the Nesser (and the rest of the southern network) runs north to south.
-
-    So the northern staircase (both hexes in rows 1-3) drains west, the separate
-    eastern block drains north-east, and everything else drains south.
-
-    The Dienstal Branch is the exception the booklet calls out: it "feeds into
-    the Nesser, flowing from the marsh into the Nesser", i.e. it runs *against*
-    the southern flow.  The map shows it leaving the lake at 1617, passing
-    1517-1518-1417-1418 and joining the Greater Nesser at 1318, so its sides are
-    oriented toward that junction.
+    Each side belongs to a named river (see `_river_name`) and drains the way
+    that river runs.  A zigzag side that neither advances nor retreats along the
+    river's own axis (a north-south step of the Tragoth, say) is left to drift
+    with the chain, so it never contradicts a side that does advance.
     """
-    components = _river_components(river_sides)
-    largos = set()
-    for chain in components:
-        cols = {int(h[:2]) for h in chain}
-        rows = {int(h[2:]) for h in chain}
-        if min(cols) >= 15 and min(rows) >= 10 and max(rows) <= 17:
-            largos.update(chain)          # the eastern block: the Largos
-
-    dienstal = {'1517', '1518', '1417', '1418'}
-    dienstal_mouth = '1318'               # where the branch meets the Nesser
-
-    def distance_to_mouth(hex_id):
-        return (abs(int(hex_id[:2]) - int(dienstal_mouth[:2]))
-                + abs(int(hex_id[2:]) - int(dienstal_mouth[2:])))
-
     flow = {}
     for a, b in river_sides:
         ca, ra = int(a[:2]), int(a[2:])
         cb, rb = int(b[:2]), int(b[2:])
-        if a in dienstal and b in dienstal:
-            # r213: from the marsh into the Nesser
-            downstream = min((a, b), key=distance_to_mouth)
-        elif a in largos and b in largos:
-            # r213: out of the marsh, to the north-east
+        name = _river_name(a, b)
+        if name == 'Tragoth':                    # east -> west
+            downstream = b if cb < ca else a if ca < cb else (
+                b if rb > ra else a)
+        elif name == 'Largos':                   # out to the north-east
             downstream = b if (cb, -rb) > (ca, -ra) else a
-        elif max(ra, rb) <= 3:
-            # r213: the Tragoth runs east to west
-            downstream = b if cb < ca else a
-        elif rb != ra:
-            # the Nesser and the southern network run north to south
-            downstream = b if rb > ra else a
-        else:
-            downstream = min(a, b)        # same row: east -> west
+        elif name == 'Dienstal':                 # into the Greater Nesser
+            downstream = min((a, b), key=lambda h: (
+                abs(int(h[:2]) - int(DIENSTAL_MOUTH[:2]))
+                + abs(int(h[2:]) - int(DIENSTAL_MOUTH[2:]))))
+        else:                                    # Nesser, north -> south
+            downstream = b if rb > ra else a if ra > rb else min(a, b)
         flow[f'{a}|{b}'] = downstream
         flow[f'{b}|{a}'] = downstream
     return flow
+
+
+def _river_names(river_sides):
+    return {f'{a}|{b}': _river_name(a, b) for a, b in river_sides}
 
 
 def build_features():
@@ -506,6 +517,7 @@ def build_features():
         'road_hexes': road_hexes,
         'river_sides': [list(p) for p in river_sides],
         'river_flow': _river_flow(river_sides),
+        'river_names': _river_names(river_sides),
         'road_sides': [list(p) for p in road_sides],
     }
 

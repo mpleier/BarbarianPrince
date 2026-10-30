@@ -318,19 +318,19 @@ class RaftTests(unittest.TestCase):
         g.answer(index)
 
     def test_downriver_day_allows_three_hexsides(self):
-        # r213: the Tragoth runs east to west, so 0102 -> 0101 is downstream.
-        g = game(hex='0102')
+        # r213: the Tragoth runs east to west, so 0302 -> 0202 is downstream.
+        g = game(hex='0302')
         g.begin_action('raft')
         g.d2 = lambda: 4
-        self.move_to(g, '0101')
+        self.move_to(g, '0202')
         self.assertEqual(g.raft_dir, 'down')
         self.assertEqual(g.moves_left, 2)        # three moves minus this one
 
     def test_upriver_day_allows_only_two_hexsides(self):
-        g = game(hex='0101')
+        g = game(hex='0202')
         g.begin_action('raft')
         g.d2 = lambda: 4
-        self.move_to(g, '0102')
+        self.move_to(g, '0302')
         self.assertEqual(g.raft_dir, 'up')
         self.assertEqual(g.moves_left, 1)        # two moves minus this one
 
@@ -744,25 +744,30 @@ class TravelDetailTests(unittest.TestCase):
 
     def test_river_crossing_is_checked_twice(self):
         g = game()
-        river = next(iter(g.river_sides))
-        a, b = sorted(river)
-        g.hex, g.moves_left = a, 1
+        a, b = sorted(next(iter(g.river_sides)))
         rolls = [4, 12]                      # crossing fine, then lost entering
         g.d2 = lambda: rolls.pop(0) if rolls else 4
+        g.start_travel(1, False)
+        g.hex, g.moves_left = a, 1
         g.move(b)
         self.assertEqual(g.hex, a)           # still on the bank
-        self.assertEqual(g.across_river, b)
+        self.assertIn((a, g.river_name(a, b)), g.crossed)
         self.assertEqual(g.moves_left, 0)
+        # tomorrow the far bank can be entered without another crossing check
+        g.hex, g.moves_left = a, 1
+        g.d2 = lambda: 4
+        g.move(b)
+        self.assertEqual(g.hex, b)
+        self.assertNotIn((a, g.river_name(a, b)), g.crossed)
 
     def test_no_crossing_found_stops_the_day(self):
         g = game()
-        river = next(iter(g.river_sides))
-        a, b = sorted(river)
+        a, b = sorted(next(iter(g.river_sides)))
         g.hex, g.moves_left = a, 1
         g.d2 = lambda: 12
         g.move(b)
         self.assertEqual(g.hex, a)
-        self.assertIsNone(g.across_river)
+        self.assertEqual(g.crossed, set())
 
     def test_travel_event_ends_the_day(self):
         g = game(hex='0303')

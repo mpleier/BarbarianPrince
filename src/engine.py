@@ -539,6 +539,8 @@ class Game:
         self.river_sides = {frozenset(p) for p in features.get('river_sides', ())}
         # r213: "a|b" -> the hex the water flows to (top to bottom on the map)
         self.river_flow = dict(features.get('river_flow', {}))
+        # r213: "a|b" -> the river's name, used for the r205d crossing state
+        self.river_names = dict(features.get('river_names', {}))
         self.rng = random.Random(seed)
         self.log = []
         self.prompts = []
@@ -571,7 +573,9 @@ class Game:
         self.combat = None
         self.pending_event = None
         self.event_kind = None      # r204f: 'talk' / 'combat' allow travelling on
-        self.across_river = None    # r205d: far hex reached but the move failed
+        # r205d: (hex, river) pairs the party has already crossed - from those
+        # hexes the far bank can be entered without another crossing check
+        self.crossed = set()
         self.action = None
         self.phase = 'action'
         self.moves_left = 0
@@ -882,6 +886,8 @@ class Game:
         return 'Travelling.'
 
     def start_travel(self, moves, flying):
+        # r205d: a party left "over the river" keeps that state into tomorrow,
+        # so it is *not* cleared here; entering the far bank clears it.
         self.action = 'travel'
         self.moves_left = moves
         self.flying = flying
@@ -909,6 +915,12 @@ class Game:
         self.note('The party takes to the raft (r213).')
         self.choose_move()
         return 'Rafting.'
+
+    def river_name(self, src, dest):
+        """Which r213 river this hexside belongs to ('' if not a river)."""
+        return (self.river_names.get(f'{src}|{dest}')
+                or self.river_names.get(f'{dest}|{src}')
+                or '')
 
     def raft_direction(self, src, dest):
         """Is this river move downriver or upriver? (r213)"""
@@ -994,11 +1006,12 @@ class Game:
         # r205: getting lost is checked for every hex entered, using the terrain
         # of the hex the party is leaving (roads are exempt).
         crossed = False
+        river_name = self.river_name(src, dest)
         if not road and river and not self.flying:
             # r205d: first the crossing itself, on the "Cross River" line.
-            if self.across_river == dest:
-                self.note('The party is already over the river here (r205d).')
-                self.across_river = None
+            if (src, river_name) in self.crossed:
+                self.note(f'The party is already over the {river_name} here '
+                          f'(r205d).')
             elif self.check_lost('Cross River'):
                 self.moves_left = 0
                 self.note('No crossing found - the day is spent on the bank '
@@ -1017,12 +1030,17 @@ class Game:
                 self.moves_left = 0
                 if crossed:
                     # "You count as across the river, but are still in the hex
-                    # where you started the move" - tomorrow the far hex can be
-                    # entered without crossing again.
-                    self.across_river = dest
-                    self.note(f'Across the river but lost on the far side: the '
-                              f'party stays in {src}; {dest} can be entered '
-                              f'tomorrow (r205d). No travel event.')
+                    # where you started the move" - tomorrow any hex on the far
+                    # bank of this river can be entered from here (r205d).
+                    self.crossed.add((src, river_name))
+                    far = [h for h in self.model.neighbors(src).values()
+                           if self.is_river_move(src, h)
+                           and self.river_name(src, h) == river_name]
+                    self.note(f'Across the {river_name} but lost on the far '
+                              f'side: the party stays in {src}; tomorrow '
+                              f'{", ".join(sorted(far))} can be entered '
+                              f'without crossing again (r205d). No travel '
+                              f'event.')
                     return False
                 if self.flying:
                     if self.d1() >= 4:
@@ -1039,6 +1057,9 @@ class Game:
                 return False
 
         self.hex = dest
+        if river and not road:
+            # the far bank is reached: the r205d carry-over is spent
+            self.crossed.discard((src, river_name))
         self.moves_left -= 1
         self.visited.add(dest)
         self.travel_event(dest, road=road, flying=self.flying)
@@ -2759,7 +2780,9 @@ class Game:
         self.action = None
         self.pending_event = None
         self.event_kind = None      # r204f: 'talk' / 'combat' allow travelling on
-        self.across_river = None    # r205d: far hex reached but the move failed
+        # r205d: (hex, river) pairs the party has already crossed - from those
+        # hexes the far bank can be entered without another crossing check
+        self.crossed = set()
         # --- altar-blessing victory must be checked BEFORE the day increments ---
         # so that a blessing received on day N still counts day N + 30 as valid
         # (e.g., blessed on day 5, reach north on day 35: 35-5 = 30 ≤ 30 ✓)

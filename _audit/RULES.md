@@ -119,18 +119,21 @@ audit script checks that no event option points at a section that is missing.
 
 ## Known simplifications
 
-* **r213 river flow** — the traces carry no names, so `features.river_flow`
-  derives every direction from the layout, matched to the booklet's four
-  statements: the northern staircase (both hexes in rows 1-3) drains **west**
-  (the Tragoth, 43/43 sides), the separate eastern block drains **north-east**
-  (the Largos, 12/12 sides), the Dienstal Branch (1517-1518-1417-1418) drains
-  **west into the Greater Nesser at 1318** as the rulebook says, and everything
-  else drains **south** (the Nesser and the southern network).
-  Where two rivers meet, a hex can end up with two outgoing sides; that is a
-  property of the drawing, not of the raft rule, and costs nothing because a
-  raft day is decided per hexside.
-  This replaced a plain "top to bottom" rule that sent six Tragoth sides east,
-  six Largos sides south and the Dienstal the wrong way.
+*None.*  The two that used to live here are closed:
+
+* **r213 river flow** — every traced hexside now carries a river name
+  (eatures.river_names: 43 Tragoth, 88 Nesser, 11 Largos, 4 Dienstal) and its
+  direction comes from the booklet's own sentences: the Tragoth drains east to
+  west (23 of 23 column-changing sides go west, none east), the Nesser north to
+  south (59 of 59 go south, none north), the Largos to the north-east (8 east, 5
+  north, none west or south), and the Dienstal into the Greater Nesser at 1318.
+  Sides that zigzag along the river's own axis are neutral in that count, which
+  is why they are not wrong direction.
+* **r205d** — a party that crossed a river but failed to enter the far hex is
+  now remembered per (hex, river) in Game.crossed: the next day *any* hex on
+  that river's far bank can be entered from there without another crossing
+  check, exactly as the worked example (1017 -> 1118, then 1016/1117/1118)
+  describes.  The state is spent when the far bank is reached.
 
 16. **r205a / r204f / r204a / r205d** — four travel clauses were missing: a guide
     that loses the party now rolls 4+ to desert; a travel event ends the day's
