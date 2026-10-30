@@ -804,3 +804,30 @@ class TrapAndHidingTests(unittest.TestCase):
         g.feed_party()
         labels = [o['label'].lower() for o in g.current()['options']]
         self.assertFalse(any('hunt' in l for l in labels))
+
+
+class NorthPassRoadTests(unittest.TestCase):
+    """r204c - the Zhor pass trail is a road, though drawn inside hexes."""
+
+    def test_the_pass_trail_is_in_the_features(self):
+        g = game()
+        self.assertIn(frozenset(('1804', '1905')), g.road_links)
+
+    def test_a_road_link_counts_as_a_road_move(self):
+        g = game()
+        for a, b in (('1803', '1804'), ('1804', '1905'), ('1905', '1906')):
+            self.assertTrue(g.is_road_move(a, b), msg=f'{a}-{b}')
+
+    def test_the_pass_trail_never_gets_lost(self):
+        g = game(hex='1804')
+        g.moves_left = 1
+        g.action = 'travel'
+        g.d2 = lambda: 12                  # would be lost anywhere else
+        g.move('1905')
+        self.assertEqual(g.hex, '1905')
+        self.assertFalse(any('LOST' in line for line in g.log))
+        self.assertTrue(any('On Road' in line for line in g.log))
+
+    def test_plain_countryside_is_not_a_road(self):
+        g = game()
+        self.assertFalse(g.is_road_move('1906', '2006'))

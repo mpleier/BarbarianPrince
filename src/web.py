@@ -103,6 +103,8 @@ def build_board():
         "radius": R, "dx": DX, "dy": DY,
         "hexes": hexes,
         "roads": [list(p) for p in FEATURES["road_sides"]],
+        # r204c: roads that cross hex interiors (the Zhor pass trail)
+        "road_links": [list(p) for p in FEATURES.get("road_links", [])],
         "rivers": [list(p) for p in FEATURES["river_sides"]],
         "road_hexes": FEATURES["road_hexes"],
         "terrain_colors": FEATURES["terrain_colors"],

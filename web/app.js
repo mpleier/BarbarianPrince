@@ -86,6 +86,14 @@ function renderBoard() {
       const [x1, y1, x2, y2] = sharedEdge(a, b);
       parts.push(`<line class="river" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
     }
+    // r204c: roads that cross hex interiors (the Zhor pass trail)
+    for (const [a, b] of (board.road_links || [])) {
+      if (!hexById[a] || !hexById[b]) continue;
+      const A = hexById[a], B = hexById[b];
+      parts.push(`<line class="road-link" x1="${A.cx}" y1="${A.cy}" `
+                 + `x2="${B.cx}" y2="${B.cy}" `
+                 + `stroke-dasharray="6 4"/>`);
+    }
     for (const [a, b] of board.roads) {
       if (!hexById[a] || !hexById[b]) continue;
       const [x1, y1, x2, y2] = sharedEdge(a, b);

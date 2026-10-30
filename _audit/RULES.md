@@ -11,7 +11,7 @@ rule regression breaks a named test rather than quietly changing the game.
 | r201 | Characters | `Character` (skill, endurance, wealth, mounts, wounds, poison) | `test_rules.CharacterTests` |
 | r202 | Your Character | `Game.start` — skill 8, endurance 9, wealth 2, wit 1d6 (1→2), purse from the Treasure Table | `test_prince_starts_with_skill_8_endurance_9`, `test_starting_gold_comes_from_the_wealth_2_treasure_row` |
 | r203 | Daily Actions | `daily_menu` — actions filtered by hex kind | `test_rules.DailyActionTests` |
-| r204 | Travel | `begin_travel` / `start_travel` (airborne or short-hop), `speed` (1 / 2 / 3), `move`, road and river sides; a travel event ends the day (r204f) | `test_speed_on_foot_mounted_and_winged`, `test_no_lost_check_on_a_road` |
+| r204 | Travel | `begin_travel` / `start_travel` (airborne or short-hop), `speed` (1 / 2 / 3), `move`, road and river sides plus `road_links` for the Zhor pass trail (r204c); a travel event ends the day (r204f) | `test_speed_on_foot_mounted_and_winged`, `test_no_lost_check_on_a_road` |
 | r205 | Lost | `check_lost` (2d6 vs terrain, guide −1 and r205a desertion on 4+), two-stage river crossing (r205d) with the `across_river` carry-over, `move` (airborne drift) | `test_guide_subtracts_one_from_the_lost_roll` |
 | r206 | Transport | `current_loads` (food 1, gold ceil/100), `max_capacity` (10 on foot, 10 net for a mount) | `test_load_weights`, `test_capacity_of_a_man_and_a_mount` |
 | r208 | Searching a Ruins | `search_ruins` — 2d6 straight on the ruins table; `e132` organised-search reroll when the die is under the party size | `test_roll_maps_straight_to_the_table`, `test_no_bonus_for_strong_followers` |

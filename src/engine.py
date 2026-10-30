@@ -536,6 +536,9 @@ class Game:
         self.features = features
         # JSON stores hexside pairs as lists; keep frozenset copies for O(1) tests.
         self.road_sides = {frozenset(p) for p in features.get('road_sides', ())}
+        # r204c: roads drawn through hex interiors (the Zhor pass trail) are
+        # recorded as hex-to-hex links rather than hexsides
+        self.road_links = {frozenset(p) for p in features.get('road_links', ())}
         self.river_sides = {frozenset(p) for p in features.get('river_sides', ())}
         # r213: "a|b" -> the hex the water flows to (top to bottom on the map)
         self.river_flow = dict(features.get('river_flow', {}))
@@ -807,7 +810,8 @@ class Game:
 
     # ------------------------------------------------------------ travel (r204, r205)
     def is_road_move(self, a, b):
-        return frozenset((a, b)) in self.road_sides
+        pair = frozenset((a, b))
+        return pair in self.road_sides or pair in self.road_links
 
     def is_river_move(self, a, b):
         return frozenset((a, b)) in self.river_sides

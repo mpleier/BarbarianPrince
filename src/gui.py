@@ -169,6 +169,14 @@ class MapCanvas:
                                         fill='#2b6fb5', width=3, tags='river')
 
             # roads: line between the two hex centres
+            for a, b in self.features.get('road_links', []):
+                if a not in self.grid or b not in self.grid:
+                    continue
+                p1 = self.px(self.grid[a]['center'][0], self.grid[a]['center'][1])
+                p2 = self.px(self.grid[b]['center'][0], self.grid[b]['center'][1])
+                self.canvas.create_line(p1[0], p1[1], p2[0], p2[1],
+                                        fill='#8a5a2b', width=3, dash=(6, 4),
+                                        tags='road')
             for a, b in self.features['road_sides']:
                 if a not in self.grid or b not in self.grid:
                     continue

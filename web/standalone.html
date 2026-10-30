@@ -111,6 +111,8 @@ svg#board { display: block; }
 .hex.current { stroke: var(--accent); stroke-width: 7; }
 .river { stroke: #2b7bb0; stroke-width: 7; stroke-linecap: round; }
 .road { stroke: #7a5c34; stroke-width: 6; stroke-linecap: round; }
+/* r204c: roads drawn through hex interiors (the Zhor pass trail) */
+.road-link { stroke: #7a5c34; stroke-width: 5; stroke-linecap: round; opacity: .85; }
 .place { stroke: #222; }
 .label { fill: #3a3428; }
 .region { fill: #6b5c46; font-style: italic; }
@@ -392,6 +394,14 @@ function renderBoard() {
       if (!hexById[a] || !hexById[b]) continue;
       const [x1, y1, x2, y2] = sharedEdge(a, b);
       parts.push(`<line class="river" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
+    }
+    // r204c: roads that cross hex interiors (the Zhor pass trail)
+    for (const [a, b] of (board.road_links || [])) {
+      if (!hexById[a] || !hexById[b]) continue;
+      const A = hexById[a], B = hexById[b];
+      parts.push(`<line class="road-link" x1="${A.cx}" y1="${A.cy}" `
+                 + `x2="${B.cx}" y2="${B.cy}" `
+                 + `stroke-dasharray="6 4"/>`);
     }
     for (const [a, b] of board.roads) {
       if (!hexById[a] || !hexById[b]) continue;

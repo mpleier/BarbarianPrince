@@ -503,6 +503,13 @@ def _river_flow(river_sides):
     return flow
 
 
+# The Zhor pass trail: the board draws it as a brown path through the hex
+# interiors of 1803 -> 1804 -> 1905 -> 1906 (Temple of Zhor), not along a hex
+# edge, so edge tracing cannot see it and the road ink test misses it.  It is
+# recorded here by hand so the pass counts as a road for r204c / r205.
+ROAD_LINKS = [('1803', '1804'), ('1804', '1905'), ('1905', '1906')]
+
+
 def _river_names(river_sides):
     return {f'{a}|{b}': _river_name(a, b) for a, b in river_sides}
 
@@ -515,6 +522,7 @@ def build_features():
         'places': {hid: {'name': name, 'kind': kind} for hid, (name, kind) in PLACES.items()},
         'regions': REGION_LABELS,
         'road_hexes': road_hexes,
+        'road_links': [list(pair) for pair in ROAD_LINKS],
         'river_sides': [list(p) for p in river_sides],
         'river_flow': _river_flow(river_sides),
         'river_names': _river_names(river_sides),
