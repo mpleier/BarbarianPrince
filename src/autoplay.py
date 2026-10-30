@@ -147,7 +147,8 @@ PROFILE = {
 ACTION_KEYS = (('travel', 'travel'), ('rest', 'rest'), ('news', 'news'),
                ('hire', 'hire'), ('audience', 'audience'),
                ('offering', 'offering'), ('ruins', 'ruins'),
-               ('cache', 'cache'), ('raft', 'raft'))
+               ('cache', 'cache'), ('raft', 'raft'),
+               ('buyfood', 'buy food'))
 
 
 
@@ -590,6 +591,8 @@ class Bot:
             return self._move(prompt, record)
         if 'action in hex' in low:
             return self._action(prompt, record)
+        if 'buy food stores' in low:
+            return self._buy_food(prompt)
         if 'meal' in low:
             return self._food(prompt)
         if 'lodging' in low:
@@ -837,6 +840,16 @@ class Bot:
                     s -= 18                        # budget spent: go offer it
             elif 'cache' in label:
                 s = 14
+            elif 'buy food' in label:
+                # r215e: a day at the market feeds the party for days, which a
+                # lone hunt (r215b) cannot do once followers swell the need.
+                need = g.food_need()
+                s = 3
+                if g.food < 2 * need and kind in ('town', 'castle', 'village',
+                                                  'temple'):
+                    s = 16 + (6 if len(party) >= 3 else 0)
+                if g.gold < 2 * need:
+                    s = -10
             elif 'raft' in label:
                 s = 5
             elif 'end the day' in label:
@@ -864,28 +877,56 @@ class Bot:
         return best
 
     # ---- food (r215, r216)
+    def _buy_food(self, prompt):
+        """r215e - stock stores to about four days' worth, within budget."""
+        g = self.game
+        need = g.food_need()
+        room = g.max_capacity() - g.current_loads()
+        target = max(0, min(4 * need, room, g.gold))
+        best, nothing = 0, 0
+        for i, o in enumerate(prompt['options']):
+            label = o['label'].lower()
+            if 'buy nothing' in label:
+                nothing = i
+                continue
+            m = re.search(r'buy (\d+) unit', label)
+            if m and int(m.group(1)) <= target:
+                best = i
+        return best if best else nothing
+
     def _food(self, prompt):
+        """Eat from stores, buy a meal, hunt - in that order; starve last.
+
+        r216b gives the Prince himself the starvation penalties (his combat
+        skill drops a point a day and his loads halve), so "go hungry" is never
+        worth it while a meal or a hunt is available: a Prince ground down to
+        skill 0 cannot hunt, fight or win.
+        """
         g = self.game
         m = NEED_RE.search(prompt['title'])
         need = int(m.group(1)) if m else len(g.living())
         opts = prompt['options']
+        # r216b: a double meal undoes two days of starvation, so a weakened
+        # party should spend the extra unit/gold to get its skill back.
+        if any(c.starved for c in g.living()):
+            for i, o in enumerate(opts):
+                if 'double meal' in o['label'].lower():
+                    return i
         for i, o in enumerate(opts):
             if 'eat from stores' in o['label'].lower():
                 return i
-        # r216 starvation only rolls for follower desertion and only bites
-        # followers' skill.  A party of just the Prince therefore loses
-        # nothing by going without, and the gold saved is worth roughly
-        # doubling the number of offerings the camp can afford.
-        if len(self.party()) <= 1:
-            for i, o in enumerate(opts):
-                if 'hungry' in o['label'].lower():
-                    return i
-            return 0
         for i, o in enumerate(opts):
             if 'buy meals' in o['label'].lower() and g.gold >= need + self.p['buffer'] // 2:
                 return i
         for i, o in enumerate(opts):
-            if 'hunting' in o['label'].lower():
+            if 'hunt' in o['label'].lower():
+                return i
+        # nothing else on offer: a cheaper meal beats going hungry
+        for i, o in enumerate(opts):
+            if 'buy meals' in o['label'].lower():
+                return i
+        for i, o in enumerate(opts):
+            if 'hungry' in o['label'].lower():
                 return i
         return 0
 

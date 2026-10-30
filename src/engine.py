@@ -335,6 +335,14 @@ class Character:
         self.unreliable = False
         self.town_leaver = False
 
+    def feed(self, portions=1):
+        """r216b: a normal meal undoes one day of starvation (two undo two).
+
+        Triple or larger meals have no extra effect, so ``portions`` is capped
+        at two.
+        """
+        self.starved = max(0, self.starved - max(0, min(2, portions)))
+
     @property
     def effective_skill(self):
         # r221b: an unconscious character is helpless - combat skill zero.
@@ -418,7 +426,11 @@ class Combat:
                            key=lambda c: -c.effective_skill)
         defenders = sorted([c for c in defenders if not c.dead],
                            key=lambda c: -c.effective_skill)
-        return [(a, defenders[i % len(defenders)]) for i, a in enumerate(attackers)]
+        if not attackers or not defenders:
+            # one side was already wiped out this round: nobody to strike
+            return []
+        return [(a, defenders[i % len(defenders)])
+                for i, a in enumerate(attackers)]
 
     def round_side(self, attackers, defenders):
         for striker, target in self.pairing_of(attackers, defenders):
@@ -496,6 +508,7 @@ class Game:
         ('Search the ruins (r208)', 'ruins'),
         ('Recover a hidden cache (r214)', 'cache'),
         ('Raft down the river (r213)', 'raft'),
+    ('Buy food stores (r215e)', 'buyfood'),
         ('Follow encountered characters (r219)', 'follow'),
     ]
 
@@ -2315,6 +2328,44 @@ class Game:
             need *= 2
         return need
 
+    def buy_food(self):
+        """r215e - buy food stores, 1 gold a unit, in a settled hex.
+
+        Only what the party can carry is offered, and spending the day at the
+        market is the day's action.
+        """
+        kind = self.place_kind(self.hex)
+        if kind not in ('town', 'castle', 'village', 'temple'):
+            self.note('There is no market here (r215e).')
+            return 'No market.'
+        room = max(0, self.max_capacity() - self.current_loads())
+        afford = min(self.gold, room)
+        opts = []
+        for n in (1, 3, 5, 10):
+            if n <= afford:
+                opts.append({'label': f'Buy {n} unit(s) for {n} gold',
+                             'handler': (lambda n=n: self.buy_food_units(n))})
+        opts.append({'label': 'Buy nothing',
+                     'handler': (lambda: 'Nothing bought.')})
+        self.push('choice', 'Buy food stores (r215e)',
+                  f'Stores cost 1 gold a unit. You have {self.gold} gold and '
+                  f'room for {room} more load(s) of food.', opts)
+        return 'Market open.'
+
+    def buy_food_units(self, units):
+        """r215e - pay for and carry `units` of food, spending the day."""
+        units = max(0, min(units, self.gold,
+                           self.max_capacity() - self.current_loads()))
+        if not units:
+            self.note('Nothing was bought.')
+            return 'Nothing bought.'
+        self.gold -= units
+        self.food += units
+        self.moves_left = 0
+        self.note(f'Bought {units} food unit(s) for {units} gold; '
+                  f'{self.food} in stores (r215e).')
+        return 'Food bought.'
+
     def feed_party(self):
         need = self.food_need()
         kind = self.place_kind(self.hex)
@@ -2322,9 +2373,17 @@ class Game:
         if self.food >= need:
             opts.append({'label': f'Eat from stores ({need} units)',
                          'handler': (lambda: self.eat_stores(need))})
+        if self.food >= 2 * need:
+            opts.append({'label': f'Eat a double meal ({2 * need} units, '
+                                  f'undoes two days of starvation)',
+                         'handler': (lambda: self.eat_stores(need, 2))})
         if kind in ('town', 'castle', 'temple'):
             opts.append({'label': f'Buy meals ({need} gold)',
                          'handler': (lambda: self.buy_meals(need))})
+            if self.gold >= 2 * need:
+                opts.append({'label': f'Buy a double meal ({2 * need} gold, '
+                                      f'undoes two days of starvation)',
+                             'handler': (lambda: self.buy_meals(need, 2))})
         if not (kind in ('town', 'castle', 'temple')):
             opts.append({'label': 'Go hunting (r215b)',
                          'handler': (lambda: self.hunt(need))})
@@ -2334,15 +2393,31 @@ class Game:
                   f'Party needs {need} food units; you have {self.food} in stores.',
                   opts)
 
-    def eat_stores(self, need):
-        self.food -= need
-        self.note(f'Ate {need} food units from stores.')
+    def feed_effect(self, portions=1):
+        """Apply r216b's recovery to everyone who eats."""
+        for c in self.living():
+            if c.starved:
+                before = c.starved
+                c.feed(portions)
+                if c.starved != before:
+                    self.note(f'{c.name} eats and recovers '
+                              f'({c.effective_skill} skill, '
+                              f'{c.load_capacity()} loads).')
+
+    def eat_stores(self, need, portions=1):
+        self.food -= need * portions
+        self.note(f'Ate {need * portions} food units from stores'
+                  + (' (a double meal)' if portions > 1 else '') + '.')
+        self.feed_effect(portions)
         return 'Fed.'
 
-    def buy_meals(self, need):
-        if self.gold >= need:
-            self.gold -= need
-            self.note(f'Bought meals for {need} gold.')
+    def buy_meals(self, need, portions=1):
+        cost = need * portions
+        if self.gold >= cost:
+            self.gold -= cost
+            self.note(f'Bought meals for {cost} gold'
+                      + (' (a double meal)' if portions > 1 else '') + '.')
+            self.feed_effect(portions)
             return 'Fed.'
         self.note('Not enough gold to buy meals.')
         return self.starve(need)
@@ -2395,9 +2470,19 @@ class Game:
         if gained > 0:
             self.food += gained
             self.note(f'Hunt yields {gained} food units.')
-        if gained < need:
-            self.note(f'Still short {need - gained} units - some go hungry.')
-            self.starve(need - gained)
+        # The evening meal is eaten out of tonight's catch (or the stores it
+        # tops up): what is left over is what gets banked, and only a real
+        # shortfall causes starvation.
+        if self.food >= need:
+            self.food -= need
+            self.note(f'Ate {need} food units; {self.food} kept in stores.')
+            # r216b: eating undoes a day of starvation, two for a double meal
+            self.feed_effect(2 if self.food >= need else 1)
+        else:
+            short = need - self.food
+            self.food = 0
+            self.note(f'Still short {short} unit(s) - some go hungry.')
+            self.starve(short)
         return 'Hunted.'
 
     def starve(self, shortfall):
@@ -2761,6 +2846,11 @@ class Game:
             if act == 'cache' and self.hex not in self.caches:
                 continue
             if act == 'raft' and not self.raft_available():
+                continue
+            # r215e: stores are sold for 1 gold a unit in a town, castle or
+            # village, but only to a party that spends the whole day there.
+            if act == 'buyfood' and kind not in ('town', 'castle', 'village',
+                                                 'temple'):
                 continue
             opts.append({'label': label,
                          'handler': (lambda a=act: self.begin_action(a))})

@@ -418,17 +418,18 @@ class HuntingTests(unittest.TestCase):
         g.party = [Character('Cal Arath (the Prince)', 8, 9, prince=True)]
         g.d2 = lambda: 5
         g.hunt(1)
-        # 8 + 4 - 5 = 7 units
-        self.assertEqual(g.food, 7)
+        # 8 + 4 - 5 = 7 units, one of which is tonight's meal
+        self.assertEqual(g.food, 6)
+        self.assertTrue(any('Hunt yields 7' in line for line in g.log))
 
     def test_rest_day_lets_the_party_join(self):
         g = game(hex='0405')
         g.party.append(Character('Friend', 3, 4))
         g.action = 'rest'
         g.d2 = lambda: 5
-        g.hunt(1)
-        # 8 + 4 - 5 = 7, plus one extra hunter = 8
-        self.assertEqual(g.food, 8)
+        g.hunt(2)
+        # 8 + 4 - 5 = 7, plus one extra hunter = 8, and two are eaten
+        self.assertEqual(g.food, 6)
 
 
 class FarmlandHuntTests(unittest.TestCase):
@@ -630,3 +631,72 @@ class AuditTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class MealTests(unittest.TestCase):
+    """r215e stores and r216b recovery."""
+
+    def test_a_meal_undoes_one_day_of_starvation(self):
+        g = game()
+        p = g.prince()
+        p.starved = 2
+        self.assertEqual(p.effective_skill, 6)
+        g.feed_effect(1)
+        self.assertEqual(p.starved, 1)
+        self.assertEqual(p.effective_skill, 7)
+
+    def test_a_double_meal_undoes_two_and_no_more(self):
+        g = game()
+        p = g.prince()
+        p.starved = 3
+        g.feed_effect(2)
+        self.assertEqual(p.starved, 1)
+        g.feed_effect(3)                      # triple has no extra effect
+        self.assertEqual(p.starved, 0)
+
+    def test_eating_from_stores_feeds_and_recovers(self):
+        g = game()
+        p = g.prince()
+        p.starved = 1
+        g.food = 5
+        g.eat_stores(1, 2)
+        self.assertEqual(g.food, 3)
+        self.assertEqual(p.starved, 0)
+
+    def test_a_hunt_banks_what_is_left_and_clears_starvation(self):
+        g = game(hex='0405')
+        p = g.prince()
+        p.starved = 1
+        g.food = 0
+        g.d2 = lambda: 3                     # 12 - 3 = 9 units
+        g.hunt(1)
+        self.assertEqual(g.food, 8)          # one unit eaten
+        self.assertEqual(p.starved, 0)
+
+    def test_food_stores_cost_one_gold_a_unit(self):
+        g = game(hex='1109', gold=20)
+        g.buy_food()
+        prompt = g.current()
+        self.assertIn('1 gold a unit', prompt['text'])
+        g.answer(2)                          # buy 5
+        self.assertEqual((g.gold, g.food), (15, 5))
+        self.assertEqual(g.moves_left, 0)    # the day is spent at the market
+
+    def test_no_market_in_the_wilds(self):
+        g = game(hex='0405', gold=20)
+        self.assertEqual(g.buy_food(), 'No market.')
+        g.daily_menu()
+        labels = [o['label'].lower() for o in g.current()['options']]
+        self.assertFalse(any('buy food' in l for l in labels))
+
+
+class CombatEdgeCaseTests(unittest.TestCase):
+    """r220 - a round where one side is already gone."""
+
+    def test_pairing_with_no_defenders_is_empty(self):
+        from engine import Combat
+        import random
+        c = Combat([Character('P', 5, 5)], [], random.Random(1))
+        self.assertEqual(c.pairing_of(c.party, c.foes), [])
+        c2 = Combat([], [Character('F', 4, 4)], random.Random(1))
+        self.assertEqual(c2.pairing_of(c2.party, c2.foes), [])
