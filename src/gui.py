@@ -295,8 +295,12 @@ class GameGUI:
         self.log.pack(fill='both', expand=True)
 
         # --- autoplay controls -------------------------------------------
+        # Fixed-height control strip: the row must not grow or shrink when a
+        # button is enabled/disabled, the label changes, or the pane narrows.
         controls = ttk.Frame(right)
-        controls.pack(fill='x', pady=(4, 0))
+        controls.pack(fill='x', pady=(4, 2))
+        controls.pack_propagate(False)
+        self._controls = controls
         self.btn_restart = ttk.Button(controls, text='New game',
                                       command=self.restart, width=10)
         self.btn_restart.pack(side='left')
@@ -318,6 +322,13 @@ class GameGUI:
         speed.pack(side='left')
         speed.bind('<<ComboboxSelected>>', self.on_speed)
         ttk.Label(controls, text='steps/s').pack(side='left', padx=(2, 0))
+        # Height is measured once from the tallest widget, then frozen, so a
+        # different theme or DPI cannot clip the row either.
+        self.root.update_idletasks()
+        tallest = max([w.winfo_reqheight()
+                       for w in controls.winfo_children()] or [24])
+        self._controls_height = tallest + 1
+        controls.configure(height=self._controls_height)
 
         # Both wrap: a victory line, or a combat round's text, is long.
         self.prompt_title = tk.Label(right, font=('Arial', 12, 'bold'),
