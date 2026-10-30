@@ -509,6 +509,49 @@ def _river_flow(river_sides):
 # recorded here by hand so the pass counts as a road for r204c / r205.
 ROAD_LINKS = [('1803', '1804'), ('1804', '1905'), ('1905', '1906')]
 
+# A road that crosses hex interiors still joins two hexes: sample the line
+# between their centres and keep the pair when road ink sits on it.  This is
+# how the passes and the roads through towns are found; the hand list above
+# covers the trails whose ink is too pale for the mask.
+ROAD_LINK_MAX_DIST = 3.0
+ROAD_LINK_MIN_COVERAGE = 0.25
+
+
+def _centre_profile(dmap, p1, p2, samples=17):
+    """(min distance, coverage) of ink along the middle of a centre line."""
+    values = []
+    for t in np.linspace(0.2, 0.8, samples):
+        p = p1 + (p2 - p1) * t
+        x, y = int(round(p[0])), int(round(p[1]))
+        if 0 <= y < dmap.shape[0] and 0 <= x < dmap.shape[1]:
+            values.append(dmap[y, x])
+    if not values:
+        return 99.0, 0.0
+    ds = np.asarray(values)
+    return float(ds.min()), float((ds <= 4.0).mean())
+
+
+def detect_road_links(road_sides, scan=SCAN, calib=None):
+    """Adjacent hexes joined by a road drawn across the hex interiors."""
+    img = Image.open(scan).convert('RGB')
+    _water, _loose, road = _masks(img)
+    d = ndimage.distance_transform_edt(~road)
+    known = {frozenset(p) for p in road_sides}
+    links = []
+    for col in range(1, NC + 1):
+        for row in range(1, NR + 1):
+            a = hex_id(col, row)
+            p1 = np.array(_hex_point(col, row, calib), dtype=float)
+            for b in neighbours(col, row).values():
+                if a >= b or frozenset((a, b)) in known:
+                    continue
+                p2 = np.array(_hex_point(int(b[:2]), int(b[2:]), calib),
+                              dtype=float)
+                dist, cover = _centre_profile(d, p1, p2)
+                if dist <= ROAD_LINK_MAX_DIST and cover >= ROAD_LINK_MIN_COVERAGE:
+                    links.append((a, b))
+    return sorted(set(links) | set(ROAD_LINKS))
+
 
 def _river_names(river_sides):
     return {f'{a}|{b}': _river_name(a, b) for a, b in river_sides}
@@ -522,7 +565,7 @@ def build_features():
         'places': {hid: {'name': name, 'kind': kind} for hid, (name, kind) in PLACES.items()},
         'regions': REGION_LABELS,
         'road_hexes': road_hexes,
-        'road_links': [list(pair) for pair in ROAD_LINKS],
+        'road_links': [list(pair) for pair in detect_road_links(road_sides)],
         'river_sides': [list(p) for p in river_sides],
         'river_flow': _river_flow(river_sides),
         'river_names': _river_names(river_sides),

@@ -152,3 +152,31 @@ audit script checks that no event option points at a section that is missing.
 20. **r341** — the conversation table text says the talk "takes a good deal of
     time, you cannot travel any further today", which the engine already did;
     it is no longer counted among r204f's quick "talk" exceptions.
+
+## Board data provenance (roads and rivers)
+
+Both networks are traced from `_refs/BPMap_rectified.jpg` and then checked
+against it: every traced side is scored by the ink under it, and every untraced
+pair of adjacent hexes is scored for ink that crosses the line between their
+centres.
+
+**Rivers** (146 sides).  All but four sit directly on water ink; those four
+(0212-0313, 0811-0812, 0202-0302, 1502-1601) are gap fills over stretches the
+board draws *inside* hexes rather than along an edge - the nearest edge is used
+instead.  Twelve pairs carry water but are not river sides, and deliberately so:
+seven are wide water (ponds, the 1617 lake, marsh pools) that the river filter
+drops by design, and the rest are marsh or pond edges (0115-0214, 0913-0914,
+0914-0915, 1522-1621, 1721-1820) rather than channels.  The rules treat a river
+as a *hexside* ("you travel on the river hexsides themselves", r213) and
+crossings are per hexside (r204e/r205d), so pond and marsh water is not a river.
+
+**Roads** (66 sides + 11 links).  Every traced side sits on road ink.  The board
+also draws roads across hex interiors - through towns and over the passes - which
+edge tracing cannot see.  `features.detect_road_links()` samples the line between
+each adjacent pair of centres and records the pairs that road ink crosses, so
+those stretches count as road moves too.  It found eight that were missing
+(0216-0317, 0319-0418, 0322-0421, 0720-0819, 0815-0816, 1619-1620, 1812-1813
+through the South Pass, 1921-2020); three more - the Zhor pass trail from 1803
+through 1804 and 1905 to the temple at 1906 - are listed by hand because their
+ink is too pale for the mask.  Re-running the audit now reports no untraced road
+ink.
